@@ -1,0 +1,10 @@
+[package]
+name = "cirno"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+keywords = []
+description = ""
+readme = "README.md"
+repository = "https://github.com/cirno-app/cirno"
+documentation = "https://docs.rs/cirno"
