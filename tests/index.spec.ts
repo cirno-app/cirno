@@ -6,7 +6,7 @@ import { v5 } from 'uuid'
 
 const temp = fileURLToPath(new URL('../temp', import.meta.url))
 const cwd = temp + '/data'
-const out = temp + '/export'
+const out = temp + '/exports'
 
 beforeAll(async () => {
   await rm(temp, { recursive: true, force: true })
@@ -60,8 +60,8 @@ function spawn(args: string[]) {
     child.stdout!.on('data', (data) => stdout += data)
     child.stderr!.on('data', (data) => stderr += data)
     child.on('exit', async (code, signal) => {
-      stdout = stdout.replace(out, '<export>')
-      stderr = stderr.replace(out, '<export>')
+      stdout = stdout.replace(out, '<exports>')
+      stderr = stderr.replace(out, '<exports>')
       const files = await traverse(cwd)
       resolve({ stdout, stderr, code, signal, files })
     })
@@ -70,24 +70,46 @@ function spawn(args: string[]) {
 
 const namespace = '226704d4-f5d0-4349-b8bb-d9d480b0433e'
 
-let step = 0
+let stepCount = 0
+let instCount = 0
 
-function makeTest(args: string[], create?: boolean) {
-  step += 1
-  const uuid = v5(`${step}`, namespace)
-  const name = [`step ${step.toString().padStart(2, '0')}:`, 'cirno', ...args].join(' ')
+interface Arg {
+  value: string
+  pretty: string
+}
+
+function useFixture(name: string): Arg {
+  return { value: `../../tests/fixtures/${name}`, pretty: `<fixtures>/${name}` }
+}
+
+function useExport(name: string): Arg {
+  return { value: `../exports/${name}`, pretty: `<exports>/${name}` }
+}
+
+function makeTest(args: (string | Arg)[], create?: boolean): Arg {
+  stepCount += 1
+  if (create) instCount += 1
+  const uuid = v5(`${instCount}`, namespace)
+  const name = [
+    `step ${stepCount}:`,
+    'cirno',
+    ...args.map((arg) => typeof arg === 'string' ? arg : arg.pretty),
+  ].join(' ')
   it(name, async () => {
-    const output = await spawn([...args, ...create ? ['--id', uuid] : []])
+    const output = await spawn([
+      ...args.map((arg) => typeof arg === 'string' ? arg : arg.value),
+      ...create ? ['--id', uuid] : [],
+    ])
     expect(output).toMatchSnapshot()
   })
-  return uuid
+  return { value: uuid, pretty: `<#${instCount}>` }
 }
 
 makeTest([])
 makeTest(['init'])
 makeTest(['init'])
-const uuid1 = makeTest(['import', '../../tests/fixtures/foo'], true)
-makeTest(['export', uuid1, '../export/foo.zip'])
+const uuid1 = makeTest(['import', useFixture('foo')], true)
+makeTest(['export', uuid1, useExport('foo.zip')])
 makeTest(['remove', uuid1])
 makeTest(['remove', uuid1])
-const uuid2 = makeTest(['import', '../export/foo.zip'], true)
+const uuid2 = makeTest(['import', useExport('foo.zip')], true)
