@@ -56,9 +56,9 @@ export class Cirno {
     error(`Instance ${base.id} is not an ancestor of ${head.id}.`)
   }
 
-  get(id: string) {
-    if (!id) error('Missing instance ID. See `cirno remove --help` for usage.')
-    if (!validate(id)) error('Invalid instance ID. See `cirno remove --help` for usage.')
+  get(id: string, command: string) {
+    if (!id) error(`Missing instance ID. See \`cirno ${command} --help\` for usage.`)
+    if (!validate(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
     if (!this.data.instances[id]) error(`Instance ${id} not found.`)
     return this.data.instances[id]
   }

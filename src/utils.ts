@@ -4,8 +4,9 @@ export function info(message: string): undefined {
   console.log(k.bold(k.bgBlue(' INFO ') + ' ' + k.white(message)))
 }
 
-export function error(message: string): never {
+export function error(message: string, error?: any): never {
   console.log(k.bold(k.bgRed(' Error ') + ' ' + k.white(message)))
+  if (error) console.error(error)
   process.exit(1)
 }
 
