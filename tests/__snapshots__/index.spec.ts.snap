@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`cirno 1`] = `
+exports[`step 01: cirno 1`] = `
 {
   "code": 0,
   "files": [],
@@ -38,38 +38,7 @@ Options:
 }
 `;
 
-exports[`cirno import ../tests/fixtures/foo 1`] = `
-{
-  "code": 0,
-  "files": [
-    {
-      "content": "version: '1.0'
-instances:
-  - id: de765138-dd06-5227-a5a3-8335e54eef72
-    name: unnamed
-    created: '2024-08-01T16:15:00.401Z'
-    updated: '2024-08-01T16:15:00.402Z'
-",
-      "path": "cirno.yml",
-    },
-    {
-      "content": "{
-  "name": "foo",
-  "version": "1.0.0",
-  "packageManager": "yarn@4.3.1"
-}
-",
-      "path": "instances/de765138-dd06-5227-a5a3-8335e54eef72/package.json",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Successfully imported instance de765138-dd06-5227-a5a3-8335e54eef72.
-",
-}
-`;
-
-exports[`cirno init 1`] = `
+exports[`step 02: cirno init 1`] = `
 {
   "code": 0,
   "files": [
@@ -87,7 +56,7 @@ instances: []
 }
 `;
 
-exports[`cirno init 2`] = `
+exports[`step 03: cirno init 1`] = `
 {
   "code": 1,
   "files": [
@@ -105,7 +74,69 @@ instances: []
 }
 `;
 
-exports[`cirno remove de765138-dd06-5227-a5a3-8335e54eef72 1`] = `
+exports[`step 04: cirno import ../../tests/fixtures/foo 1`] = `
+{
+  "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances:
+  - id: 4f0b0c25-9b8b-5e9b-a785-86882cd9a230
+    name: unnamed
+    created: '<timestamp>'
+    updated: '<timestamp>'
+",
+      "path": "cirno.yml",
+    },
+    {
+      "content": "{
+  "name": "foo",
+  "version": "1.0.0",
+  "packageManager": "yarn@4.3.1"
+}
+",
+      "path": "instances/4f0b0c25-9b8b-5e9b-a785-86882cd9a230/package.json",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " SUCCESS  Successfully imported instance 4f0b0c25-9b8b-5e9b-a785-86882cd9a230.
+",
+}
+`;
+
+exports[`step 05: cirno export 4f0b0c25-9b8b-5e9b-a785-86882cd9a230 ../export/foo.zip 1`] = `
+{
+  "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances:
+  - id: 4f0b0c25-9b8b-5e9b-a785-86882cd9a230
+    name: unnamed
+    created: '<timestamp>'
+    updated: '<timestamp>'
+",
+      "path": "cirno.yml",
+    },
+    {
+      "content": "{
+  "name": "foo",
+  "version": "1.0.0",
+  "packageManager": "yarn@4.3.1"
+}
+",
+      "path": "instances/4f0b0c25-9b8b-5e9b-a785-86882cd9a230/package.json",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " SUCCESS  Successfully exported instance 4f0b0c25-9b8b-5e9b-a785-86882cd9a230 to <export>/foo.zip.
+",
+}
+`;
+
+exports[`step 06: cirno remove 4f0b0c25-9b8b-5e9b-a785-86882cd9a230 1`] = `
 {
   "code": 0,
   "files": [
@@ -118,12 +149,12 @@ instances: []
   ],
   "signal": null,
   "stderr": "",
-  "stdout": " SUCCESS  Instance de765138-dd06-5227-a5a3-8335e54eef72 is successfully removed.
+  "stdout": " SUCCESS  Instance 4f0b0c25-9b8b-5e9b-a785-86882cd9a230 is successfully removed.
 ",
 }
 `;
 
-exports[`cirno remove de765138-dd06-5227-a5a3-8335e54eef72 2`] = `
+exports[`step 07: cirno remove 4f0b0c25-9b8b-5e9b-a785-86882cd9a230 1`] = `
 {
   "code": 1,
   "files": [
@@ -136,7 +167,38 @@ instances: []
   ],
   "signal": null,
   "stderr": "",
-  "stdout": " Error  Instance de765138-dd06-5227-a5a3-8335e54eef72 not found.
+  "stdout": " Error  Instance 4f0b0c25-9b8b-5e9b-a785-86882cd9a230 not found.
+",
+}
+`;
+
+exports[`step 08: cirno import ../export/foo.zip 1`] = `
+{
+  "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances:
+  - id: dd1857df-387b-5d76-81bf-acbcca6e4d68
+    name: unnamed
+    created: '<timestamp>'
+    updated: '<timestamp>'
+",
+      "path": "cirno.yml",
+    },
+    {
+      "content": "{
+  "name": "foo",
+  "version": "1.0.0",
+  "packageManager": "yarn@4.3.1"
+}
+",
+      "path": "instances/dd1857df-387b-5d76-81bf-acbcca6e4d68/package.json",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " SUCCESS  Successfully imported instance dd1857df-387b-5d76-81bf-acbcca6e4d68.
 ",
 }
 `;

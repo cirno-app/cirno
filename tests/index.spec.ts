@@ -4,14 +4,17 @@ import { fileURLToPath } from 'node:url'
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { v5 } from 'uuid'
 
-const cwd = fileURLToPath(new URL('../temp', import.meta.url))
+const temp = fileURLToPath(new URL('../temp', import.meta.url))
+const cwd = temp + '/data'
+const out = temp + '/export'
 
 beforeAll(async () => {
+  await rm(temp, { recursive: true, force: true })
   await mkdir(cwd, { recursive: true })
 })
 
 afterAll(async () => {
-  await rm(cwd, { recursive: true, force: true })
+  await rm(temp, { recursive: true, force: true })
 })
 
 interface Output {
@@ -27,6 +30,8 @@ interface File {
   content: string
 }
 
+const ISO_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/gm
+
 async function traverse(root: string, prefix = '') {
   const result: File[] = []
   const files = await readdir(root, { withFileTypes: true })
@@ -34,9 +39,10 @@ async function traverse(root: string, prefix = '') {
     if (file.isDirectory()) {
       result.push(...await traverse(root + '/' + file.name, prefix + file.name + '/'))
     } else {
+      const content = await readFile(root + '/' + file.name, 'utf8')
       result.push({
         path: prefix + file.name,
-        content: await readFile(root + '/' + file.name, 'utf8'),
+        content: content.replace(ISO_REGEX, '<timestamp>'),
       })
     }
   }
@@ -54,6 +60,8 @@ function spawn(args: string[]) {
     child.stdout!.on('data', (data) => stdout += data)
     child.stderr!.on('data', (data) => stderr += data)
     child.on('exit', async (code, signal) => {
+      stdout = stdout.replace(out, '<export>')
+      stderr = stderr.replace(out, '<export>')
       const files = await traverse(cwd)
       resolve({ stdout, stderr, code, signal, files })
     })
@@ -62,12 +70,12 @@ function spawn(args: string[]) {
 
 const namespace = '226704d4-f5d0-4349-b8bb-d9d480b0433e'
 
-const counters: Record<string, number> = Object.create(null)
+let step = 0
 
 function makeTest(args: string[], create?: boolean) {
-  const name = ['cirno', ...args].join(' ')
-  const counter = counters[name] = (counters[name] || 0) + 1
-  const uuid = v5(`${name} ${counter}`, namespace)
+  step += 1
+  const uuid = v5(`${step}`, namespace)
+  const name = [`step ${step.toString().padStart(2, '0')}:`, 'cirno', ...args].join(' ')
   it(name, async () => {
     const output = await spawn([...args, ...create ? ['--id', uuid] : []])
     expect(output).toMatchSnapshot()
@@ -78,6 +86,8 @@ function makeTest(args: string[], create?: boolean) {
 makeTest([])
 makeTest(['init'])
 makeTest(['init'])
-const uuid = makeTest(['import', '../tests/fixtures/foo'], true)
-makeTest(['remove', uuid])
-makeTest(['remove', uuid])
+const uuid1 = makeTest(['import', '../../tests/fixtures/foo'], true)
+makeTest(['export', uuid1, '../export/foo.zip'])
+makeTest(['remove', uuid1])
+makeTest(['remove', uuid1])
+const uuid2 = makeTest(['import', '../export/foo.zip'], true)
