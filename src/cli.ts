@@ -28,10 +28,10 @@ cli
   })
 
 cli
-  .command('import', 'Import an instance')
+  .command('import [src]', 'Import an instance')
 
 cli
-  .command('export [id] [out]', 'Export an instance')
+  .command('export [id] [dest]', 'Export an instance')
   .action(async (id: string, out: string) => {
     // TODO: support .zip
     // TODO: handle dependencies and modify yarnPath
@@ -46,28 +46,51 @@ cli
 
 cli
   .command('clone <id> [name]', 'Clone an instance')
+  // .usage('Create a new instance with the same configuration as the base instance.')
   .action(async (id: string, name: string) => {
     const cirno = await Cirno.init(process.cwd())
-    const old = cirno.get(id)
-    if (!old) return
-    const neo = cirno.create(name ?? old.name)
-    await fs.cp(cirno.cwd + '/instances/' + id, cirno.cwd + '/instances/' + neo.id, { recursive: true })
-    return success(`Successfully created a cloned instance ${neo.id}.`)
+    const base = cirno.get(id)
+    if (!base) return
+    const head = cirno.create(name ?? base.name)
+    head.backup = undefined
+    await fs.cp(cirno.cwd + '/instances/' + id, cirno.cwd + '/instances/' + head.id, { recursive: true })
+    await cirno.save()
+    return success(`Successfully created a cloned instance ${head.id}.`)
   })
 
 cli
   .command('backup <id> [name]', 'Backup an instance')
+  // .usage('Create a backup instance and link it to the base instance.')
   .action(async (id: string, name: string) => {
     const cirno = await Cirno.init(process.cwd())
-    const old = cirno.get(id)
-    if (!old) return
-    const neo = cirno.create(name ?? old.name, { id })
-    await fs.cp(cirno.cwd + '/instances/' + id, cirno.cwd + '/instances/' + neo.id, { recursive: true })
-    return success(`Successfully created a backup instance ${neo.id}.`)
+    const head = cirno.get(id)
+    if (!head) return
+    const base = cirno.create(name ?? head.name)
+    base.backup = { type: 'manual' }
+    base.parent = head.parent
+    head.parent = base.id
+    await fs.cp(cirno.cwd + '/instances/' + id, cirno.cwd + '/instances/' + base.id, { recursive: true })
+    return success(`Successfully created a backup instance ${base.id}.`)
   })
 
 cli
-  .command('restore <id> <parent>', 'Restore an instance')
+  .command('restore <head> <base>', 'Restore an instance')
+  // .usage('Restore an instance into previous backup, deleting all intermediate instances.')
+  .action(async (headId: string, baseId: string) => {
+    const cirno = await Cirno.init(process.cwd())
+    const head = cirno.get(headId)
+    if (!head) return
+    const base = cirno.get(baseId)
+    if (!base) return
+    const instances = [...cirno.prepareRestore(head, base)]
+    await Promise.all(instances.map(async (instance) => {
+      await fs.rm(cirno.cwd + '/instances/' + instance.id, { recursive: true, force: true })
+      delete cirno.data.instances[instance.id]
+    }))
+    base.backup = undefined
+    await cirno.save()
+    return success(`Instance ${headId} is successfully restored to ${baseId}.`)
+  })
 
 cli
   .command('remove [id]', 'Remove an instance')

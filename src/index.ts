@@ -13,12 +13,12 @@ export interface Instance {
   name: string
   created: string
   updated: string
+  parent?: string
   backup?: Backup
 }
 
 export interface Backup {
-  id: string
-  type?: string
+  type: 'manual' | 'update' | 'scheduled'
 }
 
 export class Cirno {
@@ -34,7 +34,7 @@ export class Cirno {
     }
   }
 
-  create(name: string, backup?: Backup) {
+  create(name: string): Instance {
     let id: string
     do {
       id = v4()
@@ -42,16 +42,24 @@ export class Cirno {
     return this.data.instances[id] = {
       id,
       name,
-      backup,
       created: new Date().toISOString(),
       updated: new Date().toISOString(),
     }
   }
 
+  * prepareRestore(head: Instance, base: Instance) {
+    while (head.parent) {
+      yield head
+      if (head.parent === base.id) return
+      head = this.data.instances[head.parent]
+    }
+    error(`Instance ${base.id} is not an ancestor of ${head.id}.`)
+  }
+
   get(id: string) {
-    if (!id) return error('Missing instance ID. See `cirno remove --help` for usage.')
-    if (!validate(id)) return error('Invalid instance ID. See `cirno remove --help` for usage.')
-    if (!this.data.instances[id]) return error(`Instance ${id} not found.`)
+    if (!id) error('Missing instance ID. See `cirno remove --help` for usage.')
+    if (!validate(id)) error('Invalid instance ID. See `cirno remove --help` for usage.')
+    if (!this.data.instances[id]) error(`Instance ${id} not found.`)
     return this.data.instances[id]
   }
 
