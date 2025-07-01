@@ -34,6 +34,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.11",
     "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^2.0.5",
     "dumble": "^0.2.0",
     "esbuild": "^0.23.0",
     "eslint": "^8.57.0",

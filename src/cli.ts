@@ -66,12 +66,13 @@ async function extractZip(src: string | Buffer, dest: string) {
 cli
   .command('import [src] [name]', 'Import an instance')
   .option('--cwd <path>', 'Specify the project folder')
+  .option('--id <id>', 'Specify the new instance ID')
   // .option('-p, --password <password>', 'Password for encrypted zip file')
   .action(async (src: string, name: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
-    const instance = cirno.create(name ?? 'unnamed')
+    const instance = cirno.create(name ?? 'unnamed', options.id)
     const dest = cwd + '/instances/' + instance.id
     try {
       const resolved = parseImport(src, cwd)
@@ -121,12 +122,13 @@ cli
   .command('clone [id] [name]', 'Clone an instance')
   // .usage('Create a new instance with the same configuration as the base instance.')
   .option('--cwd <path>', 'Specify the project folder')
+  .option('--id <id>', 'Specify the new instance ID')
   .action(async (id: string, name: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     const base = cirno.get(id, 'clone')
     if (!base) return
-    const head = cirno.create(name ?? base.name)
+    const head = cirno.create(name ?? base.name, options.id)
     head.backup = undefined
     await fs.cp(cwd + '/instances/' + id, cwd + '/instances/' + head.id, { recursive: true })
     await cirno.save()
@@ -137,12 +139,13 @@ cli
   .command('backup [id] [name]', 'Backup an instance')
   // .usage('Create a backup instance and link it to the base instance.')
   .option('--cwd <path>', 'Specify the project folder')
+  .option('--id <id>', 'Specify the new instance ID')
   .action(async (id: string, name: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     const head = cirno.get(id, 'backup')
     if (!head) return
-    const base = cirno.create(name ?? head.name)
+    const base = cirno.create(name ?? head.name, options.id)
     base.backup = { type: 'manual' }
     base.parent = head.parent
     head.parent = base.id
@@ -164,7 +167,7 @@ cli
     const instances = [...cirno.prepareRestore(head, base)]
     await Promise.all(instances.map(async (instance) => {
       await fs.rm(cwd + '/instances/' + instance.id, { recursive: true, force: true })
-      delete cirno.data.instances[instance.id]
+      delete cirno.instances[instance.id]
     }))
     base.backup = undefined
     await cirno.save()
@@ -181,7 +184,7 @@ cli
     const instance = cirno.get(id, 'remove')
     if (!instance) return
     await fs.rm(cwd + '/instances/' + id, { recursive: true, force: true })
-    delete cirno.data.instances[id]
+    delete cirno.instances[id]
     await cirno.save()
     success(`Instance ${id} is successfully removed.`)
   })

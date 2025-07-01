@@ -3,6 +3,7 @@
 exports[`cirno 1`] = `
 {
   "code": 0,
+  "files": [],
   "signal": null,
   "stderr": "",
   "stdout": "cirno/0.0.1
@@ -37,9 +38,48 @@ Options:
 }
 `;
 
+exports[`cirno import ../tests/fixtures/foo 1`] = `
+{
+  "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances:
+  - id: de765138-dd06-5227-a5a3-8335e54eef72
+    name: unnamed
+    created: '2024-08-01T16:15:00.401Z'
+    updated: '2024-08-01T16:15:00.402Z'
+",
+      "path": "cirno.yml",
+    },
+    {
+      "content": "{
+  "name": "foo",
+  "version": "1.0.0",
+  "packageManager": "yarn@4.3.1"
+}
+",
+      "path": "instances/de765138-dd06-5227-a5a3-8335e54eef72/package.json",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " SUCCESS  Successfully imported instance de765138-dd06-5227-a5a3-8335e54eef72.
+",
+}
+`;
+
 exports[`cirno init 1`] = `
 {
   "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances: []
+",
+      "path": "cirno.yml",
+    },
+  ],
   "signal": null,
   "stderr": "",
   "stdout": " SUCCESS  Cirno project initialized.
@@ -50,9 +90,53 @@ exports[`cirno init 1`] = `
 exports[`cirno init 2`] = `
 {
   "code": 1,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances: []
+",
+      "path": "cirno.yml",
+    },
+  ],
   "signal": null,
   "stderr": "",
   "stdout": " Error  Project already exists. Use \`cirno init -f\` to overwrite.
+",
+}
+`;
+
+exports[`cirno remove de765138-dd06-5227-a5a3-8335e54eef72 1`] = `
+{
+  "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances: []
+",
+      "path": "cirno.yml",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " SUCCESS  Instance de765138-dd06-5227-a5a3-8335e54eef72 is successfully removed.
+",
+}
+`;
+
+exports[`cirno remove de765138-dd06-5227-a5a3-8335e54eef72 2`] = `
+{
+  "code": 1,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances: []
+",
+      "path": "cirno.yml",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " Error  Instance de765138-dd06-5227-a5a3-8335e54eef72 not found.
 ",
 }
 `;

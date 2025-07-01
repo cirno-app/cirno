@@ -5,7 +5,7 @@ import { v4, validate } from 'uuid'
 
 export interface Manifest {
   version: string
-  instances: Record<string, Instance>
+  instances: Instance[]
 }
 
 export interface Instance {
@@ -22,7 +22,11 @@ export interface Backup {
 }
 
 export class Cirno {
-  private constructor(public cwd: string, public data: Manifest) {}
+  public instances: Record<string, Instance> = Object.create(null)
+
+  private constructor(public cwd: string, public data: Manifest) {
+    this.instances = Object.fromEntries(data.instances.map((instance) => [instance.id, instance]))
+  }
 
   static async init(cwd: string, create = false, force = false) {
     try {
@@ -35,16 +39,17 @@ export class Cirno {
       await fs.mkdir(cwd + '/instances', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
-      return new Cirno(cwd, { version: '1.0', instances: {} })
+      return new Cirno(cwd, { version: '1.0', instances: [] })
     }
   }
 
-  create(name: string): Instance {
-    let id: string
-    do {
-      id = v4()
-    } while (this.data.instances[id])
-    return this.data.instances[id] = {
+  create(name: string, id?: string): Instance {
+    if (!id) {
+      do {
+        id = v4()
+      } while (this.instances[id])
+    }
+    return this.instances[id] = {
       id,
       name,
       created: new Date().toISOString(),
@@ -56,7 +61,7 @@ export class Cirno {
     while (head.parent) {
       yield head
       if (head.parent === base.id) return
-      head = this.data.instances[head.parent]
+      head = this.instances[head.parent]
     }
     error(`Instance ${base.id} is not an ancestor of ${head.id}.`)
   }
@@ -64,11 +69,12 @@ export class Cirno {
   get(id: string, command: string) {
     if (!id) error(`Missing instance ID. See \`cirno ${command} --help\` for usage.`)
     if (!validate(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
-    if (!this.data.instances[id]) error(`Instance ${id} not found.`)
-    return this.data.instances[id]
+    if (!this.instances[id]) error(`Instance ${id} not found.`)
+    return this.instances[id]
   }
 
   async save() {
+    this.data.instances = Object.values(this.instances)
     await fs.writeFile(this.cwd + '/cirno.yml', yaml.dump(this.data))
   }
 }
