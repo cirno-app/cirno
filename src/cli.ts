@@ -1,26 +1,14 @@
 #!/usr/bin/env node
 
-import k from 'kleur'
 import * as fs from 'node:fs/promises'
 import { cac } from 'cac'
-import { validate } from 'uuid'
 import { createRequire } from 'node:module'
-import { init, save } from './index.ts'
+import { Cirno } from './index.ts'
+import { resolve } from 'node:path'
+import { error, info, success } from './utils.ts'
 
 const require = createRequire(import.meta.url)
 const { version } = require('../package.json')
-
-function info(message: string) {
-  console.log(k.bold(k.bgBlue(' INFO ') + ' ' + k.white(message)))
-}
-
-function error(message: string) {
-  console.log(k.bold(k.bgRed(' Error ') + ' ' + k.white(message)))
-}
-
-function success(message: string) {
-  console.log(k.bold(k.bgGreen(' SUCCESS ') + ' ' + k.white(message)))
-}
 
 const cli = cac('cirno').help().version(version)
 
@@ -29,8 +17,8 @@ cli
   .alias('ls')
   .option('--json', 'Output as JSON')
   .action(async (options) => {
-    const cirno = await init(process.cwd())
-    const instances = Object.values(cirno.instances)
+    const cirno = await Cirno.init(process.cwd())
+    const instances = Object.values(cirno.data.instances)
     if (options.json) return console.log(JSON.stringify(instances))
     if (!instances.length) return info('No instances found.')
     info(`Found ${instances.length} instances:`)
@@ -41,16 +29,42 @@ cli
 
 cli
   .command('import', 'Import an instance')
-  .alias('i')
 
 cli
-  .command('export <id> <out>', 'Export an instance')
+  .command('export [id] [out]', 'Export an instance')
+  .action(async (id: string, out: string) => {
+    // TODO: support .zip
+    // TODO: handle dependencies and modify yarnPath
+    const cirno = await Cirno.init(process.cwd())
+    const instance = cirno.get(id)
+    if (!instance) return
+    if (!out) return error('Missing output path. See `cirno remove --help` for usage.')
+    const outDir = resolve(cirno.cwd, out)
+    await fs.cp(cirno.cwd + '/instances/' + id, outDir, { recursive: true, force: true })
+    return success(`Instance ${id} is successfully exported to ${outDir}.`)
+  })
 
 cli
-  .command('clone <id>', 'Clone an instance')
+  .command('clone <id> [name]', 'Clone an instance')
+  .action(async (id: string, name: string) => {
+    const cirno = await Cirno.init(process.cwd())
+    const old = cirno.get(id)
+    if (!old) return
+    const neo = cirno.create(name ?? old.name)
+    await fs.cp(cirno.cwd + '/instances/' + id, cirno.cwd + '/instances/' + neo.id, { recursive: true })
+    return success(`Successfully created a cloned instance ${neo.id}.`)
+  })
 
 cli
-  .command('backup <id>', 'Backup an instance')
+  .command('backup <id> [name]', 'Backup an instance')
+  .action(async (id: string, name: string) => {
+    const cirno = await Cirno.init(process.cwd())
+    const old = cirno.get(id)
+    if (!old) return
+    const neo = cirno.create(name ?? old.name, { id })
+    await fs.cp(cirno.cwd + '/instances/' + id, cirno.cwd + '/instances/' + neo.id, { recursive: true })
+    return success(`Successfully created a backup instance ${neo.id}.`)
+  })
 
 cli
   .command('restore <id> <parent>', 'Restore an instance')
@@ -59,13 +73,12 @@ cli
   .command('remove [id]', 'Remove an instance')
   .alias('rm')
   .action(async (id: string) => {
-    const cirno = await init(process.cwd())
-    if (!id) return error('Missing instance ID. See `cirno remove --help` for usage.')
-    if (!validate(id)) return error('Invalid instance ID. See `cirno remove --help` for usage.')
-    if (!cirno.instances[id]) return error(`Instance ${id} not found.`)
-    await fs.rm(process.cwd() + '/instances/' + id, { recursive: true, force: true })
-    delete cirno.instances[id]
-    await save(process.cwd(), cirno)
+    const cirno = await Cirno.init(process.cwd())
+    const instance = cirno.get(id)
+    if (!instance) return
+    await fs.rm(cirno.cwd + '/instances/' + id, { recursive: true, force: true })
+    delete cirno.data.instances[id]
+    await cirno.save()
     return success(`Instance ${id} is successfully removed.`)
   })
 
