@@ -24,9 +24,11 @@ export interface Backup {
 export class Cirno {
   private constructor(public cwd: string, public data: Manifest) {}
 
-  static async init(cwd: string, create = false) {
+  static async init(cwd: string, create = false, force = false) {
     try {
       const content = await fs.readFile(cwd + '/cirno.yml', 'utf8')
+      if (create && force) throw new Error()
+      if (create) error('Project already exists. Use `cirno init -f` to overwrite.')
       return new Cirno(cwd, yaml.load(content) as Manifest)
     } catch {
       if (!create) error('Use `cirno init` to create a new project.')
@@ -67,6 +69,6 @@ export class Cirno {
   }
 
   async save() {
-    await fs.writeFile(this.cwd + '/cirno.yml', yaml.dump(this))
+    await fs.writeFile(this.cwd + '/cirno.yml', yaml.dump(this.data))
   }
 }
