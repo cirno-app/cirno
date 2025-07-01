@@ -21,10 +21,7 @@
     "lib"
   ],
   "scripts": {
-    "compile:core": "esbuild src/index.ts --outfile=lib/index.js --bundle --platform=node",
-    "compile:cli": "esbuild src/cli.ts --outfile=lib/cli.js --bundle --platform=node --external:./index.ts",
-    "compile": "yarn compile:core && yarn compile:cli",
-    "build": "yarn compile && yarn tsc -b",
+    "build": "dumble && tsc -b",
     "lint": "eslint --cache",
     "test": "node --import tsx --test tests/*.spec.ts",
     "test:text": "shx rm -rf coverage && c8 -r text yarn test",
@@ -34,12 +31,12 @@
   "devDependencies": {
     "@cordisjs/eslint-config": "^1.1.1",
     "@types/adm-zip": "^0.5.5",
-    "@types/chai": "^4.3.16",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.11",
+    "@types/uuid": "^10.0.0",
     "c8": "^7.14.0",
-    "chai": "^5.1.1",
+    "dumble": "^0.2.0",
     "esbuild": "^0.23.0",
-    "esbuild-register": "^3.5.0",
     "eslint": "^8.57.0",
     "shx": "^0.3.4",
     "tsx": "^4.16.3",
