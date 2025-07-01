@@ -24,12 +24,15 @@ export interface Backup {
 export class Cirno {
   private constructor(public cwd: string, public data: Manifest) {}
 
-  static async init(cwd: string) {
-    await fs.mkdir(cwd + '/instances', { recursive: true })
+  static async init(cwd: string, create = false) {
     try {
       const content = await fs.readFile(cwd + '/cirno.yml', 'utf8')
       return new Cirno(cwd, yaml.load(content) as Manifest)
     } catch {
+      if (!create) error('Use `cirno init` to create a new project.')
+      await fs.mkdir(cwd + '/instances', { recursive: true })
+      await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
+      await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
       return new Cirno(cwd, { version: '1.0', instances: {} })
     }
   }
