@@ -1,5 +1,35 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`step 1: cirno init 1`] = `
+stdout: |2
+   SUCCESS  Cirno project initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances: []
+  - type: directory
+    name: instances
+    entries: []
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
 exports[`step 2: cirno import /fixtures/foo 1`] = `
 stdout: |2
    SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
@@ -54,6 +84,9 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
 
 `;
 
@@ -111,6 +144,9 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
 
 `;
 
@@ -137,6 +173,9 @@ entries:
       instances: []
   - type: directory
     name: instances
+    entries: []
+  - type: directory
+    name: temp
     entries: []
 
 `;
@@ -195,5 +234,8 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
 
 `;

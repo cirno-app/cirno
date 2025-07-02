@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
 import * as fs from 'node:fs/promises'
-import { PortablePath } from '@yarnpkg/fslib'
 import { ZipFS } from '@yarnpkg/libzip'
 import { cac } from 'cac'
 import { createRequire } from 'node:module'
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Cirno } from './index.ts'
-import { error, info, success } from './utils.ts'
+import { dumpFromZip, error, info, loadIntoZip, success } from './utils.ts'
 
 const require = createRequire(import.meta.url)
 const { version } = require('../package.json')
@@ -55,36 +54,6 @@ function parseImport(src: string, cwd: string) {
   }
 }
 
-async function dumpFromZip(zip: ZipFS, root: string, base = '/') {
-  const dirents = await zip.readdirPromise(base as PortablePath, { withFileTypes: true })
-  await Promise.all(dirents.map(async (dirent) => {
-    if (dirent.isFile()) {
-      const buffer = await zip.readFilePromise(base + dirent.name as PortablePath)
-      await fs.writeFile(join(root, dirent.name), buffer)
-    } else if (dirent.isDirectory()) {
-      await fs.mkdir(join(root, dirent.name))
-      await dumpFromZip(zip, join(root, dirent.name), base + dirent.name + '/')
-    } else {
-      throw new Error(`Unsupported file type`)
-    }
-  }))
-}
-
-async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
-  const dirents = await fs.readdir(root, { withFileTypes: true })
-  await Promise.all(dirents.map(async (dirent) => {
-    if (dirent.isFile()) {
-      const buffer = await fs.readFile(join(root, dirent.name))
-      await zip.writeFilePromise(base + dirent.name as PortablePath, buffer)
-    } else if (dirent.isDirectory()) {
-      await zip.mkdirPromise(base + dirent.name as PortablePath)
-      await loadIntoZip(zip, join(root, dirent.name), base + dirent.name + '/')
-    } else {
-      throw new Error(`Unsupported file type`)
-    }
-  }))
-}
-
 cli
   .command('import [src] [name]', 'Import an instance')
   .option('--cwd <path>', 'Specify the project folder')
@@ -94,27 +63,29 @@ cli
     const cirno = await Cirno.init(cwd)
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
     const instance = cirno.create(name ?? 'unnamed', options.id)
+    const temp = cwd + '/temp/' + instance.id
     const dest = cwd + '/instances/' + instance.id
-    // TODO: dump to temp first
-    await fs.mkdir(dest, { recursive: true })
+    await fs.mkdir(temp, { recursive: true })
     try {
       const parsed = parseImport(src, cwd)
       if (typeof parsed === 'string') {
         const stats = await fs.stat(parsed)
         if (stats.isDirectory()) {
-          await fs.cp(parsed, dest, { recursive: true })
+          await fs.cp(parsed, temp, { recursive: true })
         } else {
           const buffer = await fs.readFile(parsed)
-          await dumpFromZip(new ZipFS(buffer), dest)
+          await dumpFromZip(new ZipFS(buffer), temp)
         }
       } else {
         const response = await fetch(parsed)
         const buffer = Buffer.from(await response.arrayBuffer())
-        await dumpFromZip(new ZipFS(buffer), dest)
+        await dumpFromZip(new ZipFS(buffer), temp)
       }
+      await fs.rename(temp, dest)
       await cirno.save()
       success(`Successfully imported instance ${instance.id}.`)
     } catch (e) {
+      await fs.rm(temp, { recursive: true, force: true })
       error('Failed to import instance.', e)
     }
   })

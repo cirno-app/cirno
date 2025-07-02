@@ -36,6 +36,7 @@ export class Cirno {
       return new Cirno(cwd, yaml.load(content) as Manifest)
     } catch {
       if (!create) error('Use `cirno init` to create a new project.')
+      await fs.mkdir(cwd + '/temp', { recursive: true })
       await fs.mkdir(cwd + '/instances', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })

@@ -61,6 +61,9 @@ entries:
   - type: directory
     name: instances
     entries: []
+  - type: directory
+    name: temp
+    entries: []
 
 `;
 
@@ -87,6 +90,9 @@ entries:
       instances: []
   - type: directory
     name: instances
+    entries: []
+  - type: directory
+    name: temp
     entries: []
 
 `;
