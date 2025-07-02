@@ -1,0 +1,583 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step 1: cirno init 1`] = `
+stdout: |2
+   SUCCESS  Cirno project initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances: []
+  - type: directory
+    name: instances
+    entries: []
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 2: cirno import /fixtures/foo 1`] = `
+stdout: |2
+   SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 3: cirno backup <#1> 1`] = `
+stdout: |2
+   SUCCESS  Successfully created a backup instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          backup:
+            type: manual
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 4: cirno restore <#2> <#1> 1`] = `
+stdout: |2
+   ERROR  You can only restore a head instance, but instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19 is already a backup.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          backup:
+            type: manual
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 5: cirno backup <#1> 1`] = `
+stdout: |2
+   SUCCESS  Successfully created a backup instance b6394418-863d-5b5f-871f-dde7e8292e29.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          parent: b6394418-863d-5b5f-871f-dde7e8292e29
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          backup:
+            type: manual
+        - id: b6394418-863d-5b5f-871f-dde7e8292e29
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+          backup:
+            type: manual
+          parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: b6394418-863d-5b5f-871f-dde7e8292e29
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 6: cirno restore <#1> <#2> 1`] = `
+stdout: |2
+   SUCCESS  Instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 is successfully restored to 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 7: cirno remove <#1> 1`] = `
+stdout: |2
+   ERROR  Instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 not found.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;
+
+exports[`step 8: cirno remove <#3> 1`] = `
+stdout: |2
+   ERROR  Instance b6394418-863d-5b5f-871f-dde7e8292e29 not found.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: temp
+    entries: []
+
+`;

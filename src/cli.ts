@@ -141,13 +141,14 @@ cli
   .action(async (id: string, name: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const head = cirno.get(id, 'backup')
+    const head = cirno.head(id, 'backup')
     if (!head) return
     const base = cirno.create(name ?? head.name, options.id)
     base.backup = { type: 'manual' }
     base.parent = head.parent
     head.parent = base.id
     await fs.cp(cwd + '/instances/' + id, cwd + '/instances/' + base.id, { recursive: true })
+    await cirno.save()
     success(`Successfully created a backup instance ${base.id}.`)
   })
 
@@ -158,11 +159,11 @@ cli
   .action(async (headId: string, baseId: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const head = cirno.get(headId, 'restore')
+    const head = cirno.head(headId, 'restore')
     if (!head) return
     const base = cirno.get(baseId, 'restore')
     if (!base) return
-    const instances = [...cirno.prepareRestore(head, base)]
+    const instances = [...cirno.prepareRestore(head, baseId)]
     await Promise.all(instances.map(async (instance) => {
       await fs.rm(cwd + '/instances/' + instance.id, { recursive: true, force: true })
       delete cirno.instances[instance.id]
@@ -179,10 +180,24 @@ cli
   .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const instance = cirno.get(id, 'remove')
+    let instance = cirno.get(id, 'remove')
     if (!instance) return
     await fs.rm(cwd + '/instances/' + id, { recursive: true, force: true })
     delete cirno.instances[id]
+    if (instance.backup) {
+      for (const next of Object.values(cirno.instances)) {
+        if (next.parent === id) {
+          next.parent = instance.parent
+          break
+        }
+      }
+    } else {
+      while (instance.parent) {
+        instance = cirno.instances[instance.parent]
+        await fs.rm(cwd + '/instances/' + instance.id, { recursive: true, force: true })
+        delete cirno.instances[instance.id]
+      }
+    }
     await cirno.save()
     success(`Instance ${id} is successfully removed.`)
   })

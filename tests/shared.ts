@@ -106,7 +106,7 @@ export class CirnoTestContext {
   test(args: (string | Arg)[], options: StepOptions = {}): Arg {
     stepCount += 1
     const isCreate = ['import', 'clone', 'backup'].includes(args[0] as string)
-    if (isCreate) instCount += 1
+    if (isCreate && !options.code) instCount += 1
     const uuid = v5(`${instCount}`, namespace)
     const name = [
       `step ${stepCount}:`,

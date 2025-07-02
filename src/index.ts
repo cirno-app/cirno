@@ -58,13 +58,13 @@ export class Cirno {
     }
   }
 
-  * prepareRestore(head: Instance, base: Instance) {
+  * prepareRestore(head: Instance, id?: string) {
     while (head.parent) {
       yield head
-      if (head.parent === base.id) return
+      if (head.parent === id) return
       head = this.instances[head.parent]
     }
-    error(`Instance ${base.id} is not an ancestor of ${head.id}.`)
+    error(`Instance ${id} is not an ancestor of ${head.id}.`)
   }
 
   get(id: string, command: string) {
@@ -72,6 +72,12 @@ export class Cirno {
     if (!validate(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
     if (!this.instances[id]) error(`Instance ${id} not found.`)
     return this.instances[id]
+  }
+
+  head(id: string, command: string) {
+    const head = this.get(id, command)
+    if (head.backup) error(`You can only ${command} a head instance, but instance ${id} is already a backup.`)
+    return head
   }
 
   async save() {
