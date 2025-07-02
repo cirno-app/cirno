@@ -11,32 +11,35 @@ interface Output {
   stderr: string
   code: number | null
   signal: string | null
-  files: File[]
+  entries: Entry[]
 }
 
-interface File {
-  path: string
+interface Entry {
+  type: 'file' | 'directory'
+  name: string
   content?: string
+  entries?: Entry[]
 }
 
 const ISO_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/gm
 
-async function traverse(root: string, prefix = '') {
-  const result: File[] = []
+async function traverse(root: string) {
+  const result: Entry[] = []
   const files = await readdir(root, { withFileTypes: true })
   for (const file of files) {
     if (file.isDirectory()) {
-      result.push(...await traverse(root + '/' + file.name, prefix + file.name + '/'))
-    } else {
-      let content: string | undefined
-      if (['cirno.yml', 'yarnrc.yml'].includes(file.name)) {
-        content = await readFile(root + '/' + file.name, 'utf8')
-        content = content.replace(ISO_REGEX, '<timestamp>')
-      }
       result.push({
-        path: prefix + file.name,
-        content,
+        type: 'directory',
+        name: file.name,
+        entries: await traverse(root + '/' + file.name)
       })
+    } else {
+      const entry: Entry = { type: 'file', name: file.name }
+      if (['cirno.yml', 'yarnrc.yml'].includes(file.name)) {
+        const content = await readFile(root + '/' + file.name, 'utf8')
+        entry.content = content.replace(ISO_REGEX, '<timestamp>')
+      }
+      result.push(entry)
     }
   }
   return result
@@ -57,7 +60,7 @@ function spawn(args: string[], root: string) {
       stdout = stdout.replace(root, '')
       stderr = stderr.replace(root, '')
       const files = await traverse(cwd)
-      resolve({ stdout, stderr, code, signal, files })
+      resolve({ stdout, stderr, code, signal, entries: files })
     })
   })
 }

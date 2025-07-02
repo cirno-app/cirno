@@ -3,7 +3,7 @@
 exports[`step 1: cirno 1`] = `
 {
   "code": 0,
-  "files": [],
+  "entries": [],
   "signal": null,
   "stderr": "",
   "stdout": "cirno/0.0.1
@@ -41,12 +41,34 @@ Options:
 exports[`step 2: cirno init 1`] = `
 {
   "code": 0,
-  "files": [
+  "entries": [
+    {
+      "entries": [
+        {
+          "entries": [],
+          "name": "cache",
+          "type": "directory",
+        },
+        {
+          "entries": [],
+          "name": "releases",
+          "type": "directory",
+        },
+      ],
+      "name": ".yarn",
+      "type": "directory",
+    },
     {
       "content": "version: '1.0'
 instances: []
 ",
-      "path": "cirno.yml",
+      "name": "cirno.yml",
+      "type": "file",
+    },
+    {
+      "entries": [],
+      "name": "instances",
+      "type": "directory",
     },
   ],
   "signal": null,
@@ -59,12 +81,34 @@ instances: []
 exports[`step 3: cirno init 1`] = `
 {
   "code": 1,
-  "files": [
+  "entries": [
+    {
+      "entries": [
+        {
+          "entries": [],
+          "name": "cache",
+          "type": "directory",
+        },
+        {
+          "entries": [],
+          "name": "releases",
+          "type": "directory",
+        },
+      ],
+      "name": ".yarn",
+      "type": "directory",
+    },
     {
       "content": "version: '1.0'
 instances: []
 ",
-      "path": "cirno.yml",
+      "name": "cirno.yml",
+      "type": "file",
+    },
+    {
+      "entries": [],
+      "name": "instances",
+      "type": "directory",
     },
   ],
   "signal": null,

@@ -54,12 +54,5 @@ jobs:
         run: corepack enable
       - name: Install
         run: yarn --no-immutable
-      - name: Check
-        run: |-
-          cd tests/fixtures/foo
-          yarn set version 4.3.1
-          yarn config set enableGlobalCache false
-          yarn
-          ls
       - name: Unit Test
         run: yarn test:json
