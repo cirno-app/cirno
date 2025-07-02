@@ -1,4 +1,4 @@
-import { makeEnv } from './shared'
+import { makeEnv } from '../shared'
 
 makeEnv((ctx) => {
   ctx.pass([])

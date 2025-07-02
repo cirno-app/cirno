@@ -11,7 +11,7 @@ export default defineConfig({
       fileURLToPath(new URL('./tests/serializer.ts', import.meta.url)),
     ],
     resolveSnapshotPath: (path, extension) => {
-      return join(dirname(path), 'snapshots', `${basename(path)}${extension}`)
+      return join(dirname(path), '../snapshots', `${basename(path)}${extension}`)
     },
   },
 })

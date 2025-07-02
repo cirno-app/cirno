@@ -1,4 +1,4 @@
-import { makeEnv, useExport, useFixture } from './shared'
+import { makeEnv, useExport, useFixture } from '../shared'
 
 makeEnv((ctx) => {
   ctx.pass(['init'])
