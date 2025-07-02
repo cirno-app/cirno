@@ -52,7 +52,7 @@ entries:
       version: '1.0'
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -80,6 +80,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -112,12 +120,12 @@ entries:
       version: '1.0'
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           backup:
@@ -147,6 +155,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -173,6 +189,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -205,12 +229,12 @@ entries:
       version: '1.0'
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           backup:
@@ -240,6 +264,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -266,6 +298,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -298,18 +338,18 @@ entries:
       version: '1.0'
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           parent: b6394418-863d-5b5f-871f-dde7e8292e29
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           backup:
             type: manual
         - id: b6394418-863d-5b5f-871f-dde7e8292e29
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
           backup:
@@ -340,6 +380,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -366,6 +414,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -392,6 +448,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -424,7 +488,7 @@ entries:
       version: '1.0'
       instances:
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -452,6 +516,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -484,7 +556,7 @@ entries:
       version: '1.0'
       instances:
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -512,6 +584,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -544,7 +624,7 @@ entries:
       version: '1.0'
       instances:
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: unnamed
+          name: foo
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -572,6 +652,14 @@ entries:
                     name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
+            content: |
+              enableGlobalCache: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+
+              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file

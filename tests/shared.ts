@@ -35,7 +35,7 @@ async function traverse(root: string) {
       })
     } else {
       const entry: Entry = { type: 'file', name: file.name }
-      if (['cirno.yml', 'yarnrc.yml'].includes(file.name)) {
+      if (['cirno.yml', '.yarnrc.yml'].includes(file.name)) {
         const content = await readFile(root + '/' + file.name, 'utf8')
         entry.content = content.replace(ISO_REGEX, '<timestamp>')
       }

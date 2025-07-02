@@ -62,7 +62,7 @@ cli
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
-    const instance = cirno.create(name ?? 'unnamed', options.id)
+    const instance = cirno.create('', options.id)
     const temp = cwd + '/temp/' + instance.id
     const dest = cwd + '/instances/' + instance.id
     await fs.mkdir(temp, { recursive: true })
@@ -81,6 +81,9 @@ cli
         const buffer = Buffer.from(await response.arrayBuffer())
         await dumpFromZip(new ZipFS(buffer), temp)
       }
+      const content = await fs.readFile(temp + '/package.json', 'utf8')
+      const manifest = JSON.parse(content)
+      instance.name = name ?? manifest.name
       await fs.rename(temp, dest)
       await cirno.save()
       success(`Successfully imported instance ${instance.id}.`)
