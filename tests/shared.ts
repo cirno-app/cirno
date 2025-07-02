@@ -57,8 +57,8 @@ function spawn(args: string[], root: string) {
     child.stdout!.on('data', (data) => stdout += data)
     child.stderr!.on('data', (data) => stderr += data)
     child.on('exit', async (code, signal) => {
-      stdout = stdout.replace(root, '')
-      stderr = stderr.replace(root, '')
+      stdout = stdout.replace(root, '').replace(/Done in (.+)/, 'Done in <time>')
+      stderr = stderr.replace(root, '').replace(/Done in (.+)/, 'Done in <time>')
       const entries = await traverse(cwd)
       const output = { stdout, stderr, code, signal, entries }
       Object.defineProperty(output, '__SERIALIZER__', { value: 'yaml' })

@@ -39,7 +39,7 @@ stdout: |
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
-  ➤ YN0000: · Done in 0s 173ms
+  ➤ YN0000: · Done in <time>
 stderr: ''
 code: 0
 signal: null
@@ -204,7 +204,7 @@ stdout: |
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
-  ➤ YN0000: · Done in 0s 96ms
+  ➤ YN0000: · Done in <time>
 stderr: ''
 code: 0
 signal: null
