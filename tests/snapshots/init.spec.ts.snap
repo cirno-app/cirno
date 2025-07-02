@@ -8,25 +8,25 @@ stdout: |
     $ cirno <command> [options]
 
   Commands:
-    init                    Initialize a new project
-    list                    List all instances
-    import [src] [name]     Import an instance
-    export [id] [dest]      Export an instance
-    clone [id] [name]       Clone an instance
-    backup [id] [name]      Backup an instance
-    restore [head] [base]   Restore an instance
-    remove [id]             Remove an instance
-    yarn [id] -- [...args]  Execute Yarn in an instance
+    init                   Initialize a new project
+    import [src] [name]    Import an instance
+    export [id] [dest]     Export an instance
+    clone [id] [name]      Clone an instance
+    restore [head] [base]  Restore to an instance
+    backup [id] [name]     Backup an instance
+    remove [id]            Remove an instance
+    list                   List all instances
+    yarn [id] -- [...]     Execute Yarn in an instance
 
   For more info, run any command with the \`--help\` flag:
     $ cirno init --help
-    $ cirno list --help
     $ cirno import --help
     $ cirno export --help
     $ cirno clone --help
-    $ cirno backup --help
     $ cirno restore --help
+    $ cirno backup --help
     $ cirno remove --help
+    $ cirno list --help
     $ cirno yarn --help
 
   Options:
@@ -59,6 +59,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances: []
   - type: directory
     name: instances
@@ -89,6 +90,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances: []
   - type: directory
     name: instances

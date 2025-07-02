@@ -6,7 +6,7 @@ Zero-Install Package Manager for Node.js.
 
 ### `cirno init`
 
-- `-f, --force`: Overwrite existing project.
+- `-f, --force`: overwrite existing project.
 
 Initialize a new Cirno project.
 
@@ -24,6 +24,10 @@ Export an instance to a local path.
 
 Clone an instance.
 
+### `cirno remove <id>`
+
+Remove an instance.
+
 ### `cirno backup <id>`
 
 Backup an instance. See [Backup Timeline](#backup-timeline) for more information.
@@ -32,13 +36,9 @@ Backup an instance. See [Backup Timeline](#backup-timeline) for more information
 
 Restore to a backup instance. See [Backup Timeline](#backup-timeline) for more information.
 
-### `cirno remove <id>`
-
-Remove an instance.
-
 ### `cirno list`
 
-- `--json`: Output as JSON.
+- `--json`: output as JSON.
 
 List all instances in the project.
 
@@ -93,7 +93,7 @@ This will create four instances with the following timeline:
 B -> C -> D -> A
 ```
 
-Workspace A is called the *head* instance, and instances B, C, D are called *base* instances. These two types of instances have different behaviors:
+Instance A is called the **head** instance, and instances B, C, D are called the **base** instances. These two types of instances have different behaviors:
 
 - You cannot `backup` a base instance. For example, the following command will fail:
 

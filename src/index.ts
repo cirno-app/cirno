@@ -33,10 +33,15 @@ export interface Package {
   packageManager: string
 }
 
+const version = '1.0'
+
 export interface Manifest {
   version: string
+  settings: Settings
   instances: Instance[]
 }
+
+export interface Settings {}
 
 export interface Instance {
   id: string
@@ -63,7 +68,9 @@ export class Cirno {
       const content = await fs.readFile(cwd + '/cirno.yml', 'utf8')
       if (create && force) throw new Error()
       if (create) error('Project already exists. Use `cirno init -f` to overwrite.')
-      return new Cirno(cwd, yaml.load(content) as Manifest)
+      const data = yaml.load(content) as Manifest
+      if (data.version !== version) error(`Unsupported version: ${data.version}`)
+      return new Cirno(cwd, data)
     } catch {
       if (!create) error('Use `cirno init` to create a new project.')
       await fs.rm(cwd, { recursive: true, force: true })
@@ -71,7 +78,7 @@ export class Cirno {
       await fs.mkdir(cwd + '/instances', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
-      return new Cirno(cwd, { version: '1.0', instances: [] })
+      return new Cirno(cwd, { version, settings: {}, instances: [] })
     }
   }
 

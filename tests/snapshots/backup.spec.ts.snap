@@ -20,6 +20,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances: []
   - type: directory
     name: instances
@@ -40,6 +41,7 @@ stdout: |
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
   ➤ YN0000: · Done
+   SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
 stderr: ''
 code: 0
 signal: null
@@ -61,6 +63,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
@@ -119,6 +122,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
@@ -204,6 +208,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
@@ -289,6 +294,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
@@ -401,6 +407,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
@@ -486,6 +493,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances: []
   - type: directory
     name: instances
@@ -520,6 +528,7 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
+      settings: {}
       instances: []
   - type: directory
     name: instances
