@@ -20,10 +20,6 @@ instances:
     },
     {
       "content": undefined,
-      "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/.yarnrc.yml",
-    },
-    {
-      "content": undefined,
       "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/package.json",
     },
   ],
@@ -54,16 +50,12 @@ instances:
     },
     {
       "content": undefined,
-      "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/.yarnrc.yml",
-    },
-    {
-      "content": undefined,
       "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/package.json",
     },
   ],
   "signal": null,
   "stderr": "",
-  "stdout": " SUCCESS  Successfully exported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 to <exports>/foo.zip.
+  "stdout": " SUCCESS  Successfully exported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 to /exports/foo.zip.
 ",
 }
 `;
@@ -103,10 +95,6 @@ instances:
     {
       "content": undefined,
       "path": "instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19/.yarn/releases/yarn-4.3.1.cjs",
-    },
-    {
-      "content": undefined,
-      "path": "instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19/.yarnrc.yml",
     },
     {
       "content": undefined,

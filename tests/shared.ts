@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { beforeAll, expect, it } from 'vitest'
 import { v4, v5 } from 'uuid'
 
-const tempRoot = fileURLToPath(new URL('../temp', import.meta.url))
+const root = fileURLToPath(new URL('../temp', import.meta.url))
 
 interface Output {
   stdout: string
@@ -44,7 +44,6 @@ async function traverse(root: string, prefix = '') {
 
 function spawn(args: string[], root: string) {
   const cwd = root + '/data'
-  const out = root + '/exports'
   return new Promise<Output>((resolve, reject) => {
     const child = fork(new URL('../src/cli.ts', import.meta.url), args, {
       cwd,
@@ -55,8 +54,8 @@ function spawn(args: string[], root: string) {
     child.stdout!.on('data', (data) => stdout += data)
     child.stderr!.on('data', (data) => stderr += data)
     child.on('exit', async (code, signal) => {
-      stdout = stdout.replace(out, '<exports>')
-      stderr = stderr.replace(out, '<exports>')
+      stdout = stdout.replace(root, '')
+      stderr = stderr.replace(root, '')
       const files = await traverse(cwd)
       resolve({ stdout, stderr, code, signal, files })
     })
@@ -83,12 +82,11 @@ export function useExport(name: string): Arg {
 
 export interface StepOptions {
   silent?: boolean
-  create?: boolean
   code?: number
 }
 
 export function makeEnv(callback: (ctx: CirnoTestContext) => void) {
-  const ctx = new CirnoTestContext(tempRoot + '/' + v4())
+  const ctx = new CirnoTestContext(root + '/' + v4())
   callback(ctx)
 }
 
@@ -102,7 +100,8 @@ export class CirnoTestContext {
 
   test(args: (string | Arg)[], options: StepOptions = {}): Arg {
     stepCount += 1
-    if (options.create) instCount += 1
+    const isCreate = ['import', 'clone', 'backup'].includes(args[0] as string)
+    if (isCreate) instCount += 1
     const uuid = v5(`${instCount}`, namespace)
     const name = [
       `step ${stepCount}:`,
@@ -112,7 +111,7 @@ export class CirnoTestContext {
     it(name, async () => {
       const output = await spawn([
         ...args.map((arg) => typeof arg === 'string' ? arg : arg.value),
-        ...options.create ? ['--id', uuid] : [],
+        ...isCreate ? ['--id', uuid] : [],
       ], this.root)
       if (!options.silent) {
         expect(output).toMatchSnapshot()

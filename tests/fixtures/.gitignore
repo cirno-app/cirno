@@ -1,2 +1,3 @@
-*/.yarn/releases
-*/.yarn/cache
+*/.yarn
+.yarnrc.yml
+!yarn.lock
