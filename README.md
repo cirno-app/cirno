@@ -31,11 +31,11 @@ Clone a workspace.
 
 ### `cirno backup <id>`
 
-Backup a workspace. See [Backup](#backup) for more information.
+Backup a workspace. See [Backup Timeline](#backup-timeline) for more information.
 
 ### `cirno restore <id>`
 
-Restore to a backup workspace. See [Backup](#backup) for more information.
+Restore to a backup workspace. See [Backup Timeline](#backup-timeline) for more information.
 
 ### `cirno remove <id>`
 
@@ -61,7 +61,7 @@ Arguments after `--` will be passed to `yarn`.
 
 Remove unused packages from the cache.
 
-## Backup
+## Backup Timeline
 
 Cirno supports backup and restore. You can use `cirno backup` to create a backup of a workspace, and use `cirno restore` to restore to a backup workspace.
 
@@ -76,7 +76,7 @@ $ cirno backup A
 > Successfully created a backup workspace D.
 ```
 
-This will create four workspaces with the following relationship:
+This will create four workspaces with the following timeline:
 
 ```
 B -> C -> D -> A
@@ -100,7 +100,7 @@ Workspace A is called the *head* workspace, and workspaces B, C, D are called *b
   > Cannot restore to a head workspace.
   ```
 
-- When you `restore` to a base workspace, all the following workspaces will be removed. For example, if you `restore` to workspace C, the backup graph will be:
+- When you `restore` to a base workspace, all the following workspaces will be removed. For example, if you `restore` to workspace C, the timeline will be:
 
   ```
   B -> C
@@ -108,7 +108,7 @@ Workspace A is called the *head* workspace, and workspaces B, C, D are called *b
 
   In this case, C will become the head workspace on which you can make further backups.
 
-- When you `remove` a base workspace, the next node in the backup graph will be linked to the previous node. For example, if you `remove` workspace C, the backup graph will be:
+- When you `remove` a base workspace, the next node in the timeline will be linked to the previous node. For example, if you `remove` workspace C, the timeline will be:
 
   ```
   B -> D -> A
@@ -116,3 +116,12 @@ Workspace A is called the *head* workspace, and workspaces B, C, D are called *b
 
 - When you `remove` a head workspace, all base workspaces will be removed as well.
 
+## Shared Cache
+
+Every bundled workspace supports zero-install, which means that `import`-ing a workspace needs no extra network requests other than downloading the workspace itself.
+
+On the other hand, local workspaces may have many duplicated dependencies. To reduce the disk usage, Cirno manages a shared cache for all workspaces.
+
+When you `import` a workspace, Cirno will move all the dependencies to the shared cache. When you `export` a workspace, Cirno will copy the dependencies from the shared cache to the workspace.
+
+Also, Cirno support garbage collection for the shared cache. You can use `cirno gc` to remove unused packages from the cache. This will allow Cirno to have even less disk usage than Yarn or pnpm stores.
