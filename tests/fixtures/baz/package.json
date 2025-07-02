@@ -1,8 +1,8 @@
 {
-  "name": "bar",
+  "name": "baz",
   "version": "1.0.0",
   "packageManager": "yarn@4.2.2",
   "dependencies": {
-    "@yarnpkg/libzip": "^3.1.0"
+    "@yarnpkg/parsers": "^3.0.2"
   }
 }
