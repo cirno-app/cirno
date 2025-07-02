@@ -31,8 +31,15 @@ entries:
 `;
 
 exports[`step 2: cirno import /fixtures/foo 1`] = `
-stdout: |2
-   SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
+stdout: |
+  ➤ YN0000: · Yarn 4.3.1
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done in 0s 89ms
 stderr: ''
 code: 0
 signal: null
@@ -42,9 +49,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:
@@ -100,9 +107,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:
@@ -185,9 +192,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:
@@ -270,9 +277,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:
@@ -382,9 +389,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:
@@ -440,9 +447,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:
@@ -498,9 +505,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries:
-          - type: file
-            name: .gitignore
+        entries: []
+      - type: directory
+        name: index
       - type: directory
         name: releases
         entries:

@@ -28,11 +28,11 @@ async function traverse(root: string) {
   const files = await readdir(root, { withFileTypes: true })
   for (const file of files) {
     if (file.isDirectory()) {
-      result.push({
-        type: 'directory',
-        name: file.name,
-        entries: await traverse(root + '/' + file.name)
-      })
+      const entry: Entry = { type: 'directory', name: file.name }
+      if (!['index'].includes(file.name)) {
+        entry.entries = await traverse(root + '/' + file.name)
+      }
+      result.push(entry)
     } else {
       const entry: Entry = { type: 'file', name: file.name }
       if (['cirno.yml', '.yarnrc.yml'].includes(file.name)) {

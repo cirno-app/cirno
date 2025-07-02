@@ -3,8 +3,8 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ZipFS } from '@yarnpkg/libzip'
 import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
-import { Cirno, Package, YarnRc } from '../index.ts'
-import { dumpFromZip, error, success } from '../utils.ts'
+import { Cirno, Package, YarnLock, YarnRc } from '../index.ts'
+import { dumpFromZip, error } from '../utils.ts'
 import * as fs from 'node:fs/promises'
 
 function parseImport(src: string, cwd: string) {
@@ -61,9 +61,14 @@ export default (cli: CAC) => cli
       delete yarnRc.yarnPath
 
       // enableGlobalCache
+      const yarnLock = parseSyml(await fs.readFile(temp + '/yarn.lock', 'utf8')) as YarnLock
+      const { version, cacheKey } = yarnLock.__metadata ?? {}
+      if (version !== '8') throw new Error(`Unsupported yarn.lock version: ${version}.`)
       const files = await fs.readdir(resolve(temp, '.yarn/cache'))
       for (const name of files) {
-        await fs.rename(resolve(temp, '.yarn/cache', name), resolve(cwd, '.yarn/cache', name))
+        const capture = /^(.+)-([0-9a-f]{10})-([0-9a-f]+)\.zip$/.exec(name)
+        if (!capture) continue
+        await fs.rename(resolve(temp, '.yarn/cache', name), resolve(cwd, '.yarn/cache', `${capture[1]}-${capture[2]}-${cacheKey}.zip`))
       }
       await fs.rm(resolve(temp, '.yarn/cache'), { recursive: true, force: true })
       delete yarnRc.enableGlobalCache
@@ -71,7 +76,8 @@ export default (cli: CAC) => cli
       await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
       await fs.rename(temp, dest)
       await cirno.save()
-      success(`Successfully imported instance ${instance.id}.`)
+      await cirno.yarn(instance.id, [])
+      // success(`Successfully imported instance ${instance.id}.`)
     } catch (e) {
       await fs.rm(temp, { recursive: true, force: true })
       error('Failed to import instance.', e)

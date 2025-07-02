@@ -8,14 +8,15 @@ stdout: |
     $ cirno <command> [options]
 
   Commands:
-    init                   Initialize a new project
-    list                   List all instances
-    import [src] [name]    Import an instance
-    export [id] [dest]     Export an instance
-    clone [id] [name]      Clone an instance
-    backup [id] [name]     Backup an instance
-    restore [head] [base]  Restore an instance
-    remove [id]            Remove an instance
+    init                    Initialize a new project
+    list                    List all instances
+    import [src] [name]     Import an instance
+    export [id] [dest]      Export an instance
+    clone [id] [name]       Clone an instance
+    backup [id] [name]      Backup an instance
+    restore [head] [base]   Restore an instance
+    remove [id]             Remove an instance
+    yarn [id] -- [...args]  Execute Yarn in an instance
 
   For more info, run any command with the \`--help\` flag:
     $ cirno init --help
@@ -26,6 +27,7 @@ stdout: |
     $ cirno backup --help
     $ cirno restore --help
     $ cirno remove --help
+    $ cirno yarn --help
 
   Options:
     -h, --help     Display this message 
