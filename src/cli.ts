@@ -95,6 +95,7 @@ cli
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
     const instance = cirno.create(name ?? 'unnamed', options.id)
     const dest = cwd + '/instances/' + instance.id
+    // TODO: dump to temp first
     await fs.mkdir(dest, { recursive: true })
     try {
       const parsed = parseImport(src, cwd)

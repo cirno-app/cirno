@@ -51,7 +51,7 @@ instances: []
   ],
   "signal": null,
   "stderr": "",
-  "stdout": " SUCCESS  Cirno project initialized.
+  "stdout": " SUCCESS  Cirno project initialized at /Users/shigma/Documents/touhou/cordis/cirno/temp/a17199e7-8e7a-40b4-93c9-5cf3b512b71f/data.
 ",
 }
 `;
@@ -69,7 +69,7 @@ instances: []
   ],
   "signal": null,
   "stderr": "",
-  "stdout": " Error  Project already exists. Use \`cirno init -f\` to overwrite.
+  "stdout": " ERROR  Project already exists. Use \`cirno init -f\` to overwrite.
 ",
 }
 `;

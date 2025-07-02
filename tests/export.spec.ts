@@ -1,0 +1,10 @@
+import { makeEnv, useExport, useFixture } from './shared'
+
+makeEnv((ctx) => {
+  ctx.pass(['init'], { silent: true })
+  const uuid1 = ctx.pass(['import', useFixture('foo')], { create: true })
+  ctx.pass(['export', uuid1, useExport('foo.zip')])
+  ctx.pass(['remove', uuid1])
+  // ctx.fail(['remove', uuid1])
+  ctx.pass(['import', useExport('foo.zip')], { create: true })
+})

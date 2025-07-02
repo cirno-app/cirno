@@ -15,12 +15,15 @@ instances:
       "path": "cirno.yml",
     },
     {
-      "content": "{
-  "name": "foo",
-  "version": "1.0.0",
-  "packageManager": "yarn@4.3.1"
-}
-",
+      "content": undefined,
+      "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/.yarn/releases/yarn-4.3.1.cjs",
+    },
+    {
+      "content": undefined,
+      "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/.yarnrc.yml",
+    },
+    {
+      "content": undefined,
       "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/package.json",
     },
   ],
@@ -46,12 +49,15 @@ instances:
       "path": "cirno.yml",
     },
     {
-      "content": "{
-  "name": "foo",
-  "version": "1.0.0",
-  "packageManager": "yarn@4.3.1"
-}
-",
+      "content": undefined,
+      "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/.yarn/releases/yarn-4.3.1.cjs",
+    },
+    {
+      "content": undefined,
+      "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/.yarnrc.yml",
+    },
+    {
+      "content": undefined,
       "path": "instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7/package.json",
     },
   ],
@@ -80,25 +86,7 @@ instances: []
 }
 `;
 
-exports[`step 5: cirno remove <#1> 1`] = `
-{
-  "code": 1,
-  "files": [
-    {
-      "content": "version: '1.0'
-instances: []
-",
-      "path": "cirno.yml",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " Error  Instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 not found.
-",
-}
-`;
-
-exports[`step 6: cirno import <exports>/foo.zip 1`] = `
+exports[`step 5: cirno import <exports>/foo.zip 1`] = `
 {
   "code": 0,
   "files": [
@@ -113,12 +101,15 @@ instances:
       "path": "cirno.yml",
     },
     {
-      "content": "{
-  "name": "foo",
-  "version": "1.0.0",
-  "packageManager": "yarn@4.3.1"
-}
-",
+      "content": undefined,
+      "path": "instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19/.yarn/releases/yarn-4.3.1.cjs",
+    },
+    {
+      "content": undefined,
+      "path": "instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19/.yarnrc.yml",
+    },
+    {
+      "content": undefined,
       "path": "instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19/package.json",
     },
   ],

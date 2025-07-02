@@ -1,7 +1,7 @@
-import { makeEnv, makeTest } from './shared'
+import { makeEnv } from './shared'
 
-makeEnv(() => {
-  makeTest([])
-  makeTest(['init'])
-  makeTest(['init'])
+makeEnv((ctx) => {
+  ctx.pass([])
+  ctx.pass(['init'])
+  ctx.fail(['init'])
 })

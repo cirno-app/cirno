@@ -23,6 +23,7 @@
   "scripts": {
     "build": "dumble && tsc -b",
     "lint": "eslint --cache",
+    "postinstall": "node --import tsx tests/prepare.ts",
     "test": "vitest run",
     "test:text": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=text",
     "test:json": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=json",

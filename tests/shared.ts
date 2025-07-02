@@ -16,7 +16,7 @@ interface Output {
 
 interface File {
   path: string
-  content: string
+  content?: string
 }
 
 const ISO_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/gm
@@ -28,10 +28,14 @@ async function traverse(root: string, prefix = '') {
     if (file.isDirectory()) {
       result.push(...await traverse(root + '/' + file.name, prefix + file.name + '/'))
     } else {
-      const content = await readFile(root + '/' + file.name, 'utf8')
+      let content: string | undefined
+      if (['cirno.yml', 'yarnrc.yml'].includes(file.name)) {
+        content = await readFile(root + '/' + file.name, 'utf8')
+        content = content.replace(ISO_REGEX, '<timestamp>')
+      }
       result.push({
         path: prefix + file.name,
-        content: content.replace(ISO_REGEX, '<timestamp>'),
+        content,
       })
     }
   }
@@ -77,38 +81,54 @@ export function useExport(name: string): Arg {
   return { value: `../exports/${name}`, pretty: `<exports>/${name}` }
 }
 
-let activeRoot: string
-
 export interface StepOptions {
   silent?: boolean
   create?: boolean
+  code?: number
 }
 
-export function makeTest(args: (string | Arg)[], options: StepOptions = {}): Arg {
-  stepCount += 1
-  if (options.create) instCount += 1
-  const uuid = v5(`${instCount}`, namespace)
-  const name = [
-    `step ${stepCount}:`,
-    'cirno',
-    ...args.map((arg) => typeof arg === 'string' ? arg : arg.pretty),
-  ].join(' ')
-  it(name, async () => {
-    const output = await spawn([
-      ...args.map((arg) => typeof arg === 'string' ? arg : arg.value),
-      ...options.create ? ['--id', uuid] : [],
-    ], activeRoot)
-    if (!options.silent) {
-      expect(output).toMatchSnapshot()
-    }
-  })
-  return { value: uuid, pretty: `<#${instCount}>` }
+export function makeEnv(callback: (ctx: CirnoTestContext) => void) {
+  const ctx = new CirnoTestContext(tempRoot + '/' + v4())
+  callback(ctx)
 }
 
-export function makeEnv(callback: () => void) {
-  const root = activeRoot = tempRoot + '/' + v4()
-  beforeAll(async () => {
-    await mkdir(root + '/data', { recursive: true })
-  })
-  callback()
+export class CirnoTestContext {
+  constructor(public root: string) {
+    beforeAll(async () => {
+      await mkdir(root + '/data', { recursive: true })
+      await mkdir(root + '/exports', { recursive: true })
+    })
+  }
+
+  test(args: (string | Arg)[], options: StepOptions = {}): Arg {
+    stepCount += 1
+    if (options.create) instCount += 1
+    const uuid = v5(`${instCount}`, namespace)
+    const name = [
+      `step ${stepCount}:`,
+      'cirno',
+      ...args.map((arg) => typeof arg === 'string' ? arg : arg.pretty),
+    ].join(' ')
+    it(name, async () => {
+      const output = await spawn([
+        ...args.map((arg) => typeof arg === 'string' ? arg : arg.value),
+        ...options.create ? ['--id', uuid] : [],
+      ], this.root)
+      if (!options.silent) {
+        expect(output).toMatchSnapshot()
+      }
+      if (options.code !== undefined) {
+        expect(output.code).toBe(options.code)
+      }
+    })
+    return { value: uuid, pretty: `<#${instCount}>` }
+  }
+
+  pass(args: (string | Arg)[], options: StepOptions = {}) {
+    return this.test(args, { ...options, code: 0 })
+  }
+
+  fail(args: (string | Arg)[], options: StepOptions = {}) {
+    return this.test(args, { ...options, code: 1 })
+  }
 }
