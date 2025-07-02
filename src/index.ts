@@ -3,6 +3,15 @@ import * as yaml from 'js-yaml'
 import { error } from './utils.ts'
 import { v4, validate } from 'uuid'
 
+export interface YarnRc {
+  yarnPath?: string
+}
+
+export interface Package {
+  name: string
+  packageManager: string
+}
+
 export interface Manifest {
   version: string
   instances: Instance[]

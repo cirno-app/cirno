@@ -2,11 +2,12 @@
 
 import * as fs from 'node:fs/promises'
 import { ZipFS } from '@yarnpkg/libzip'
+import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
 import { cac } from 'cac'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Cirno } from './index.ts'
+import { Cirno, Package, YarnRc } from './index.ts'
 import { dumpFromZip, error, info, loadIntoZip, success } from './utils.ts'
 
 const require = createRequire(import.meta.url)
@@ -81,9 +82,21 @@ cli
         const buffer = Buffer.from(await response.arrayBuffer())
         await dumpFromZip(new ZipFS(buffer), temp)
       }
-      const content = await fs.readFile(temp + '/package.json', 'utf8')
-      const manifest = JSON.parse(content)
-      instance.name = name ?? manifest.name
+
+      const pkgMeta: Package = JSON.parse(await fs.readFile(temp + '/package.json', 'utf8'))
+      instance.name = name ?? pkgMeta.name
+
+      // yarnPath
+      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
+      if (!capture) throw new Error('Failed to detect yarn version.')
+      const yarnRc: YarnRc = parseSyml(await fs.readFile(temp + '/.yarnrc.yml', 'utf8'))
+      if (!yarnRc.yarnPath) throw new Error('Cannot find `yarnPath` in .yarnrc.yml.')
+      const yarnPath = resolve(temp, yarnRc.yarnPath)
+      await fs.rename(yarnPath, resolve(cwd, `.yarn/releases/yarn-${capture[1]}.cjs`))
+      await fs.rm(resolve(temp, '.yarn/releases'), { recursive: true, force: true })
+      delete yarnRc.yarnPath
+      await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
+
       await fs.rename(temp, dest)
       await cirno.save()
       success(`Successfully imported instance ${instance.id}.`)
@@ -106,12 +119,26 @@ cli
     if (!dest) return error('Missing output path. See `cirno remove --help` for usage.')
     try {
       const full = resolve(cwd, dest)
+      const temp = cwd + '/temp/' + id
+      await fs.cp(cwd + '/instances/' + id, temp, { recursive: true, force: true })
+
+      // yarnPath
+      const pkgMeta: Package = JSON.parse(await fs.readFile(temp + '/package.json', 'utf8'))
+      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
+      if (!capture) throw new Error('Failed to detect yarn version.')
+      const yarnRc: YarnRc = parseSyml(await fs.readFile(temp + '/.yarnrc.yml', 'utf8'))
+      yarnRc.yarnPath = `.yarn/releases/yarn-${capture[1]}.cjs`
+      await fs.mkdir(resolve(temp, '.yarn/releases'), { recursive: true })
+      await fs.cp(resolve(cwd, `.yarn/releases/yarn-${capture[1]}.cjs`), resolve(temp, yarnRc.yarnPath))
+      await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
+
       if (full.endsWith('.zip') || options.zip) {
         const zip = new ZipFS()
-        await loadIntoZip(zip, cwd + '/instances/' + id)
+        await loadIntoZip(zip, temp)
+        await fs.rm(temp, { recursive: true, force: true })
         await fs.writeFile(full, zip.getBufferAndClose())
       } else {
-        await fs.cp(cwd + '/instances/' + id, full, { recursive: true, force: true })
+        await fs.rename(temp, full)
       }
       success(`Successfully exported instance ${id} to ${full}.`)
     } catch (e) {

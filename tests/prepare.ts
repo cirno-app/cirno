@@ -4,17 +4,13 @@ function execute(cwd: URL, command: string) {
   execSync(command, { cwd, stdio: 'inherit' })
 }
 
-const foo = new URL('./fixtures/foo', import.meta.url)
-const bar = new URL('./fixtures/bar', import.meta.url)
+function prepare(cwd: URL) {
+  execute(cwd, 'yarn set version self --yarn-path')
+  execute(cwd, 'yarn config set enableGlobalCache false')
+  execute(cwd, 'yarn config set enableTips false')
+  execute(cwd, 'yarn config set nodeLinker pnp')
+  execute(cwd, 'yarn')
+}
 
-execute(foo, 'yarn set version self --yarn-path')
-execute(foo, 'yarn config set enableGlobalCache false')
-execute(foo, 'yarn config set enableTips false')
-execute(foo, 'yarn config set nodeLinker pnp')
-execute(foo, 'yarn')
-
-execute(bar, 'yarn set version self --yarn-path')
-execute(bar, 'yarn config set enableGlobalCache false')
-execute(bar, 'yarn config set enableTips false')
-execute(bar, 'yarn config set nodeLinker pnp')
-execute(bar, 'yarn')
+prepare(new URL('./fixtures/foo', import.meta.url))
+prepare(new URL('./fixtures/bar', import.meta.url))

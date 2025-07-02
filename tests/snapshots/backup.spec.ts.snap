@@ -45,7 +45,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -73,11 +75,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -86,8 +83,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -113,7 +108,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -148,11 +145,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -161,8 +153,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -182,11 +172,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -195,8 +180,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -222,7 +205,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -257,11 +242,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -270,8 +250,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -291,11 +269,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -304,8 +277,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -331,7 +302,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -373,11 +346,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -386,8 +354,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -407,11 +373,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -420,8 +381,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -441,11 +400,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -454,8 +408,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -481,7 +433,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -516,11 +470,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -529,8 +478,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -550,11 +497,6 @@ entries:
                     name: .gitignore
               - type: file
                 name: install-state.gz
-              - type: directory
-                name: releases
-                entries:
-                  - type: file
-                    name: yarn-4.3.1.cjs
           - type: file
             name: .yarnrc.yml
             content: |
@@ -563,8 +505,6 @@ entries:
               enableTips: false
 
               nodeLinker: pnp
-
-              yarnPath: .yarn/releases/yarn-4.3.1.cjs
           - type: file
             name: package.json
           - type: file
@@ -590,7 +530,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -620,7 +562,9 @@ entries:
         entries: []
       - type: directory
         name: releases
-        entries: []
+        entries:
+          - type: file
+            name: yarn-4.3.1.cjs
   - type: file
     name: cirno.yml
     content: |
