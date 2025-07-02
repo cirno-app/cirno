@@ -5,6 +5,25 @@ import { v4, validate } from 'uuid'
 
 export interface YarnRc {
   yarnPath?: string
+  enableGlobalCache?: boolean
+}
+
+export interface YarnLock extends Record<string, YarnLock.Entry> {
+  __metadata: {
+    version: number
+    cacheKey: string
+  } & YarnLock.Entry
+}
+
+export namespace YarnLock {
+  export interface Entry {
+    version: string
+    resolution: string
+    dependencies: Record<string, string>
+    checksum: string
+    languageName: string
+    linkType: string
+  }
 }
 
 export interface Package {

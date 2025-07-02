@@ -42,7 +42,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -68,18 +70,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -105,7 +100,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -138,18 +135,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -165,18 +155,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -202,7 +185,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -235,18 +220,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -262,18 +240,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -299,7 +270,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -339,18 +312,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -366,18 +332,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -393,18 +352,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -430,7 +382,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -456,18 +410,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -493,7 +440,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -519,18 +468,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -556,7 +498,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -582,18 +526,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp

@@ -42,7 +42,9 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
@@ -68,18 +70,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -105,7 +100,17 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
+          - type: file
+            name: '@types-emscripten-npm-1.39.13-baf7427522-99c314418b.zip'
+          - type: file
+            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-e327aaf73f.zip'
+          - type: file
+            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-11e12724d9.zip'
+          - type: file
+            name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
       - type: directory
         name: releases
         entries:
@@ -137,26 +142,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
-                  - type: file
-                    name: '@types-emscripten-npm-1.39.13-baf7427522-99c314418b.zip'
-                  - type: file
-                    name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-e327aaf73f.zip'
-                  - type: file
-                    name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-11e12724d9.zip'
-                  - type: file
-                    name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -172,18 +162,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -209,7 +192,27 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
+          - type: file
+            name: '@types-emscripten-npm-1.39.13-baf7427522-99c314418b.zip'
+          - type: file
+            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-e327aaf73f.zip'
+          - type: file
+            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-11e12724d9.zip'
+          - type: file
+            name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-a0c340e131.zip'
+          - type: file
+            name: argparse-npm-1.0.10-528934e59d-b2972c5c23.zip
+          - type: file
+            name: esprima-npm-4.0.1-1084e98778-ad4bab9ead.zip
+          - type: file
+            name: js-yaml-npm-3.14.1-b968c6095e-6746baaaea.zip
+          - type: file
+            name: sprintf-js-npm-1.0.3-73f0a322fa-ecadcfe4c7.zip
+          - type: file
+            name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
       - type: directory
         name: releases
         entries:
@@ -245,26 +248,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
-                  - type: file
-                    name: '@types-emscripten-npm-1.39.13-baf7427522-99c314418b.zip'
-                  - type: file
-                    name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-e327aaf73f.zip'
-                  - type: file
-                    name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-11e12724d9.zip'
-                  - type: file
-                    name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -280,30 +268,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
-                  - type: file
-                    name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-a0c340e131.zip'
-                  - type: file
-                    name: argparse-npm-1.0.10-528934e59d-b2972c5c23.zip
-                  - type: file
-                    name: esprima-npm-4.0.1-1084e98778-ad4bab9ead.zip
-                  - type: file
-                    name: js-yaml-npm-3.14.1-b968c6095e-6746baaaea.zip
-                  - type: file
-                    name: sprintf-js-npm-1.0.3-73f0a322fa-ecadcfe4c7.zip
-                  - type: file
-                    name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -319,18 +288,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp

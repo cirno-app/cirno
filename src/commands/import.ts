@@ -59,8 +59,16 @@ export default (cli: CAC) => cli
       await fs.rename(yarnPath, resolve(cwd, `.yarn/releases/yarn-${capture[1]}.cjs`))
       await fs.rm(resolve(temp, '.yarn/releases'), { recursive: true, force: true })
       delete yarnRc.yarnPath
-      await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
 
+      // enableGlobalCache
+      const files = await fs.readdir(resolve(temp, '.yarn/cache'))
+      for (const name of files) {
+        await fs.rename(resolve(temp, '.yarn/cache', name), resolve(cwd, '.yarn/cache', name))
+      }
+      await fs.rm(resolve(temp, '.yarn/cache'), { recursive: true, force: true })
+      delete yarnRc.enableGlobalCache
+
+      await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
       await fs.rename(temp, dest)
       await cirno.save()
       success(`Successfully imported instance ${instance.id}.`)

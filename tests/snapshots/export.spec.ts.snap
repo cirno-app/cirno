@@ -30,7 +30,7 @@ entries:
 
 `;
 
-exports[`step 2: cirno import /fixtures/foo 1`] = `
+exports[`step 2: cirno import /fixtures/bar 1`] = `
 stdout: |2
    SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
 stderr: ''
@@ -42,19 +42,29 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
+          - type: file
+            name: '@types-emscripten-npm-1.39.13-baf7427522-99c314418b.zip'
+          - type: file
+            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-e327aaf73f.zip'
+          - type: file
+            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-11e12724d9.zip'
+          - type: file
+            name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
       - type: directory
         name: releases
         entries:
           - type: file
-            name: yarn-4.3.1.cjs
+            name: yarn-4.2.2.cjs
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: foo
+          name: bar
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -68,18 +78,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -93,9 +96,9 @@ entries:
 
 `;
 
-exports[`step 3: cirno export <#1> /exports/foo.zip 1`] = `
+exports[`step 3: cirno export <#1> /exports/bar.zip 1`] = `
 stdout: |2
-   SUCCESS  Successfully exported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 to /exports/foo.zip.
+   SUCCESS  Successfully exported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 to /exports/bar.zip.
 stderr: ''
 code: 0
 signal: null
@@ -105,19 +108,21 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
           - type: file
-            name: yarn-4.3.1.cjs
+            name: yarn-4.2.2.cjs
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       instances:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: foo
+          name: bar
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -131,18 +136,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
@@ -168,12 +166,14 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
       - type: directory
         name: releases
         entries:
           - type: file
-            name: yarn-4.3.1.cjs
+            name: yarn-4.2.2.cjs
   - type: file
     name: cirno.yml
     content: |
@@ -188,7 +188,7 @@ entries:
 
 `;
 
-exports[`step 5: cirno import /exports/foo.zip 1`] = `
+exports[`step 5: cirno import /exports/bar.zip 1`] = `
 stdout: |2
    SUCCESS  Successfully imported instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19.
 stderr: ''
@@ -200,19 +200,29 @@ entries:
     entries:
       - type: directory
         name: cache
-        entries: []
+        entries:
+          - type: file
+            name: .gitignore
+          - type: file
+            name: '@types-emscripten-npm-1.39.13-baf7427522-99c314418b.zip'
+          - type: file
+            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-e327aaf73f.zip'
+          - type: file
+            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-11e12724d9.zip'
+          - type: file
+            name: tslib-npm-2.6.3-0fd136b3be-2598aef53d.zip
       - type: directory
         name: releases
         entries:
           - type: file
-            name: yarn-4.3.1.cjs
+            name: yarn-4.2.2.cjs
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       instances:
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: foo
+          name: bar
           created: '<timestamp>'
           updated: '<timestamp>'
   - type: directory
@@ -226,18 +236,11 @@ entries:
           - type: directory
             name: .yarn
             entries:
-              - type: directory
-                name: cache
-                entries:
-                  - type: file
-                    name: .gitignore
               - type: file
                 name: install-state.gz
           - type: file
             name: .yarnrc.yml
             content: |
-              enableGlobalCache: false
-
               enableTips: false
 
               nodeLinker: pnp
