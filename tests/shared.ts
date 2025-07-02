@@ -59,8 +59,10 @@ function spawn(args: string[], root: string) {
     child.on('exit', async (code, signal) => {
       stdout = stdout.replace(root, '')
       stderr = stderr.replace(root, '')
-      const files = await traverse(cwd)
-      resolve({ stdout, stderr, code, signal, entries: files })
+      const entries = await traverse(cwd)
+      const output = { stdout, stderr, code, signal, entries }
+      Object.defineProperty(output, '__SERIALIZER__', { value: 'yaml' })
+      resolve(output)
     })
   })
 }
@@ -76,11 +78,11 @@ interface Arg {
 }
 
 export function useFixture(name: string): Arg {
-  return { value: `../../../tests/fixtures/${name}`, pretty: `<fixtures>/${name}` }
+  return { value: `../../../tests/fixtures/${name}`, pretty: `/fixtures/${name}` }
 }
 
 export function useExport(name: string): Arg {
-  return { value: `../exports/${name}`, pretty: `<exports>/${name}` }
+  return { value: `../exports/${name}`, pretty: `/exports/${name}` }
 }
 
 export interface StepOptions {

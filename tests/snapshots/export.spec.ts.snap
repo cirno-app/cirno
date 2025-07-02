@@ -1,350 +1,199 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`step 2: cirno import <fixtures>/foo 1`] = `
-{
-  "code": 0,
-  "entries": [
-    {
-      "entries": [
-        {
-          "entries": [],
-          "name": "cache",
-          "type": "directory",
-        },
-        {
-          "entries": [],
-          "name": "releases",
-          "type": "directory",
-        },
-      ],
-      "name": ".yarn",
-      "type": "directory",
-    },
-    {
-      "content": "version: '1.0'
-instances:
-  - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-    name: unnamed
-    created: '<timestamp>'
-    updated: '<timestamp>'
-",
-      "name": "cirno.yml",
-      "type": "file",
-    },
-    {
-      "entries": [
-        {
-          "entries": [
-            {
-              "entries": [
-                {
-                  "entries": [
-                    {
-                      "name": ".gitignore",
-                      "type": "file",
-                    },
-                  ],
-                  "name": "cache",
-                  "type": "directory",
-                },
-                {
-                  "name": "install-state.gz",
-                  "type": "file",
-                },
-                {
-                  "entries": [
-                    {
-                      "name": "yarn-4.3.1.cjs",
-                      "type": "file",
-                    },
-                  ],
-                  "name": "releases",
-                  "type": "directory",
-                },
-              ],
-              "name": ".yarn",
-              "type": "directory",
-            },
-            {
-              "name": ".yarnrc.yml",
-              "type": "file",
-            },
-            {
-              "entries": [
-                {
-                  "name": ".yarn-state.yml",
-                  "type": "file",
-                },
-              ],
-              "name": "node_modules",
-              "type": "directory",
-            },
-            {
-              "name": "package.json",
-              "type": "file",
-            },
-            {
-              "name": "yarn.lock",
-              "type": "file",
-            },
-          ],
-          "name": "cd5fbb72-8243-5ccf-b8ca-ceee993585f7",
-          "type": "directory",
-        },
-      ],
-      "name": "instances",
-      "type": "directory",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
-",
-}
+exports[`step 2: cirno import /fixtures/foo 1`] = `
+stdout: |2
+   SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+
 `;
 
-exports[`step 3: cirno export <#1> <exports>/foo.zip 1`] = `
-{
-  "code": 0,
-  "entries": [
-    {
-      "entries": [
-        {
-          "entries": [],
-          "name": "cache",
-          "type": "directory",
-        },
-        {
-          "entries": [],
-          "name": "releases",
-          "type": "directory",
-        },
-      ],
-      "name": ".yarn",
-      "type": "directory",
-    },
-    {
-      "content": "version: '1.0'
-instances:
-  - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-    name: unnamed
-    created: '<timestamp>'
-    updated: '<timestamp>'
-",
-      "name": "cirno.yml",
-      "type": "file",
-    },
-    {
-      "entries": [
-        {
-          "entries": [
-            {
-              "entries": [
-                {
-                  "entries": [
-                    {
-                      "name": ".gitignore",
-                      "type": "file",
-                    },
-                  ],
-                  "name": "cache",
-                  "type": "directory",
-                },
-                {
-                  "name": "install-state.gz",
-                  "type": "file",
-                },
-                {
-                  "entries": [
-                    {
-                      "name": "yarn-4.3.1.cjs",
-                      "type": "file",
-                    },
-                  ],
-                  "name": "releases",
-                  "type": "directory",
-                },
-              ],
-              "name": ".yarn",
-              "type": "directory",
-            },
-            {
-              "name": ".yarnrc.yml",
-              "type": "file",
-            },
-            {
-              "entries": [
-                {
-                  "name": ".yarn-state.yml",
-                  "type": "file",
-                },
-              ],
-              "name": "node_modules",
-              "type": "directory",
-            },
-            {
-              "name": "package.json",
-              "type": "file",
-            },
-            {
-              "name": "yarn.lock",
-              "type": "file",
-            },
-          ],
-          "name": "cd5fbb72-8243-5ccf-b8ca-ceee993585f7",
-          "type": "directory",
-        },
-      ],
-      "name": "instances",
-      "type": "directory",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Successfully exported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 to /exports/foo.zip.
-",
-}
+exports[`step 3: cirno export <#1> /exports/foo.zip 1`] = `
+stdout: |2
+   SUCCESS  Successfully exported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 to /exports/foo.zip.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+
 `;
 
 exports[`step 4: cirno remove <#1> 1`] = `
-{
-  "code": 0,
-  "entries": [
-    {
-      "entries": [
-        {
-          "entries": [],
-          "name": "cache",
-          "type": "directory",
-        },
-        {
-          "entries": [],
-          "name": "releases",
-          "type": "directory",
-        },
-      ],
-      "name": ".yarn",
-      "type": "directory",
-    },
-    {
-      "content": "version: '1.0'
-instances: []
-",
-      "name": "cirno.yml",
-      "type": "file",
-    },
-    {
-      "entries": [],
-      "name": "instances",
-      "type": "directory",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 is successfully removed.
-",
-}
+stdout: |2
+   SUCCESS  Instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 is successfully removed.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances: []
+  - type: directory
+    name: instances
+    entries: []
+
 `;
 
-exports[`step 5: cirno import <exports>/foo.zip 1`] = `
-{
-  "code": 0,
-  "entries": [
-    {
-      "entries": [
-        {
-          "entries": [],
-          "name": "cache",
-          "type": "directory",
-        },
-        {
-          "entries": [],
-          "name": "releases",
-          "type": "directory",
-        },
-      ],
-      "name": ".yarn",
-      "type": "directory",
-    },
-    {
-      "content": "version: '1.0'
-instances:
-  - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-    name: unnamed
-    created: '<timestamp>'
-    updated: '<timestamp>'
-",
-      "name": "cirno.yml",
-      "type": "file",
-    },
-    {
-      "entries": [
-        {
-          "entries": [
-            {
-              "entries": [
-                {
-                  "entries": [
-                    {
-                      "name": ".gitignore",
-                      "type": "file",
-                    },
-                  ],
-                  "name": "cache",
-                  "type": "directory",
-                },
-                {
-                  "name": "install-state.gz",
-                  "type": "file",
-                },
-                {
-                  "entries": [
-                    {
-                      "name": "yarn-4.3.1.cjs",
-                      "type": "file",
-                    },
-                  ],
-                  "name": "releases",
-                  "type": "directory",
-                },
-              ],
-              "name": ".yarn",
-              "type": "directory",
-            },
-            {
-              "name": ".yarnrc.yml",
-              "type": "file",
-            },
-            {
-              "entries": [
-                {
-                  "name": ".yarn-state.yml",
-                  "type": "file",
-                },
-              ],
-              "name": "node_modules",
-              "type": "directory",
-            },
-            {
-              "name": "package.json",
-              "type": "file",
-            },
-            {
-              "name": "yarn.lock",
-              "type": "file",
-            },
-          ],
-          "name": "5ab7bff9-d000-5c3b-83ac-4c3c4296ee19",
-          "type": "directory",
-        },
-      ],
-      "name": "instances",
-      "type": "directory",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Successfully imported instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19.
-",
-}
+exports[`step 5: cirno import /exports/foo.zip 1`] = `
+stdout: |2
+   SUCCESS  Successfully imported instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances:
+        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          name: unnamed
+          created: '<timestamp>'
+          updated: '<timestamp>'
+  - type: directory
+    name: instances
+    entries:
+      - type: directory
+        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: directory
+                name: cache
+                entries:
+                  - type: file
+                    name: .gitignore
+              - type: file
+                name: install-state.gz
+              - type: directory
+                name: releases
+                entries:
+                  - type: file
+                    name: yarn-4.3.1.cjs
+          - type: file
+            name: .yarnrc.yml
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+
 `;

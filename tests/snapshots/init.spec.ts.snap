@@ -1,119 +1,92 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`step 1: cirno 1`] = `
-{
-  "code": 0,
-  "entries": [],
-  "signal": null,
-  "stderr": "",
-  "stdout": "cirno/0.0.1
+stdout: |
+  cirno/0.0.1
 
-Usage:
-  $ cirno <command> [options]
+  Usage:
+    $ cirno <command> [options]
 
-Commands:
-  init                   Initialize a new project
-  list                   List all instances
-  import [src] [name]    Import an instance
-  export [id] [dest]     Export an instance
-  clone [id] [name]      Clone an instance
-  backup [id] [name]     Backup an instance
-  restore [head] [base]  Restore an instance
-  remove [id]            Remove an instance
+  Commands:
+    init                   Initialize a new project
+    list                   List all instances
+    import [src] [name]    Import an instance
+    export [id] [dest]     Export an instance
+    clone [id] [name]      Clone an instance
+    backup [id] [name]     Backup an instance
+    restore [head] [base]  Restore an instance
+    remove [id]            Remove an instance
 
-For more info, run any command with the \`--help\` flag:
-  $ cirno init --help
-  $ cirno list --help
-  $ cirno import --help
-  $ cirno export --help
-  $ cirno clone --help
-  $ cirno backup --help
-  $ cirno restore --help
-  $ cirno remove --help
+  For more info, run any command with the \`--help\` flag:
+    $ cirno init --help
+    $ cirno list --help
+    $ cirno import --help
+    $ cirno export --help
+    $ cirno clone --help
+    $ cirno backup --help
+    $ cirno restore --help
+    $ cirno remove --help
 
-Options:
-  -h, --help     Display this message 
-  -v, --version  Display version number 
-",
-}
+  Options:
+    -h, --help     Display this message 
+    -v, --version  Display version number 
+stderr: ''
+code: 0
+signal: null
+entries: []
+
 `;
 
 exports[`step 2: cirno init 1`] = `
-{
-  "code": 0,
-  "entries": [
-    {
-      "entries": [
-        {
-          "entries": [],
-          "name": "cache",
-          "type": "directory",
-        },
-        {
-          "entries": [],
-          "name": "releases",
-          "type": "directory",
-        },
-      ],
-      "name": ".yarn",
-      "type": "directory",
-    },
-    {
-      "content": "version: '1.0'
-instances: []
-",
-      "name": "cirno.yml",
-      "type": "file",
-    },
-    {
-      "entries": [],
-      "name": "instances",
-      "type": "directory",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Cirno project initialized at /data.
-",
-}
+stdout: |2
+   SUCCESS  Cirno project initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances: []
+  - type: directory
+    name: instances
+    entries: []
+
 `;
 
 exports[`step 3: cirno init 1`] = `
-{
-  "code": 1,
-  "entries": [
-    {
-      "entries": [
-        {
-          "entries": [],
-          "name": "cache",
-          "type": "directory",
-        },
-        {
-          "entries": [],
-          "name": "releases",
-          "type": "directory",
-        },
-      ],
-      "name": ".yarn",
-      "type": "directory",
-    },
-    {
-      "content": "version: '1.0'
-instances: []
-",
-      "name": "cirno.yml",
-      "type": "file",
-    },
-    {
-      "entries": [],
-      "name": "instances",
-      "type": "directory",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " ERROR  Project already exists. Use \`cirno init -f\` to overwrite.
-",
-}
+stdout: |2
+   ERROR  Project already exists. Use \`cirno init -f\` to overwrite.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: .yarn
+    entries:
+      - type: directory
+        name: cache
+        entries: []
+      - type: directory
+        name: releases
+        entries: []
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      instances: []
+  - type: directory
+    name: instances
+    entries: []
+
 `;

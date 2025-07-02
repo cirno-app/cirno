@@ -1,3 +1,4 @@
+*/.pnp.cjs
 */.yarn
 .yarnrc.yml
 !yarn.lock
