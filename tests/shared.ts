@@ -1,0 +1,114 @@
+import { mkdir, readdir, readFile } from 'node:fs/promises'
+import { fork } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { beforeAll, expect, it } from 'vitest'
+import { v4, v5 } from 'uuid'
+
+const tempRoot = fileURLToPath(new URL('../temp', import.meta.url))
+
+interface Output {
+  stdout: string
+  stderr: string
+  code: number | null
+  signal: string | null
+  files: File[]
+}
+
+interface File {
+  path: string
+  content: string
+}
+
+const ISO_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/gm
+
+async function traverse(root: string, prefix = '') {
+  const result: File[] = []
+  const files = await readdir(root, { withFileTypes: true })
+  for (const file of files) {
+    if (file.isDirectory()) {
+      result.push(...await traverse(root + '/' + file.name, prefix + file.name + '/'))
+    } else {
+      const content = await readFile(root + '/' + file.name, 'utf8')
+      result.push({
+        path: prefix + file.name,
+        content: content.replace(ISO_REGEX, '<timestamp>'),
+      })
+    }
+  }
+  return result
+}
+
+function spawn(args: string[], root: string) {
+  const cwd = root + '/data'
+  const out = root + '/exports'
+  return new Promise<Output>((resolve, reject) => {
+    const child = fork(new URL('../src/cli.ts', import.meta.url), args, {
+      cwd,
+      execArgv: ['--import', 'tsx'],
+      stdio: 'pipe',
+    })
+    let stdout = '', stderr = ''
+    child.stdout!.on('data', (data) => stdout += data)
+    child.stderr!.on('data', (data) => stderr += data)
+    child.on('exit', async (code, signal) => {
+      stdout = stdout.replace(out, '<exports>')
+      stderr = stderr.replace(out, '<exports>')
+      const files = await traverse(cwd)
+      resolve({ stdout, stderr, code, signal, files })
+    })
+  })
+}
+
+const namespace = '226704d4-f5d0-4349-b8bb-d9d480b0433e'
+
+let stepCount = 0
+let instCount = 0
+
+interface Arg {
+  value: string
+  pretty: string
+}
+
+export function useFixture(name: string): Arg {
+  return { value: `../../../tests/fixtures/${name}`, pretty: `<fixtures>/${name}` }
+}
+
+export function useExport(name: string): Arg {
+  return { value: `../exports/${name}`, pretty: `<exports>/${name}` }
+}
+
+let activeRoot: string
+
+export interface StepOptions {
+  silent?: boolean
+  create?: boolean
+}
+
+export function makeTest(args: (string | Arg)[], options: StepOptions = {}): Arg {
+  stepCount += 1
+  if (options.create) instCount += 1
+  const uuid = v5(`${instCount}`, namespace)
+  const name = [
+    `step ${stepCount}:`,
+    'cirno',
+    ...args.map((arg) => typeof arg === 'string' ? arg : arg.pretty),
+  ].join(' ')
+  it(name, async () => {
+    const output = await spawn([
+      ...args.map((arg) => typeof arg === 'string' ? arg : arg.value),
+      ...options.create ? ['--id', uuid] : [],
+    ], activeRoot)
+    if (!options.silent) {
+      expect(output).toMatchSnapshot()
+    }
+  })
+  return { value: uuid, pretty: `<#${instCount}>` }
+}
+
+export function makeEnv(callback: () => void) {
+  const root = activeRoot = tempRoot + '/' + v4()
+  beforeAll(async () => {
+    await mkdir(root + '/data', { recursive: true })
+  })
+  callback()
+}

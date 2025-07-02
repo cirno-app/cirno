@@ -1,80 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`step 1: cirno 1`] = `
-{
-  "code": 0,
-  "files": [],
-  "signal": null,
-  "stderr": "",
-  "stdout": "cirno/0.0.1
-
-Usage:
-  $ cirno <command> [options]
-
-Commands:
-  init                   Initialize a new project
-  list                   List all instances
-  import [src] [name]    Import an instance
-  export [id] [dest]     Export an instance
-  clone [id] [name]      Clone an instance
-  backup [id] [name]     Backup an instance
-  restore [head] [base]  Restore an instance
-  remove [id]            Remove an instance
-
-For more info, run any command with the \`--help\` flag:
-  $ cirno init --help
-  $ cirno list --help
-  $ cirno import --help
-  $ cirno export --help
-  $ cirno clone --help
-  $ cirno backup --help
-  $ cirno restore --help
-  $ cirno remove --help
-
-Options:
-  -h, --help     Display this message 
-  -v, --version  Display version number 
-",
-}
-`;
-
-exports[`step 2: cirno init 1`] = `
-{
-  "code": 0,
-  "files": [
-    {
-      "content": "version: '1.0'
-instances: []
-",
-      "path": "cirno.yml",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " SUCCESS  Cirno project initialized.
-",
-}
-`;
-
-exports[`step 3: cirno init 1`] = `
-{
-  "code": 1,
-  "files": [
-    {
-      "content": "version: '1.0'
-instances: []
-",
-      "path": "cirno.yml",
-    },
-  ],
-  "signal": null,
-  "stderr": "",
-  "stdout": " Error  Project already exists. Use \`cirno init -f\` to overwrite.
-",
-}
-`;
-
-exports[`step 4: cirno import <fixtures>/foo 1`] = `
+exports[`step 2: cirno import <fixtures>/foo 1`] = `
 {
   "code": 0,
   "files": [
@@ -105,7 +31,7 @@ instances:
 }
 `;
 
-exports[`step 5: cirno export <#1> <exports>/foo.zip 1`] = `
+exports[`step 3: cirno export <#1> <exports>/foo.zip 1`] = `
 {
   "code": 0,
   "files": [
@@ -136,7 +62,7 @@ instances:
 }
 `;
 
-exports[`step 6: cirno remove <#1> 1`] = `
+exports[`step 4: cirno remove <#1> 1`] = `
 {
   "code": 0,
   "files": [
@@ -154,7 +80,7 @@ instances: []
 }
 `;
 
-exports[`step 7: cirno remove <#1> 1`] = `
+exports[`step 5: cirno remove <#1> 1`] = `
 {
   "code": 1,
   "files": [
@@ -172,7 +98,7 @@ instances: []
 }
 `;
 
-exports[`step 8: cirno import <exports>/foo.zip 1`] = `
+exports[`step 6: cirno import <exports>/foo.zip 1`] = `
 {
   "code": 0,
   "files": [

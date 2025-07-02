@@ -33,7 +33,7 @@ cli
   .action(async (options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const instances = Object.values(cirno.data.instances)
+    const instances = Object.values(cirno.instances)
     if (options.json) return console.log(JSON.stringify(instances))
     if (!instances.length) return info('No instances found.')
     info(`Found ${instances.length} instances:`)

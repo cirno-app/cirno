@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step 1: cirno 1`] = `
+{
+  "code": 0,
+  "files": [],
+  "signal": null,
+  "stderr": "",
+  "stdout": "cirno/0.0.1
+
+Usage:
+  $ cirno <command> [options]
+
+Commands:
+  init                   Initialize a new project
+  list                   List all instances
+  import [src] [name]    Import an instance
+  export [id] [dest]     Export an instance
+  clone [id] [name]      Clone an instance
+  backup [id] [name]     Backup an instance
+  restore [head] [base]  Restore an instance
+  remove [id]            Remove an instance
+
+For more info, run any command with the \`--help\` flag:
+  $ cirno init --help
+  $ cirno list --help
+  $ cirno import --help
+  $ cirno export --help
+  $ cirno clone --help
+  $ cirno backup --help
+  $ cirno restore --help
+  $ cirno remove --help
+
+Options:
+  -h, --help     Display this message 
+  -v, --version  Display version number 
+",
+}
+`;
+
+exports[`step 2: cirno init 1`] = `
+{
+  "code": 0,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances: []
+",
+      "path": "cirno.yml",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " SUCCESS  Cirno project initialized.
+",
+}
+`;
+
+exports[`step 3: cirno init 1`] = `
+{
+  "code": 1,
+  "files": [
+    {
+      "content": "version: '1.0'
+instances: []
+",
+      "path": "cirno.yml",
+    },
+  ],
+  "signal": null,
+  "stderr": "",
+  "stdout": " Error  Project already exists. Use \`cirno init -f\` to overwrite.
+",
+}
+`;
