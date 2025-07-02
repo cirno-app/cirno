@@ -6,7 +6,6 @@ import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
   .command('backup [id] [name]', 'Backup an instance')
-  // .usage('Create a backup instance and link it to the base instance.')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
   .action(async (id: string, name: string, options) => {

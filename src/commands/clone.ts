@@ -6,7 +6,6 @@ import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
   .command('clone [id] [name]', 'Clone an instance')
-  // .usage('Create a new instance with the same configuration as the base instance.')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
   .action(async (id: string, name: string, options) => {
