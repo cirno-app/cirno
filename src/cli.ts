@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import * as fs from 'node:fs/promises'
-import AdmZip from 'adm-zip'
+import { PortablePath } from '@yarnpkg/fslib'
+import { ZipFS } from '@yarnpkg/libzip'
 import { cac } from 'cac'
 import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Cirno } from './index.ts'
 import { error, info, success } from './utils.ts'
@@ -22,7 +23,7 @@ cli
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd, true, options.force)
     await cirno.save()
-    success('Cirno project initialized.')
+    success(`Cirno project initialized at ${cwd}.`)
   })
 
 cli
@@ -54,39 +55,61 @@ function parseImport(src: string, cwd: string) {
   }
 }
 
-async function extractZip(src: string | Buffer, dest: string) {
-  const zip = new AdmZip(src)
-  await new Promise<void>((resolve, reject) => {
-    zip.extractAllToAsync(dest, true, undefined, (error) => {
-      error ? reject(error) : resolve()
-    })
-  })
+async function dumpFromZip(zip: ZipFS, root: string, base = '/') {
+  const dirents = await zip.readdirPromise(base as PortablePath, { withFileTypes: true })
+  await Promise.all(dirents.map(async (dirent) => {
+    if (dirent.isFile()) {
+      const buffer = await zip.readFilePromise(base + dirent.name as PortablePath)
+      await fs.writeFile(join(root, dirent.name), buffer)
+    } else if (dirent.isDirectory()) {
+      await fs.mkdir(join(root, dirent.name))
+      await dumpFromZip(zip, join(root, dirent.name), base + dirent.name + '/')
+    } else {
+      throw new Error(`Unsupported file type`)
+    }
+  }))
+}
+
+async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
+  const dirents = await fs.readdir(root, { withFileTypes: true })
+  await Promise.all(dirents.map(async (dirent) => {
+    if (dirent.isFile()) {
+      const buffer = await fs.readFile(join(root, dirent.name))
+      await zip.writeFilePromise(base + dirent.name as PortablePath, buffer)
+    } else if (dirent.isDirectory()) {
+      await zip.mkdirPromise(base + dirent.name as PortablePath)
+      await loadIntoZip(zip, join(root, dirent.name), base + dirent.name + '/')
+    } else {
+      throw new Error(`Unsupported file type`)
+    }
+  }))
 }
 
 cli
   .command('import [src] [name]', 'Import an instance')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
-  // .option('-p, --password <password>', 'Password for encrypted zip file')
   .action(async (src: string, name: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
     const instance = cirno.create(name ?? 'unnamed', options.id)
     const dest = cwd + '/instances/' + instance.id
+    await fs.mkdir(dest, { recursive: true })
     try {
-      const resolved = parseImport(src, cwd)
-      if (typeof resolved === 'string') {
-        const stats = await fs.stat(src)
+      const parsed = parseImport(src, cwd)
+      if (typeof parsed === 'string') {
+        const stats = await fs.stat(parsed)
         if (stats.isDirectory()) {
-          await fs.cp(src, dest, { recursive: true })
+          await fs.cp(parsed, dest, { recursive: true })
         } else {
-          await extractZip(src, dest)
+          const buffer = await fs.readFile(parsed)
+          await dumpFromZip(new ZipFS(buffer), dest)
         }
       } else {
-        const response = await fetch(resolved)
-        const buffer = await response.arrayBuffer()
-        await extractZip(Buffer.from(buffer), dest)
+        const response = await fetch(parsed)
+        const buffer = Buffer.from(await response.arrayBuffer())
+        await dumpFromZip(new ZipFS(buffer), dest)
       }
       await cirno.save()
       success(`Successfully imported instance ${instance.id}.`)
@@ -98,7 +121,6 @@ cli
 cli
   .command('export [id] [dest]', 'Export an instance')
   .option('--cwd <path>', 'Specify the project folder')
-  // .option('-p, --password <password>', 'Password for encrypted zip file')
   .option('--zip', 'Export as a zip file')
   .action(async (id: string, dest: string, options) => {
     // TODO: handle dependencies and modify yarnPath
@@ -107,15 +129,19 @@ cli
     const instance = cirno.get(id, 'export')
     if (!instance) return
     if (!dest) return error('Missing output path. See `cirno remove --help` for usage.')
-    const full = resolve(cwd, dest)
-    if (dest.endsWith('.zip') || options.zip) {
-      const zip = new AdmZip()
-      await zip.addLocalFolderPromise(cwd + '/instances/' + id, {})
-      await zip.writeZipPromise(full, { overwrite: true })
-    } else {
-      await fs.cp(cwd + '/instances/' + id, full, { recursive: true, force: true })
+    try {
+      const full = resolve(cwd, dest)
+      if (full.endsWith('.zip') || options.zip) {
+        const zip = new ZipFS()
+        await loadIntoZip(zip, cwd + '/instances/' + id)
+        await fs.writeFile(full, zip.getBufferAndClose())
+      } else {
+        await fs.cp(cwd + '/instances/' + id, full, { recursive: true, force: true })
+      }
+      success(`Successfully exported instance ${id} to ${full}.`)
+    } catch (e) {
+      error('Failed to export instance.', e)
     }
-    success(`Successfully exported instance ${id} to ${full}.`)
   })
 
 cli

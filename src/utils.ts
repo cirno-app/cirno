@@ -5,7 +5,7 @@ export function info(message: string): undefined {
 }
 
 export function error(message: string, error?: any): never {
-  console.log(k.bold(k.bgRed(' Error ') + ' ' + k.white(message)))
+  console.log(k.bold(k.bgRed(' ERROR ') + ' ' + k.white(message)))
   if (error) console.error(error)
   process.exit(1)
 }
