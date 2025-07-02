@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { ZipFS } from '@yarnpkg/libzip'
 import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
 import { Cirno, Package, YarnLock, YarnRc } from '../index.ts'
-import { dumpFromZip, error } from '../utils.ts'
+import { dumpFromZip, error, success } from '../utils.ts'
 import * as fs from 'node:fs/promises'
 
 function parseImport(src: string, cwd: string) {
@@ -77,7 +77,7 @@ export default (cli: CAC) => cli
       await fs.rename(temp, dest)
       await cirno.save()
       await cirno.yarn(instance.id, options['--'])
-      // success(`Successfully imported instance ${instance.id}.`)
+      success(`Successfully imported instance ${instance.id}.`)
     } catch (e) {
       await fs.rm(temp, { recursive: true, force: true })
       error('Failed to import instance.', e)
