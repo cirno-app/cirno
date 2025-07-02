@@ -39,7 +39,7 @@ stdout: |
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
-  ➤ YN0000: · Done in <time>
+  ➤ YN0000: · Done
 stderr: ''
 code: 0
 signal: null

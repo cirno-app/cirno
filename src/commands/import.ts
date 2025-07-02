@@ -76,7 +76,7 @@ export default (cli: CAC) => cli
       await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
       await fs.rename(temp, dest)
       await cirno.save()
-      await cirno.yarn(instance.id, [])
+      await cirno.yarn(instance.id, options['--'])
       // success(`Successfully imported instance ${instance.id}.`)
     } catch (e) {
       await fs.rm(temp, { recursive: true, force: true })

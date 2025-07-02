@@ -127,6 +127,7 @@ export class Cirno {
         stdio: 'inherit',
         env: {
           ...process.env,
+          YARN_YARN_PATH: yarnPath,
           YARN_GLOBAL_FOLDER: this.cwd + '/.yarn',
         },
       })
