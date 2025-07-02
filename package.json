@@ -1,6 +1,6 @@
 {
   "name": "cirno",
-  "description": "Instance Manager for Cordis Applications",
+  "description": "Zero-Install Package Manager for Node.js",
   "version": "0.1.0",
   "packageManager": "yarn@4.3.1",
   "type": "module",
