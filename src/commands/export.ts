@@ -6,6 +6,18 @@ import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
 import { ZipFS } from '@yarnpkg/libzip'
 import * as fs from 'node:fs/promises'
 
+function formatSize(size: number) {
+  const units = ['B', 'KB', 'MB', 'GB']
+  for (const idx in units) {
+    if (idx && size > 1024) {
+      size /= 1024
+    } else {
+      return `${+size.toFixed(1)} ${units[idx]}`
+    }
+  }
+  return `${+size.toFixed(1)} ${units[units.length - 1]}`
+}
+
 export default (cli: CAC) => cli
   .command('export [id] [dest]', 'Export an instance')
   .option('--cwd <path>', 'Specify the project folder')
@@ -56,15 +68,18 @@ export default (cli: CAC) => cli
 
       await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
 
+      let size = ''
       if (full.endsWith('.zip') || options.zip) {
         const zip = new ZipFS()
         await loadIntoZip(zip, temp)
         await fs.rm(temp, { recursive: true, force: true })
-        await fs.writeFile(full, zip.getBufferAndClose())
+        const buffer = zip.getBufferAndClose()
+        await fs.writeFile(full, buffer)
+        size = ` (${formatSize(buffer.byteLength)})`
       } else {
         await fs.rename(temp, full)
       }
-      success(`Successfully exported instance ${id} to ${full}.`)
+      success(`Successfully exported instance ${id} to ${full}${size}.`)
     } catch (e) {
       error('Failed to export instance.', e)
     }
