@@ -30,7 +30,7 @@ export default (cli: CAC) => cli
     try {
       const full = resolve(cwd, dest)
       const temp = cwd + '/temp/' + id
-      await fs.cp(cwd + '/instances/' + id, temp, { recursive: true, force: true })
+      await fs.cp(cwd + '/apps/' + id, temp, { recursive: true, force: true })
 
       // yarnPath
       const pkgMeta: Package = JSON.parse(await fs.readFile(temp + '/package.json', 'utf8'))

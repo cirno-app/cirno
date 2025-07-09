@@ -1,7 +1,6 @@
 import * as fs from 'node:fs/promises'
 import * as yaml from 'js-yaml'
 import { error } from './utils.ts'
-import { v4, validate } from 'uuid'
 import { join } from 'node:path'
 import { fork } from 'node:child_process'
 
@@ -80,7 +79,7 @@ export class Cirno {
       if (!create) error('Use `cirno init` to create a new project.')
       await fs.rm(cwd, { recursive: true, force: true })
       await fs.mkdir(cwd + '/temp', { recursive: true })
-      await fs.mkdir(cwd + '/instances', { recursive: true })
+      await fs.mkdir(cwd + '/apps', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
       return new Cirno(cwd, { version, config: {}, apps: [] })
@@ -90,14 +89,14 @@ export class Cirno {
   createId(id?: string) {
     if (id) return id
     do {
-      id = v4()
+      id = Math.random().toString(36).slice(2, 10).padEnd(8, '0')
     } while (this.instances[id])
     return id
   }
 
   get(id: string, command: string) {
     if (!id) error(`Missing instance ID. See \`cirno ${command} --help\` for usage.`)
-    if (!validate(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
+    if (!/[0-9a-f-]+/.test(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
     const app = this.instances[id]
     if (!app) error(`Instance ${id} not found.`)
     return app
@@ -111,13 +110,13 @@ export class Cirno {
   }
 
   async yarn(id: string, args: string[]) {
-    const pkgMeta: Package = JSON.parse(await fs.readFile(join(this.cwd, 'instances', id, '/package.json'), 'utf8'))
+    const pkgMeta: Package = JSON.parse(await fs.readFile(join(this.cwd, 'apps', id, '/package.json'), 'utf8'))
     const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
     if (!capture) throw new Error('Failed to detect yarn version.')
     const yarnPath = join(this.cwd, `.yarn/releases/yarn-${capture[1]}.cjs`)
     return new Promise<number | null>((resolve, reject) => {
       const child = fork(yarnPath, args, {
-        cwd: join(this.cwd, 'instances', id),
+        cwd: join(this.cwd, 'apps', id),
         stdio: 'inherit',
         env: {
           ...process.env,

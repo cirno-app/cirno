@@ -19,7 +19,7 @@ export default (cli: CAC) => cli
       type: 'manual',
       createTime: new Date().toISOString(),
     })
-    await cp(cwd + '/instances/' + id, cwd + '/instances/' + newId, { recursive: true })
+    await cp(cwd + '/apps/' + id, cwd + '/apps/' + newId, { recursive: true })
     await cirno.save()
     success(`Successfully created a backup instance ${newId}.`)
   })

@@ -14,13 +14,13 @@ export default (cli: CAC) => cli
     if (app.id === id) error('Cannot restore to a head instance.')
     const index = app.backups.findIndex(backup => backup.id === id)
     for (const backup of app.backups.splice(index + 1)) {
-      await rm(cwd + '/instances/' + backup.id, { recursive: true, force: true })
+      await rm(cwd + '/apps/' + backup.id, { recursive: true, force: true })
       delete cirno.instances[backup.id]
     }
     app.backups.pop()
     delete cirno.instances[id]
-    await rm(cwd + '/instances/' + app.id, { recursive: true, force: true })
-    await rename(cwd + '/instances/' + id, cwd + '/instances/' + app.id)
+    await rm(cwd + '/apps/' + app.id, { recursive: true, force: true })
+    await rename(cwd + '/apps/' + id, cwd + '/apps/' + app.id)
     await cirno.save()
     success(`App ${app.id} is successfully restored to backup ${id}.`)
   })

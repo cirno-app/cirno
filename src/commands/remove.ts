@@ -20,14 +20,14 @@ export default (cli: CAC) => cli
       ? app.backups.splice(0, count + 1)
       : app.backups.splice(count, 1)
     for (const backup of backups) {
-      await rm(cwd + '/instances/' + backup.id, { recursive: true, force: true })
+      await rm(cwd + '/apps/' + backup.id, { recursive: true, force: true })
       delete cirno.instances[backup.id]
     }
     if (app.id === id) {
-      await rm(cwd + '/instances/' + id, { recursive: true, force: true })
+      await rm(cwd + '/apps/' + id, { recursive: true, force: true })
       const backup = app.backups.pop()
       if (backup) {
-        await rename(cwd + '/instances/' + backup.id, cwd + '/instances/' + id)
+        await rename(cwd + '/apps/' + backup.id, cwd + '/apps/' + id)
       } else {
         delete cirno.instances[id]
       }

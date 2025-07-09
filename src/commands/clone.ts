@@ -18,7 +18,7 @@ export default (cli: CAC) => cli
       name: name ?? app.name,
       backups: [],
     }
-    await cp(cwd + '/instances/' + id, cwd + '/instances/' + newId, { recursive: true })
+    await cp(cwd + '/apps/' + id, cwd + '/apps/' + newId, { recursive: true })
     await cirno.save()
     success(`Successfully created a cloned instance ${newId}.`)
   })

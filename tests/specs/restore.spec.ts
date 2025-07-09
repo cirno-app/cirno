@@ -1,6 +1,6 @@
 import { makeEnv, useFixture } from '../shared'
 
-makeEnv((ctx) => {
+makeEnv('restore', (ctx) => {
   ctx.pass(['init'])
   const uuid1 = ctx.pass(['import', useFixture('foo')])
 

@@ -34,7 +34,7 @@ export default (cli: CAC) => cli
       backups: [],
     }
     const temp = cwd + '/temp/' + id
-    const dest = cwd + '/instances/' + id
+    const dest = cwd + '/apps/' + id
     await fs.mkdir(temp, { recursive: true })
     try {
       const parsed = parseImport(src, cwd)

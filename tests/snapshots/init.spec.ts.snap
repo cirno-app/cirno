@@ -55,15 +55,15 @@ entries:
       - type: directory
         name: releases
         entries: []
+  - type: directory
+    name: apps
+    entries: []
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       config: {}
       apps: []
-  - type: directory
-    name: instances
-    entries: []
   - type: directory
     name: temp
     entries: []
@@ -86,15 +86,15 @@ entries:
       - type: directory
         name: releases
         entries: []
+  - type: directory
+    name: apps
+    entries: []
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       config: {}
       apps: []
-  - type: directory
-    name: instances
-    entries: []
   - type: directory
     name: temp
     entries: []

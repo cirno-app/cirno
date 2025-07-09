@@ -16,15 +16,15 @@ entries:
       - type: directory
         name: releases
         entries: []
+  - type: directory
+    name: apps
+    entries: []
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       config: {}
       apps: []
-  - type: directory
-    name: instances
-    entries: []
   - type: directory
     name: temp
     entries: []
@@ -41,7 +41,7 @@ stdout: |
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
   ➤ YN0000: · Done
-   SUCCESS  Successfully imported instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7.
+   SUCCESS  Successfully imported instance cd5fbb72.
 stderr: ''
 code: 0
 signal: null
@@ -59,20 +59,11 @@ entries:
         entries:
           - type: file
             name: yarn-4.3.1.cjs
-  - type: file
-    name: cirno.yml
-    content: |
-      version: '1.0'
-      config: {}
-      apps:
-        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-          name: foo
-          backups: []
   - type: directory
-    name: instances
+    name: apps
     entries:
       - type: directory
-        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        name: cd5fbb72
         entries:
           - type: file
             name: .pnp.cjs
@@ -91,6 +82,15 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: foo
+          backups: []
   - type: directory
     name: temp
     entries: []
@@ -107,7 +107,7 @@ stdout: |
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
   ➤ YN0000: · Done
-   SUCCESS  Successfully imported instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19.
+   SUCCESS  Successfully imported instance 5ab7bff9.
 stderr: ''
 code: 0
 signal: null
@@ -135,61 +135,61 @@ entries:
             name: yarn-4.2.2.cjs
           - type: file
             name: yarn-4.3.1.cjs
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       config: {}
       apps:
-        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        - id: cd5fbb72
           name: foo
           backups: []
-        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        - id: 5ab7bff9
           name: bar
           backups: []
-  - type: directory
-    name: instances
-    entries:
-      - type: directory
-        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
-        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
   - type: directory
     name: temp
     entries: []
@@ -206,7 +206,7 @@ stdout: |
   ➤ YN0000: ┌ Link step
   ➤ YN0000: └ Completed
   ➤ YN0000: · Done
-   SUCCESS  Successfully imported instance b6394418-863d-5b5f-871f-dde7e8292e29.
+   SUCCESS  Successfully imported instance b6394418.
 stderr: ''
 code: 0
 signal: null
@@ -244,84 +244,84 @@ entries:
             name: yarn-4.2.2.cjs
           - type: file
             name: yarn-4.3.1.cjs
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: b6394418
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
   - type: file
     name: cirno.yml
     content: |
       version: '1.0'
       config: {}
       apps:
-        - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        - id: cd5fbb72
           name: foo
           backups: []
-        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+        - id: 5ab7bff9
           name: bar
           backups: []
-        - id: b6394418-863d-5b5f-871f-dde7e8292e29
+        - id: b6394418
           name: baz
           backups: []
-  - type: directory
-    name: instances
-    entries:
-      - type: directory
-        name: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
-        name: b6394418-863d-5b5f-871f-dde7e8292e29
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
-        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
   - type: directory
     name: temp
     entries: []

@@ -2,7 +2,7 @@ import { mkdir, readdir, readFile } from 'node:fs/promises'
 import { fork } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { beforeAll, expect, it } from 'vitest'
-import { v4, v5 } from 'uuid'
+import { v5 } from 'uuid'
 
 const root = fileURLToPath(new URL('../temp', import.meta.url))
 
@@ -72,7 +72,8 @@ function spawn(args: string[], root: string) {
   })
 }
 
-const namespace = '226704d4-f5d0-4349-b8bb-d9d480b0433e'
+const NS_ENV = '998fa86e-b6b0-48c6-99cc-bc982a2759c0'
+const NS_SPEC = '226704d4-f5d0-4349-b8bb-d9d480b0433e'
 
 let stepCount = 0
 let instCount = 0
@@ -95,8 +96,8 @@ export interface StepOptions {
   code?: number
 }
 
-export function makeEnv(callback: (ctx: CirnoTestContext) => void) {
-  const ctx = new CirnoTestContext(root + '/' + v4())
+export function makeEnv(name: string, callback: (ctx: CirnoTestContext) => void) {
+  const ctx = new CirnoTestContext(root + '/' + v5(name, NS_ENV).slice(0, 8))
   callback(ctx)
 }
 
@@ -112,7 +113,7 @@ export class CirnoTestContext {
     stepCount += 1
     const isCreate = ['import', 'clone', 'backup'].includes(args[0] as string)
     if (isCreate && !options.code) instCount += 1
-    const uuid = v5(`${instCount}`, namespace)
+    const uuid = v5(`${instCount}`, NS_SPEC).slice(0, 8)
     const name = [
       `step ${stepCount}:`,
       'cirno',
