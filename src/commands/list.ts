@@ -11,11 +11,11 @@ export default (cli: CAC) => cli
   .action(async (options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const instances = Object.values(cirno.instances)
-    if (options.json) return console.log(JSON.stringify(instances))
-    if (!instances.length) return info('No instances found.')
-    info(`Found ${instances.length} instances:`)
-    for (const instance of instances) {
+    const apps = cirno.data.apps
+    if (options.json) return console.log(JSON.stringify(apps))
+    if (!apps.length) return info('No instances found.')
+    info(`Found ${apps.length} instances:`)
+    for (const instance of apps) {
       console.log(`${instance.id}\t${instance.name}`)
     }
   })

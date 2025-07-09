@@ -17,7 +17,7 @@ makeEnv((ctx) => {
   ctx.pass(['remove', uuid2])
 
   // remove the head instance and its backups (empty)
-  ctx.pass(['remove', uuid1])
+  ctx.pass(['remove', uuid1, '--recursive'])
 
   // the second backup is already deleted
   ctx.fail(['remove', uuid3])

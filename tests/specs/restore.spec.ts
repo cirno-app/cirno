@@ -8,13 +8,13 @@ makeEnv((ctx) => {
   const uuid2 = ctx.pass(['backup', uuid1])
 
   // restore can only be created from a head instance
-  ctx.fail(['restore', uuid2, uuid1])
+  ctx.fail(['restore', uuid1])
 
   // create the second backup (#2 -> #3 -> #1)
   const uuid3 = ctx.pass(['backup', uuid1])
 
   // restore to the first backup (#2)
-  ctx.pass(['restore', uuid1, uuid2])
+  ctx.pass(['restore', uuid2])
 
   // the original head is already deleted
   ctx.fail(['remove', uuid1])

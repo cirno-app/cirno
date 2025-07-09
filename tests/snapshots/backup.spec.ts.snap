@@ -20,8 +20,8 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances: []
+      config: {}
+      apps: []
   - type: directory
     name: instances
     entries: []
@@ -63,12 +63,11 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
     entries:
@@ -122,19 +121,14 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          backup:
-            type: manual
+          backups:
+            - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+              type: manual
+              createTime: '<timestamp>'
   - type: directory
     name: instances
     entries:
@@ -186,7 +180,7 @@ entries:
 
 exports[`step 4: cirno backup <#2> 1`] = `
 stdout: |2
-   ERROR  You can only backup a head instance, but instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19 is already a backup.
+   ERROR  App 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19 not found.
 stderr: ''
 code: 1
 signal: null
@@ -208,19 +202,14 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          backup:
-            type: manual
+          backups:
+            - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+              type: manual
+              createTime: '<timestamp>'
   - type: directory
     name: instances
     entries:
@@ -294,26 +283,17 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          parent: b6394418-863d-5b5f-871f-dde7e8292e29
-        - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-          name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          backup:
-            type: manual
-        - id: b6394418-863d-5b5f-871f-dde7e8292e29
-          name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          backup:
-            type: manual
-          parent: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+          backups:
+            - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
+              type: manual
+              createTime: '<timestamp>'
+            - id: b6394418-863d-5b5f-871f-dde7e8292e29
+              type: manual
+              createTime: '<timestamp>'
   - type: directory
     name: instances
     entries:
@@ -407,19 +387,14 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          parent: b6394418-863d-5b5f-871f-dde7e8292e29
-        - id: b6394418-863d-5b5f-871f-dde7e8292e29
-          name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
-          backup:
-            type: manual
+          backups:
+            - id: b6394418-863d-5b5f-871f-dde7e8292e29
+              type: manual
+              createTime: '<timestamp>'
   - type: directory
     name: instances
     entries:
@@ -469,7 +444,7 @@ entries:
 
 `;
 
-exports[`step 7: cirno remove <#1> 1`] = `
+exports[`step 7: cirno remove <#1> --recursive 1`] = `
 stdout: |2
    SUCCESS  Instance cd5fbb72-8243-5ccf-b8ca-ceee993585f7 is successfully removed.
 stderr: ''
@@ -493,8 +468,8 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances: []
+      config: {}
+      apps: []
   - type: directory
     name: instances
     entries: []
@@ -528,8 +503,8 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances: []
+      config: {}
+      apps: []
   - type: directory
     name: instances
     entries: []

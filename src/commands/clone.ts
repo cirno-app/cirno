@@ -11,11 +11,15 @@ export default (cli: CAC) => cli
   .action(async (id: string, name: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const base = cirno.get(id, 'clone')
-    if (!base) return
-    const head = cirno.create(name ?? base.name, options.id)
-    head.backup = undefined
-    await cp(cwd + '/instances/' + id, cwd + '/instances/' + head.id, { recursive: true })
+    const app = cirno.get(id, 'clone')
+    if (!app) return
+    const newId = cirno.createId(options.id)
+    cirno.instances[newId] = {
+      id: newId,
+      name: name ?? app.name,
+      backups: [],
+    }
+    await cp(cwd + '/instances/' + id, cwd + '/instances/' + newId, { recursive: true })
     await cirno.save()
-    success(`Successfully created a cloned instance ${head.id}.`)
+    success(`Successfully created a cloned instance ${newId}.`)
   })

@@ -20,8 +20,8 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances: []
+      config: {}
+      apps: []
   - type: directory
     name: instances
     entries: []
@@ -63,12 +63,11 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
     entries:
@@ -140,16 +139,14 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
           name: bar
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
     entries:
@@ -251,20 +248,17 @@ entries:
     name: cirno.yml
     content: |
       version: '1.0'
-      settings: {}
-      instances:
+      config: {}
+      apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
         - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
           name: bar
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
         - id: b6394418-863d-5b5f-871f-dde7e8292e29
           name: baz
-          created: '<timestamp>'
-          updated: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
     entries:

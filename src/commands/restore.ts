@@ -1,25 +1,24 @@
 import { CAC } from 'cac'
 import { resolve } from 'node:path'
-import { rm } from 'node:fs/promises'
+import { rename, rm } from 'node:fs/promises'
 import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('restore [head] [base]', 'Restore to an instance')
+  .command('restore [backup]', 'Restore to an instance')
   .option('--cwd <path>', 'Specify the project folder')
-  .action(async (headId: string, baseId: string, options) => {
+  .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const head = cirno.head(headId, 'restore')
-    if (!head) return
-    const base = cirno.get(baseId, 'restore')
-    if (!base) return
-    const instances = [...cirno.prepareRestore(head, baseId)]
-    await Promise.all(instances.map(async (instance) => {
-      await rm(cwd + '/instances/' + instance.id, { recursive: true, force: true })
-      delete cirno.instances[instance.id]
-    }))
-    base.backup = undefined
+    const app = cirno.getBackup(id, 'restore')
+    if (!app) return
+    const index = app.backups.findIndex(backup => backup.id === id)
+    for (const backup of app.backups.splice(index + 1)) {
+      await rm(cwd + '/instances/' + backup.id, { recursive: true, force: true })
+      delete cirno.instances[backup.id]
+    }
+    await rm(cwd + '/instances/' + app.id, { recursive: true, force: true })
+    await rename(cwd + '/instances/' + id, cwd + '/instances/' + app.id)
     await cirno.save()
-    success(`Instance ${headId} is successfully restored to ${baseId}.`)
+    success(`App ${app.id} is successfully restored to backup ${id}.`)
   })

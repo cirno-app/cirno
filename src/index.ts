@@ -37,30 +37,39 @@ const version = '1.0'
 
 export interface Manifest {
   version: string
-  settings: Settings
-  instances: Instance[]
+  config: Config
+  apps: App[]
 }
 
-export interface Settings {}
-
-export interface Instance {
+export interface App {
   id: string
   name: string
-  created: string
-  updated: string
-  parent?: string
-  backup?: Backup
+  backups: Backup[]
 }
 
+export interface Config {}
+
 export interface Backup {
-  type: 'manual' | 'update' | 'scheduled'
+  id: string
+  type?: string
+  message?: string
+  createTime: string
+}
+
+function capitalize(source: string) {
+  return source.charAt(0).toUpperCase() + source.slice(1)
 }
 
 export class Cirno {
-  public instances: Record<string, Instance> = Object.create(null)
+  public instances: Record<string, App> = Object.create(null)
 
   private constructor(public cwd: string, public data: Manifest) {
-    this.instances = Object.fromEntries(data.instances.map((instance) => [instance.id, instance]))
+    for (const project of data.apps) {
+      this.instances[project.id] = project
+      for (const backup of project.backups) {
+        this.instances[backup.id] = project
+      }
+    }
   }
 
   static async init(cwd: string, create = false, force = false) {
@@ -78,48 +87,42 @@ export class Cirno {
       await fs.mkdir(cwd + '/instances', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
-      return new Cirno(cwd, { version, settings: {}, instances: [] })
+      return new Cirno(cwd, { version, config: {}, apps: [] })
     }
   }
 
-  create(name: string, id?: string): Instance {
-    if (!id) {
-      do {
-        id = v4()
-      } while (this.instances[id])
-    }
-    return this.instances[id] = {
-      id,
-      name,
-      created: new Date().toISOString(),
-      updated: new Date().toISOString(),
-    }
+  createId(id?: string) {
+    if (id) return id
+    do {
+      id = v4()
+    } while (this.instances[id])
+    return id
   }
 
-  * prepareRestore(head: Instance, id?: string) {
-    while (head.parent) {
-      yield head
-      if (head.parent === id) return
-      head = this.instances[head.parent]
-    }
-    error(`Instance ${id} is not an ancestor of ${head.id}.`)
+  _get(id: string, command: string, type: string, check: (app: App) => boolean) {
+    if (!id) error(`Missing ${type} ID. See \`cirno ${command} --help\` for usage.`)
+    if (!validate(id)) error(`Invalid ${type} ID. See \`cirno ${command} --help\` for usage.`)
+    const app = this.instances[id]
+    if (!app || !check(app)) error(`${capitalize(type)} ${id} not found.`)
+    return app
   }
 
   get(id: string, command: string) {
-    if (!id) error(`Missing instance ID. See \`cirno ${command} --help\` for usage.`)
-    if (!validate(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
-    if (!this.instances[id]) error(`Instance ${id} not found.`)
-    return this.instances[id]
+    return this._get(id, command, 'instance', () => true)
   }
 
-  head(id: string, command: string) {
-    const head = this.get(id, command)
-    if (head.backup) error(`You can only ${command} a head instance, but instance ${id} is already a backup.`)
-    return head
+  getHead(id: string, command: string) {
+    return this._get(id, command, 'app', (app) => app.id === id)
+  }
+
+  getBackup(id: string, command: string) {
+    return this._get(id, command, 'backup', (app) => app.id !== id)
   }
 
   async save() {
-    this.data.instances = Object.values(this.instances)
+    this.data.apps = Object.entries(this.instances)
+      .filter(([id, app]) => id === app.id)
+      .map(([_, app]) => app)
     await fs.writeFile(this.cwd + '/cirno.yml', yaml.dump(this.data))
   }
 

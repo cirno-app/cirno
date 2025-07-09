@@ -5,19 +5,20 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('backup [id] [name]', 'Backup an instance')
+  .command('backup [id]', 'Backup an instance')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
-  .action(async (id: string, name: string, options) => {
+  .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const head = cirno.head(id, 'backup')
-    if (!head) return
-    const base = cirno.create(name ?? head.name, options.id)
-    base.backup = { type: 'manual' }
-    base.parent = head.parent
-    head.parent = base.id
-    await cp(cwd + '/instances/' + id, cwd + '/instances/' + base.id, { recursive: true })
+    const app = cirno.getHead(id, 'backup')
+    const newId = cirno.createId(options.id)
+    app.backups.push({
+      id: newId,
+      type: 'manual',
+      createTime: new Date().toISOString(),
+    })
+    await cp(cwd + '/instances/' + id, cwd + '/instances/' + newId, { recursive: true })
     await cirno.save()
-    success(`Successfully created a backup instance ${base.id}.`)
+    success(`Successfully created a backup instance ${newId}.`)
   })
