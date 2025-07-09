@@ -2,7 +2,7 @@ import { CAC } from 'cac'
 import { resolve } from 'node:path'
 import { cp } from 'node:fs/promises'
 import { Cirno } from '../index.ts'
-import { success } from '../utils.ts'
+import { error, success } from '../utils.ts'
 
 export default (cli: CAC) => cli
   .command('backup [id]', 'Backup an application')
@@ -11,7 +11,8 @@ export default (cli: CAC) => cli
   .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const app = cirno.getHead(id, 'backup')
+    const app = cirno.get(id, 'backup')
+    if (app.id !== id) error('Cannot backup a base instance.')
     const newId = cirno.createId(options.id)
     app.backups.push({
       id: newId,

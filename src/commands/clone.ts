@@ -12,7 +12,6 @@ export default (cli: CAC) => cli
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     const app = cirno.get(id, 'clone')
-    if (!app) return
     const newId = cirno.createId(options.id)
     cirno.instances[newId] = {
       id: newId,

@@ -56,10 +56,6 @@ export interface Backup {
   createTime: string
 }
 
-function capitalize(source: string) {
-  return source.charAt(0).toUpperCase() + source.slice(1)
-}
-
 export class Cirno {
   public instances: Record<string, App> = Object.create(null)
 
@@ -99,24 +95,12 @@ export class Cirno {
     return id
   }
 
-  _get(id: string, command: string, type: string, check: (app: App) => boolean) {
-    if (!id) error(`Missing ${type} ID. See \`cirno ${command} --help\` for usage.`)
-    if (!validate(id)) error(`Invalid ${type} ID. See \`cirno ${command} --help\` for usage.`)
-    const app = this.instances[id]
-    if (!app || !check(app)) error(`${capitalize(type)} ${id} not found.`)
-    return app
-  }
-
   get(id: string, command: string) {
-    return this._get(id, command, 'instance', () => true)
-  }
-
-  getHead(id: string, command: string) {
-    return this._get(id, command, 'app', (app) => app.id === id)
-  }
-
-  getBackup(id: string, command: string) {
-    return this._get(id, command, 'backup', (app) => app.id !== id)
+    if (!id) error(`Missing instance ID. See \`cirno ${command} --help\` for usage.`)
+    if (!validate(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
+    const app = this.instances[id]
+    if (!app) error(`Instance ${id} not found.`)
+    return app
   }
 
   async save() {

@@ -180,7 +180,7 @@ entries:
 
 exports[`step 4: cirno backup <#2> 1`] = `
 stdout: |2
-   ERROR  App 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19 not found.
+   ERROR  Cannot backup a base instance.
 stderr: ''
 code: 1
 signal: null

@@ -13,11 +13,11 @@ makeEnv((ctx) => {
   // create the second backup (#2 -> #3 -> #1)
   const uuid3 = ctx.pass(['backup', uuid1])
 
-  // restore to the first backup (#2)
+  // restore to the first backup, renamed to (#1)
   ctx.pass(['restore', uuid2])
 
-  // the original head is already deleted
-  ctx.fail(['remove', uuid1])
+  // the first backup is already renamed
+  ctx.fail(['remove', uuid2])
 
   // the second backup is already deleted
   ctx.fail(['remove', uuid3])

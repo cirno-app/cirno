@@ -180,7 +180,7 @@ entries:
 
 exports[`step 4: cirno restore <#1> 1`] = `
 stdout: |2
-   ERROR  Backup cd5fbb72-8243-5ccf-b8ca-ceee993585f7 not found.
+   ERROR  Cannot restore to a head instance.
 stderr: ''
 code: 1
 signal: null
@@ -391,10 +391,7 @@ entries:
       apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          backups:
-            - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-              type: manual
-              createTime: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
     entries:
@@ -424,26 +421,10 @@ entries:
 
 `;
 
-exports[`step 7: cirno remove <#1> 1`] = `
-stdout: ''
-stderr: >
-  node:internal/fs/promises:782
-    return await PromisePrototypeThen(
-           ^
-
-  Error: ENOENT: no such file or directory, rename '/data/instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19' ->
-  '/Users/shigma/Documents/touhou/cordis/cirno/temp/75c793e5-b16e-49a8-b78f-5ffdb3bcac0f/data/instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7'
-      at async rename (node:internal/fs/promises:782:10)
-      at CAC.<anonymous> (/Users/shigma/Documents/touhou/cordis/cirno/src/commands/remove.ts:30:9) {
-    errno: -2,
-    code: 'ENOENT',
-    syscall: 'rename',
-    path: '/Users/shigma/Documents/touhou/cordis/cirno/temp/75c793e5-b16e-49a8-b78f-5ffdb3bcac0f/data/instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19',
-    dest: '/Users/shigma/Documents/touhou/cordis/cirno/temp/75c793e5-b16e-49a8-b78f-5ffdb3bcac0f/data/instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7'
-  }
-
-
-  Node.js v20.15.0
+exports[`step 7: cirno remove <#2> 1`] = `
+stdout: |2
+   ERROR  Instance 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19 not found.
+stderr: ''
 code: 1
 signal: null
 entries:
@@ -468,13 +449,30 @@ entries:
       apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          backups:
-            - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-              type: manual
-              createTime: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
-    entries: []
+    entries:
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
   - type: directory
     name: temp
     entries: []
@@ -509,13 +507,30 @@ entries:
       apps:
         - id: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
           name: foo
-          backups:
-            - id: 5ab7bff9-d000-5c3b-83ac-4c3c4296ee19
-              type: manual
-              createTime: '<timestamp>'
+          backups: []
   - type: directory
     name: instances
-    entries: []
+    entries:
+      - type: directory
+        name: cd5fbb72-8243-5ccf-b8ca-ceee993585f7
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
   - type: directory
     name: temp
     entries: []
