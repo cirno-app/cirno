@@ -65,7 +65,7 @@ entries:
       config: {}
       apps: []
   - type: directory
-    name: temp
+    name: tmp
     entries: []
 
 `;
@@ -96,7 +96,7 @@ entries:
       config: {}
       apps: []
   - type: directory
-    name: temp
+    name: tmp
     entries: []
 
 `;

@@ -27,14 +27,8 @@ export default (cli: CAC) => cli
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
-    const id = cirno.createId(options.id)
-    const app = cirno.instances[id] = {
-      id,
-      name,
-      backups: [],
-    }
-    const temp = cwd + '/temp/' + id
-    const dest = cwd + '/apps/' + id
+
+    const temp = cwd + '/tmp/' + Math.random().toString(36).slice(2, 10).padEnd(8, '0')
     await fs.mkdir(temp, { recursive: true })
     try {
       const parsed = parseImport(src, cwd)
@@ -53,7 +47,7 @@ export default (cli: CAC) => cli
       }
 
       const pkgMeta: Package = JSON.parse(await fs.readFile(temp + '/package.json', 'utf8'))
-      app.name = name ?? pkgMeta.name
+      name ||= pkgMeta.name
 
       // yarnPath
       const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
@@ -79,9 +73,16 @@ export default (cli: CAC) => cli
       delete yarnRc.enableGlobalCache
 
       await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
-      await fs.rename(temp, dest)
+      await cirno.yarn(temp, options['--'])
+
+      const id = cirno.createId(options.id)
+      cirno.instances[id] = {
+        id,
+        name,
+        backups: [],
+      }
+      await fs.rename(temp, cwd + '/apps/' + id)
       await cirno.save()
-      await cirno.yarn(id, options['--'])
       success(`Successfully imported instance ${id}.`)
     } catch (e) {
       await fs.rm(temp, { recursive: true, force: true })

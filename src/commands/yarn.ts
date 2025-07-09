@@ -1,5 +1,5 @@
 import { CAC } from 'cac'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { Cirno } from '../index.ts'
 
 export default (cli: CAC) => cli
@@ -9,6 +9,6 @@ export default (cli: CAC) => cli
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     cirno.get(id, 'yarn')
-    const code = await cirno.yarn(id, options['--'])
+    const code = await cirno.yarn(join(cwd, 'apps', id), options['--'])
     process.exit(code)
   })

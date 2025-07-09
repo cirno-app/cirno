@@ -78,7 +78,7 @@ export class Cirno {
     } catch {
       if (!create) error('Use `cirno init` to create a new project.')
       await fs.rm(cwd, { recursive: true, force: true })
-      await fs.mkdir(cwd + '/temp', { recursive: true })
+      await fs.mkdir(cwd + '/tmp', { recursive: true })
       await fs.mkdir(cwd + '/apps', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
       await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
@@ -109,14 +109,14 @@ export class Cirno {
     await fs.writeFile(this.cwd + '/cirno.yml', yaml.dump(this.data))
   }
 
-  async yarn(id: string, args: string[]) {
-    const pkgMeta: Package = JSON.parse(await fs.readFile(join(this.cwd, 'apps', id, '/package.json'), 'utf8'))
+  async yarn(cwd: string, args: string[]) {
+    const pkgMeta: Package = JSON.parse(await fs.readFile(join(cwd, '/package.json'), 'utf8'))
     const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
     if (!capture) throw new Error('Failed to detect yarn version.')
     const yarnPath = join(this.cwd, `.yarn/releases/yarn-${capture[1]}.cjs`)
     return new Promise<number | null>((resolve, reject) => {
       const child = fork(yarnPath, args, {
-        cwd: join(this.cwd, 'apps', id),
+        cwd,
         stdio: 'inherit',
         env: {
           ...process.env,

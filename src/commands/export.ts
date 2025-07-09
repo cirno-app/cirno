@@ -29,7 +29,7 @@ export default (cli: CAC) => cli
     if (!dest) return error('Missing output path. See `cirno remove --help` for usage.')
     try {
       const full = resolve(cwd, dest)
-      const temp = cwd + '/temp/' + id
+      const temp = cwd + '/tmp/' + id
       await fs.cp(cwd + '/apps/' + id, temp, { recursive: true, force: true })
 
       // yarnPath

@@ -26,7 +26,7 @@ entries:
       config: {}
       apps: []
   - type: directory
-    name: temp
+    name: tmp
     entries: []
 
 `;
@@ -92,7 +92,7 @@ entries:
           name: foo
           backups: []
   - type: directory
-    name: temp
+    name: tmp
     entries: []
 
 `;
@@ -191,7 +191,7 @@ entries:
           name: bar
           backups: []
   - type: directory
-    name: temp
+    name: tmp
     entries: []
 
 `;
@@ -323,7 +323,7 @@ entries:
           name: baz
           backups: []
   - type: directory
-    name: temp
+    name: tmp
     entries: []
 
 `;
