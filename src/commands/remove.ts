@@ -5,7 +5,7 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('remove [id]', 'Remove an app or backup')
+  .command('remove [id]', 'Remove an instance')
   .alias('rm')
   .option('--cwd <path>', 'Specify the project folder')
   .option('-r, --recursive', 'Remove backups recursively')

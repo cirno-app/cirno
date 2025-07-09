@@ -4,7 +4,7 @@ import { Cirno } from '../index.ts'
 import { info } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('list', 'List all instances')
+  .command('list', 'List all applications')
   .alias('ls')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--json', 'Output as JSON')
@@ -13,9 +13,9 @@ export default (cli: CAC) => cli
     const cirno = await Cirno.init(cwd)
     const apps = cirno.data.apps
     if (options.json) return console.log(JSON.stringify(apps))
-    if (!apps.length) return info('No instances found.')
-    info(`Found ${apps.length} instances:`)
-    for (const instance of apps) {
-      console.log(`${instance.id}\t${instance.name}`)
+    if (!apps.length) return info('No applications found.')
+    info(`Found ${apps.length} applications:`)
+    for (const app of apps) {
+      console.log(`${app.id}\t${app.name}`)
     }
   })

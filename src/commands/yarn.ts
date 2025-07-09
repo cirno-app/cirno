@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { Cirno } from '../index.ts'
 
 export default (cli: CAC) => cli
-  .command('yarn [id] -- [...]', 'Execute Yarn in an instance')
+  .command('yarn [id] -- [...]', 'Execute Yarn in an application')
   .option('--cwd <path>', 'Specify the project folder')
   .action(async (id, _, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')

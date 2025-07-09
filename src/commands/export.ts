@@ -25,8 +25,7 @@ export default (cli: CAC) => cli
   .action(async (id: string, dest: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    const instance = cirno.get(id, 'export')
-    if (!instance) return
+    cirno.get(id, 'export')
     if (!dest) return error('Missing output path. See `cirno remove --help` for usage.')
     try {
       const full = resolve(cwd, dest)

@@ -432,14 +432,14 @@ stderr: >
            ^
 
   Error: ENOENT: no such file or directory, rename '/data/instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19' ->
-  '/Users/shigma/Documents/touhou/cordis/cirno/temp/55bc5199-18d7-494a-a685-b3a376f2a898/data/instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7'
+  '/Users/shigma/Documents/touhou/cordis/cirno/temp/75c793e5-b16e-49a8-b78f-5ffdb3bcac0f/data/instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7'
       at async rename (node:internal/fs/promises:782:10)
       at CAC.<anonymous> (/Users/shigma/Documents/touhou/cordis/cirno/src/commands/remove.ts:30:9) {
     errno: -2,
     code: 'ENOENT',
     syscall: 'rename',
-    path: '/Users/shigma/Documents/touhou/cordis/cirno/temp/55bc5199-18d7-494a-a685-b3a376f2a898/data/instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19',
-    dest: '/Users/shigma/Documents/touhou/cordis/cirno/temp/55bc5199-18d7-494a-a685-b3a376f2a898/data/instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7'
+    path: '/Users/shigma/Documents/touhou/cordis/cirno/temp/75c793e5-b16e-49a8-b78f-5ffdb3bcac0f/data/instances/5ab7bff9-d000-5c3b-83ac-4c3c4296ee19',
+    dest: '/Users/shigma/Documents/touhou/cordis/cirno/temp/75c793e5-b16e-49a8-b78f-5ffdb3bcac0f/data/instances/cd5fbb72-8243-5ccf-b8ca-ceee993585f7'
   }
 
 

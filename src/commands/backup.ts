@@ -5,7 +5,7 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('backup [id]', 'Backup an instance')
+  .command('backup [id]', 'Backup an application')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
   .action(async (id: string, options) => {

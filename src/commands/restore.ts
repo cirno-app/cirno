@@ -5,7 +5,7 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('restore [backup]', 'Restore to an instance')
+  .command('restore [backup]', 'Restore to a backup')
   .option('--cwd <path>', 'Specify the project folder')
   .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
