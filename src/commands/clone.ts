@@ -13,11 +13,13 @@ export default (cli: CAC) => cli
     const cirno = await Cirno.init(cwd)
     const app = cirno.get(id, 'clone')
     const newId = cirno.createId(options.id)
-    cirno.instances[newId] = {
+    cirno.apps[newId] = {
       id: newId,
       name: name ?? app.name,
+      created: new Date().toISOString(),
       backups: [],
     }
+    cirno.state[newId] = {}
     await cp(cwd + '/apps/' + id, cwd + '/apps/' + newId, { recursive: true })
     await cirno.save()
     success(`Successfully created a cloned instance ${newId}.`)

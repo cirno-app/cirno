@@ -2,8 +2,8 @@ import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ZipFS } from '@yarnpkg/libzip'
-import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
-import { Cirno, Package, YarnLock, YarnRc } from '../index.ts'
+import { stringifySyml } from '@yarnpkg/parsers'
+import { Cirno, loadMeta } from '../index.ts'
 import { dumpFromZip, error, success } from '../utils.ts'
 import * as fs from 'node:fs/promises'
 
@@ -46,13 +46,12 @@ export default (cli: CAC) => cli
         await dumpFromZip(new ZipFS(buffer), temp)
       }
 
-      const pkgMeta: Package = JSON.parse(await fs.readFile(temp + '/package.json', 'utf8'))
-      name ||= pkgMeta.name
+      const { pkg, yarnLock, yarnRc } = await loadMeta(temp)
+      name ||= pkg.name
 
       // yarnPath
-      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
+      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)
       if (!capture) throw new Error('Failed to detect yarn version.')
-      const yarnRc: YarnRc = parseSyml(await fs.readFile(temp + '/.yarnrc.yml', 'utf8'))
       if (!yarnRc.yarnPath) throw new Error('Cannot find `yarnPath` in .yarnrc.yml.')
       const yarnPath = join(temp, yarnRc.yarnPath)
       await fs.rename(yarnPath, join(cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`))
@@ -60,7 +59,6 @@ export default (cli: CAC) => cli
       delete yarnRc.yarnPath
 
       // enableGlobalCache
-      const yarnLock = parseSyml(await fs.readFile(temp + '/yarn.lock', 'utf8')) as YarnLock
       const { version, cacheKey } = yarnLock.__metadata ?? {}
       if (version !== '8') throw new Error(`Unsupported yarn.lock version: ${version}.`)
       const files = await fs.readdir(join(temp, '.yarn/cache'))
@@ -77,11 +75,13 @@ export default (cli: CAC) => cli
       if (code !== 0) error(`Failed to install dependencies. Exit code: ${code}`)
 
       const id = cirno.createId(options.id)
-      cirno.instances[id] = {
+      cirno.apps[id] = {
         id,
         name,
+        created: new Date().toISOString(),
         backups: [],
       }
+      cirno.state[id] = {}
       await fs.rename(temp, cwd + '/apps/' + id)
       await cirno.save()
       success(`Successfully imported instance ${id}.`)

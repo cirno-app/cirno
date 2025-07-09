@@ -1,8 +1,8 @@
 import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
-import { Cirno, Package, YarnLock, YarnRc } from '../index.ts'
+import { Cirno, loadMeta } from '../index.ts'
 import { error, loadIntoZip, success } from '../utils.ts'
-import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
+import { stringifySyml } from '@yarnpkg/parsers'
 import { ZipFS } from '@yarnpkg/libzip'
 import * as fs from 'node:fs/promises'
 
@@ -31,18 +31,16 @@ export default (cli: CAC) => cli
       const full = join(cwd, dest)
       const temp = cwd + '/tmp/' + id
       await fs.cp(cwd + '/apps/' + id, temp, { recursive: true, force: true })
+      const { pkg, yarnLock, yarnRc } = await loadMeta(temp)
 
       // yarnPath
-      const pkgMeta: Package = JSON.parse(await fs.readFile(temp + '/package.json', 'utf8'))
-      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
+      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)
       if (!capture) throw new Error('Failed to detect yarn version.')
-      const yarnRc: YarnRc = parseSyml(await fs.readFile(temp + '/.yarnrc.yml', 'utf8'))
       yarnRc.yarnPath = `.yarn/releases/yarn-${capture[1]}.cjs`
       await fs.mkdir(join(temp, '.yarn/releases'), { recursive: true })
       await fs.cp(join(cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`), join(temp, yarnRc.yarnPath))
 
       // enableGlobalCache
-      const yarnLock = parseSyml(await fs.readFile(temp + '/yarn.lock', 'utf8')) as YarnLock
       const { version, cacheKey } = yarnLock.__metadata ?? {}
       if (version !== '8') throw new Error(`Unsupported yarn.lock version: ${version}.`)
       await fs.mkdir(join(temp, '.yarn/cache'), { recursive: true })

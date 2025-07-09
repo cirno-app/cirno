@@ -1,8 +1,11 @@
 import * as fs from 'node:fs/promises'
 import * as yaml from 'js-yaml'
+import * as zlib from 'node:zlib'
 import { error } from './utils.ts'
 import { join } from 'node:path'
 import { fork } from 'node:child_process'
+import { promisify } from 'node:util'
+import { parseSyml } from '@yarnpkg/parsers'
 
 export interface YarnRc {
   yarnPath?: string
@@ -44,6 +47,7 @@ export interface App {
   id: string
   name: string
   backups: Backup[]
+  created: string
 }
 
 export interface Config {}
@@ -52,45 +56,63 @@ export interface Backup {
   id: string
   type?: string
   message?: string
-  createTime: string
+  created: string
 }
 
-export class Cirno {
-  public instances: Record<string, App> = Object.create(null)
+export interface Meta {
+  pkg: Package
+  yarnRc: YarnRc
+  yarnLock: YarnLock
+}
 
-  private constructor(public cwd: string, public data: Manifest) {
+export async function loadMeta(cwd: string): Promise<Meta> {
+  const pkg: Package = JSON.parse(await fs.readFile(cwd + '/package.json', 'utf8'))
+  const yarnRc: YarnRc = parseSyml(await fs.readFile(cwd + '/.yarnrc.yml', 'utf8'))
+  const yarnLock = parseSyml(await fs.readFile(cwd + '/yarn.lock', 'utf8')) as YarnLock
+  return { pkg, yarnRc, yarnLock }
+}
+
+const ENTRY_FILE = 'cirno.yml'
+const STATE_FILE = process.env.NODE_ENV === 'test' ? 'cirno-state.json' : 'cirno-state.gz'
+const gzip: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.gzip)
+const gunzip: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.gunzip)
+
+export class Cirno {
+  public apps: Record<string, App> = Object.create(null)
+
+  private constructor(public cwd: string, public data: Manifest, public state: Record<string, Record<string, Meta>>) {
     for (const project of data.apps) {
-      this.instances[project.id] = project
+      this.apps[project.id] = project
       for (const backup of project.backups) {
-        this.instances[backup.id] = project
+        this.apps[backup.id] = project
       }
     }
   }
 
   static async init(cwd: string, create = false, force = false) {
     try {
-      const content = await fs.readFile(cwd + '/cirno.yml', 'utf8')
+      const manifest = yaml.load(await fs.readFile(join(cwd, ENTRY_FILE), 'utf8')) as Manifest
+      const state = JSON.parse((await gunzip(await fs.readFile(join(cwd, STATE_FILE)))).toString())
       if (create && force) throw new Error()
       if (create) error('Project already exists. Use `cirno init -f` to overwrite.')
-      const data = yaml.load(content) as Manifest
-      if (data.version !== version) error(`Unsupported version: ${data.version}`)
-      return new Cirno(cwd, data)
-    } catch {
+      if (manifest.version !== version) error(`Unsupported version: ${manifest.version}`)
+      return new Cirno(cwd, manifest, state)
+    } catch (e) {
       if (!create) error('Use `cirno init` to create a new project.')
       await fs.rm(cwd, { recursive: true, force: true })
       await fs.mkdir(cwd, { recursive: true })
-      await fs.mkdir(cwd + '/tmp')
       await fs.mkdir(cwd + '/apps')
       await fs.mkdir(cwd + '/home')
       await fs.mkdir(cwd + '/home/.yarn')
       await fs.mkdir(cwd + '/home/.yarn/cache')
       await fs.mkdir(cwd + '/home/.yarn/releases')
+      await fs.mkdir(cwd + '/tmp')
       if (process.platform === 'win32') {
         await fs.mkdir(cwd + '/home/AppData')
         await fs.mkdir(cwd + '/home/AppData/Local')
         await fs.mkdir(cwd + '/home/AppData/Roaming')
       }
-      return new Cirno(cwd, { version, config: {}, apps: [] })
+      return new Cirno(cwd, { version, config: {}, apps: [] }, {})
     }
   }
 
@@ -98,42 +120,54 @@ export class Cirno {
     if (id) return id
     do {
       id = Math.random().toString(36).slice(2, 10).padEnd(8, '0')
-    } while (this.instances[id])
+    } while (this.apps[id])
     return id
   }
 
   get(id: string, command: string) {
     if (!id) error(`Missing instance ID. See \`cirno ${command} --help\` for usage.`)
     if (!/[0-9a-f-]+/.test(id)) error(`Invalid instance ID. See \`cirno ${command} --help\` for usage.`)
-    const app = this.instances[id]
+    const app = this.apps[id]
     if (!app) error(`Instance ${id} not found.`)
     return app
   }
 
   async save() {
-    this.data.apps = Object.entries(this.instances)
+    this.data.apps = Object.entries(this.apps)
       .filter(([id, app]) => id === app.id)
       .map(([_, app]) => app)
-    await fs.writeFile(join(this.cwd, 'cirno.yml'), yaml.dump(this.data))
+    await fs.writeFile(join(this.cwd, ENTRY_FILE), yaml.dump(this.data))
+    await fs.writeFile(join(this.cwd, STATE_FILE), await gzip(Buffer.from(JSON.stringify(this.state))))
   }
 
   async yarn(cwd: string, args: string[]) {
     const pkgMeta: Package = JSON.parse(await fs.readFile(join(cwd, '/package.json'), 'utf8'))
     const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
     if (!capture) throw new Error('Failed to detect yarn version.')
-    const yarnPath = join(this.cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`)
     const env: Record<string, string | undefined> = { ...process.env }
+
     env.HOME = join(this.cwd, 'home')
     env.TEMP = join(this.cwd, 'tmp')
     env.TMP = join(this.cwd, 'tmp')
     env.TMPDIR = join(this.cwd, 'tmp')
-    env.YARN_YARN_PATH = yarnPath
-    env.YARN_GLOBAL_FOLDER = join(this.cwd, 'home/.yarn')
+    env.CIRNO_HOST_HOME = process.env.HOME
+    env.CIRNO_HOST_TEMP = process.env.TEMP
+    env.CIRNO_HOST_TMP = process.env.TMP
+    env.CIRNO_HOST_TMPDIR = process.env.TMPDIR
+
     if (process.platform === 'win32') {
       env.APPDATA = join(this.cwd, 'home/AppData/Roaming')
       env.LOCALAPPDATA = join(this.cwd, 'home/AppData/Local')
       env.USERPROFILE = join(this.cwd, 'home')
+      env.CIRNO_HOST_APPDATA = process.env.APPDATA
+      env.CIRNO_HOST_LOCALAPPDATA = process.env.LOCALAPPDATA
+      env.CIRNO_HOST_USERPROFILE = process.env.USERPROFILE
     }
+
+    const yarnPath = join(this.cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`)
+    env.YARN_YARN_PATH = yarnPath
+    env.YARN_GLOBAL_FOLDER = join(this.cwd, 'home/.yarn')
+
     return new Promise<number | null>((resolve, reject) => {
       const child = fork(yarnPath, args, {
         cwd,

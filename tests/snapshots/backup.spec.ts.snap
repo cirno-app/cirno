@@ -11,6 +11,8 @@ entries:
     name: apps
     entries: []
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -73,6 +75,8 @@ entries:
           - type: file
             name: yarn.lock
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -80,6 +84,7 @@ entries:
       apps:
         - id: cd5fbb72
           name: foo
+          created: '<timestamp>'
           backups: []
   - type: directory
     name: home
@@ -157,6 +162,8 @@ entries:
           - type: file
             name: yarn.lock
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -164,10 +171,11 @@ entries:
       apps:
         - id: cd5fbb72
           name: foo
+          created: '<timestamp>'
           backups:
             - id: 5ab7bff9
               type: manual
-              createTime: '<timestamp>'
+              created: '<timestamp>'
   - type: directory
     name: home
     entries:
@@ -244,6 +252,8 @@ entries:
           - type: file
             name: yarn.lock
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -251,10 +261,11 @@ entries:
       apps:
         - id: cd5fbb72
           name: foo
+          created: '<timestamp>'
           backups:
             - id: 5ab7bff9
               type: manual
-              createTime: '<timestamp>'
+              created: '<timestamp>'
   - type: directory
     name: home
     entries:
@@ -351,6 +362,8 @@ entries:
           - type: file
             name: yarn.lock
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -358,13 +371,14 @@ entries:
       apps:
         - id: cd5fbb72
           name: foo
+          created: '<timestamp>'
           backups:
             - id: 5ab7bff9
               type: manual
-              createTime: '<timestamp>'
+              created: '<timestamp>'
             - id: b6394418
               type: manual
-              createTime: '<timestamp>'
+              created: '<timestamp>'
   - type: directory
     name: home
     entries:
@@ -441,6 +455,8 @@ entries:
           - type: file
             name: yarn.lock
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -448,10 +464,11 @@ entries:
       apps:
         - id: cd5fbb72
           name: foo
+          created: '<timestamp>'
           backups:
             - id: b6394418
               type: manual
-              createTime: '<timestamp>'
+              created: '<timestamp>'
   - type: directory
     name: home
     entries:
@@ -487,6 +504,8 @@ entries:
   - type: directory
     name: apps
     entries: []
+  - type: file
+    name: cirno-state.json
   - type: file
     name: cirno.yml
     content: |
@@ -528,6 +547,8 @@ entries:
   - type: directory
     name: apps
     entries: []
+  - type: file
+    name: cirno-state.json
   - type: file
     name: cirno.yml
     content: |

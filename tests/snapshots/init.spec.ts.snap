@@ -50,6 +50,8 @@ entries:
     name: apps
     entries: []
   - type: file
+    name: cirno-state.json
+  - type: file
     name: cirno.yml
     content: |
       version: '1.0'
@@ -83,6 +85,8 @@ entries:
   - type: directory
     name: apps
     entries: []
+  - type: file
+    name: cirno-state.json
   - type: file
     name: cirno.yml
     content: |

@@ -1,7 +1,7 @@
 import { CAC } from 'cac'
 import { resolve } from 'node:path'
 import { cp } from 'node:fs/promises'
-import { Cirno } from '../index.ts'
+import { Cirno, loadMeta } from '../index.ts'
 import { error, success } from '../utils.ts'
 
 export default (cli: CAC) => cli
@@ -13,11 +13,13 @@ export default (cli: CAC) => cli
     const cirno = await Cirno.init(cwd)
     const app = cirno.get(id, 'backup')
     if (app.id !== id) error('Cannot backup a base instance.')
+    const meta = await loadMeta(cwd + '/apps/' + id)
     const newId = cirno.createId(options.id)
+    cirno.state[app.id][newId] = meta
     app.backups.push({
       id: newId,
       type: 'manual',
-      createTime: new Date().toISOString(),
+      created: new Date().toISOString(),
     })
     await cp(cwd + '/apps/' + id, cwd + '/apps/' + newId, { recursive: true })
     await cirno.save()
