@@ -8,15 +8,6 @@ code: 0
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: releases
-        entries: []
-  - type: directory
     name: apps
     entries: []
   - type: file
@@ -25,6 +16,18 @@ entries:
       version: '1.0'
       config: {}
       apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
   - type: directory
     name: tmp
     entries: []
@@ -46,19 +49,6 @@ stderr: ''
 code: 0
 signal: null
 entries:
-  - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.3.1.cjs
   - type: directory
     name: apps
     entries:
@@ -92,8 +82,27 @@ entries:
           name: foo
           backups: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;
 
@@ -112,29 +121,6 @@ stderr: ''
 code: 0
 signal: null
 entries:
-  - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries:
-          - type: file
-            name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
-          - type: file
-            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
-          - type: file
-            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
-          - type: file
-            name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.2.2.cjs
-          - type: file
-            name: yarn-4.3.1.cjs
   - type: directory
     name: apps
     entries:
@@ -191,8 +177,37 @@ entries:
           name: bar
           backups: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;
 
@@ -211,39 +226,6 @@ stderr: ''
 code: 0
 signal: null
 entries:
-  - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries:
-          - type: file
-            name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
-          - type: file
-            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
-          - type: file
-            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
-          - type: file
-            name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-10c0.zip'
-          - type: file
-            name: argparse-npm-1.0.10-528934e59d-10c0.zip
-          - type: file
-            name: esprima-npm-4.0.1-1084e98778-10c0.zip
-          - type: file
-            name: js-yaml-npm-3.14.1-b968c6095e-10c0.zip
-          - type: file
-            name: sprintf-js-npm-1.0.3-73f0a322fa-10c0.zip
-          - type: file
-            name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.2.2.cjs
-          - type: file
-            name: yarn-4.3.1.cjs
   - type: directory
     name: apps
     entries:
@@ -323,7 +305,46 @@ entries:
           name: baz
           backups: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-10c0.zip'
+              - type: file
+                name: argparse-npm-1.0.10-528934e59d-10c0.zip
+              - type: file
+                name: esprima-npm-4.0.1-1084e98778-10c0.zip
+              - type: file
+                name: js-yaml-npm-3.14.1-b968c6095e-10c0.zip
+              - type: file
+                name: sprintf-js-npm-1.0.3-73f0a322fa-10c0.zip
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;

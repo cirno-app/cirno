@@ -47,15 +47,6 @@ code: 0
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: releases
-        entries: []
-  - type: directory
     name: apps
     entries: []
   - type: file
@@ -64,6 +55,18 @@ entries:
       version: '1.0'
       config: {}
       apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
   - type: directory
     name: tmp
     entries: []
@@ -78,15 +81,6 @@ code: 1
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: releases
-        entries: []
-  - type: directory
     name: apps
     entries: []
   - type: file
@@ -95,6 +89,18 @@ entries:
       version: '1.0'
       config: {}
       apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
   - type: directory
     name: tmp
     entries: []

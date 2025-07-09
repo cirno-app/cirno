@@ -4,6 +4,9 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
+    env: {
+      NODE_ENV: 'test',
+    },
     globalSetup: [
       fileURLToPath(new URL('./tests/setup.ts', import.meta.url)),
     ],

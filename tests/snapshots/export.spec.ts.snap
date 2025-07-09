@@ -8,15 +8,6 @@ code: 0
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: releases
-        entries: []
-  - type: directory
     name: apps
     entries: []
   - type: file
@@ -25,6 +16,18 @@ entries:
       version: '1.0'
       config: {}
       apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
   - type: directory
     name: tmp
     entries: []
@@ -47,27 +50,6 @@ code: 0
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries:
-          - type: file
-            name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
-          - type: file
-            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
-          - type: file
-            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
-          - type: file
-            name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.2.2.cjs
-  - type: directory
     name: apps
     entries:
       - type: directory
@@ -100,8 +82,35 @@ entries:
           name: bar
           backups: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;
 
@@ -113,19 +122,6 @@ code: 0
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.2.2.cjs
-  - type: directory
     name: apps
     entries:
       - type: directory
@@ -158,8 +154,35 @@ entries:
           name: bar
           backups: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;
 
@@ -171,19 +194,6 @@ code: 0
 signal: null
 entries:
   - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries: []
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.2.2.cjs
-  - type: directory
     name: apps
     entries: []
   - type: file
@@ -193,8 +203,35 @@ entries:
       config: {}
       apps: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;
 
@@ -213,27 +250,6 @@ stderr: ''
 code: 0
 signal: null
 entries:
-  - type: directory
-    name: .yarn
-    entries:
-      - type: directory
-        name: cache
-        entries:
-          - type: file
-            name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
-          - type: file
-            name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
-          - type: file
-            name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
-          - type: file
-            name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
-      - type: directory
-        name: index
-      - type: directory
-        name: releases
-        entries:
-          - type: file
-            name: yarn-4.2.2.cjs
   - type: directory
     name: apps
     entries:
@@ -267,7 +283,34 @@ entries:
           name: bar
           backups: []
   - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+  - type: directory
     name: tmp
-    entries: []
+    entries:
+      - type: directory
+        name: tsx-501
+        entries: []
 
 `;

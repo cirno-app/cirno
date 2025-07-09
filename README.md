@@ -52,7 +52,7 @@ Execute `yarn` in an application.
 
 Arguments after `--` will be passed to `yarn`.
 
-### `cirno prune`
+### `cirno gc`
 
 Remove unused packages from the cache.
 
@@ -78,7 +78,7 @@ On the other hand, local applications may have many duplicated dependencies. To 
 
 When you `import` an application, Cirno will move all the dependencies to the shared cache. When you `export` an application, Cirno will copy the dependencies from the shared cache to the bundle.
 
-Finally, Cirno support garbage collection for the shared cache. You can use `cirno prune` to remove unused packages from the cache. This will allow Cirno to have even less disk usage than Yarn or pnpm stores.
+Finally, Cirno support garbage collection for the shared cache. You can use `cirno gc` to remove unused packages from the cache. This will allow Cirno to have even less disk usage than Yarn or pnpm stores.
 
 ### Backup Timeline
 

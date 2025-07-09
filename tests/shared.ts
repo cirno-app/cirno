@@ -28,6 +28,8 @@ async function traverse(root: string) {
   const files = await readdir(root, { withFileTypes: true })
   for (const file of files) {
     if (file.isDirectory()) {
+      // Skip platform-specific directories
+      if (['AppData'].includes(file.name)) continue
       const entry: Entry = { type: 'directory', name: file.name }
       if (!['index'].includes(file.name)) {
         entry.entries = await traverse(root + '/' + file.name)

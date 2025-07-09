@@ -78,10 +78,18 @@ export class Cirno {
     } catch {
       if (!create) error('Use `cirno init` to create a new project.')
       await fs.rm(cwd, { recursive: true, force: true })
-      await fs.mkdir(cwd + '/tmp', { recursive: true })
-      await fs.mkdir(cwd + '/apps', { recursive: true })
-      await fs.mkdir(cwd + '/.yarn/cache', { recursive: true })
-      await fs.mkdir(cwd + '/.yarn/releases', { recursive: true })
+      await fs.mkdir(cwd, { recursive: true })
+      await fs.mkdir(cwd + '/tmp')
+      await fs.mkdir(cwd + '/apps')
+      await fs.mkdir(cwd + '/home')
+      await fs.mkdir(cwd + '/home/.yarn')
+      await fs.mkdir(cwd + '/home/.yarn/cache')
+      await fs.mkdir(cwd + '/home/.yarn/releases')
+      if (process.platform === 'win32') {
+        await fs.mkdir(cwd + '/home/AppData')
+        await fs.mkdir(cwd + '/home/AppData/Local')
+        await fs.mkdir(cwd + '/home/AppData/Roaming')
+      }
       return new Cirno(cwd, { version, config: {}, apps: [] })
     }
   }
@@ -106,23 +114,31 @@ export class Cirno {
     this.data.apps = Object.entries(this.instances)
       .filter(([id, app]) => id === app.id)
       .map(([_, app]) => app)
-    await fs.writeFile(this.cwd + '/cirno.yml', yaml.dump(this.data))
+    await fs.writeFile(join(this.cwd, 'cirno.yml'), yaml.dump(this.data))
   }
 
   async yarn(cwd: string, args: string[]) {
     const pkgMeta: Package = JSON.parse(await fs.readFile(join(cwd, '/package.json'), 'utf8'))
     const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
     if (!capture) throw new Error('Failed to detect yarn version.')
-    const yarnPath = join(this.cwd, `.yarn/releases/yarn-${capture[1]}.cjs`)
+    const yarnPath = join(this.cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`)
+    const env: Record<string, string | undefined> = { ...process.env }
+    env.HOME = join(this.cwd, 'home')
+    env.TEMP = join(this.cwd, 'tmp')
+    env.TMP = join(this.cwd, 'tmp')
+    env.TMPDIR = join(this.cwd, 'tmp')
+    env.YARN_YARN_PATH = yarnPath
+    env.YARN_GLOBAL_FOLDER = join(this.cwd, 'home/.yarn')
+    if (process.platform === 'win32') {
+      env.APPDATA = join(this.cwd, 'home/AppData/Roaming')
+      env.LOCALAPPDATA = join(this.cwd, 'home/AppData/Local')
+      env.USERPROFILE = join(this.cwd, 'home')
+    }
     return new Promise<number | null>((resolve, reject) => {
       const child = fork(yarnPath, args, {
         cwd,
+        env,
         stdio: 'inherit',
-        env: {
-          ...process.env,
-          YARN_YARN_PATH: yarnPath,
-          YARN_GLOBAL_FOLDER: this.cwd + '/.yarn',
-        },
       })
       child.on('error', reject)
       child.on('exit', (code) => {

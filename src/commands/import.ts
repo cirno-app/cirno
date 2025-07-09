@@ -1,5 +1,5 @@
 import { CAC } from 'cac'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ZipFS } from '@yarnpkg/libzip'
 import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
@@ -54,26 +54,27 @@ export default (cli: CAC) => cli
       if (!capture) throw new Error('Failed to detect yarn version.')
       const yarnRc: YarnRc = parseSyml(await fs.readFile(temp + '/.yarnrc.yml', 'utf8'))
       if (!yarnRc.yarnPath) throw new Error('Cannot find `yarnPath` in .yarnrc.yml.')
-      const yarnPath = resolve(temp, yarnRc.yarnPath)
-      await fs.rename(yarnPath, resolve(cwd, `.yarn/releases/yarn-${capture[1]}.cjs`))
-      await fs.rm(resolve(temp, '.yarn/releases'), { recursive: true, force: true })
+      const yarnPath = join(temp, yarnRc.yarnPath)
+      await fs.rename(yarnPath, join(cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`))
+      await fs.rm(join(temp, '.yarn/releases'), { recursive: true, force: true })
       delete yarnRc.yarnPath
 
       // enableGlobalCache
       const yarnLock = parseSyml(await fs.readFile(temp + '/yarn.lock', 'utf8')) as YarnLock
       const { version, cacheKey } = yarnLock.__metadata ?? {}
       if (version !== '8') throw new Error(`Unsupported yarn.lock version: ${version}.`)
-      const files = await fs.readdir(resolve(temp, '.yarn/cache'))
+      const files = await fs.readdir(join(temp, '.yarn/cache'))
       for (const name of files) {
         const capture = /^(.+)-([0-9a-f]{10})-([0-9a-f]+)\.zip$/.exec(name)
         if (!capture) continue
-        await fs.rename(resolve(temp, '.yarn/cache', name), resolve(cwd, '.yarn/cache', `${capture[1]}-${capture[2]}-${cacheKey}.zip`))
+        await fs.rename(join(temp, '.yarn/cache', name), join(cwd, 'home/.yarn/cache', `${capture[1]}-${capture[2]}-${cacheKey}.zip`))
       }
-      await fs.rm(resolve(temp, '.yarn/cache'), { recursive: true, force: true })
+      await fs.rm(join(temp, '.yarn/cache'), { recursive: true, force: true })
       delete yarnRc.enableGlobalCache
 
       await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
-      await cirno.yarn(temp, options['--'])
+      const code = await cirno.yarn(temp, options['--'])
+      if (code !== 0) error(`Failed to install dependencies. Exit code: ${code}`)
 
       const id = cirno.createId(options.id)
       cirno.instances[id] = {
