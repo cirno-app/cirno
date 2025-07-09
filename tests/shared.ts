@@ -31,7 +31,7 @@ async function traverse(root: string) {
       // Skip platform-specific directories
       if (['AppData'].includes(file.name)) continue
       const entry: Entry = { type: 'directory', name: file.name }
-      if (!['index'].includes(file.name)) {
+      if (!['index', 'tmp'].includes(file.name)) {
         entry.entries = await traverse(root + '/' + file.name)
       }
       result.push(entry)

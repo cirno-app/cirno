@@ -72,6 +72,17 @@ export async function loadMeta(cwd: string): Promise<Meta> {
   return { pkg, yarnRc, yarnLock }
 }
 
+export function getCacheFiles(yarnLock: YarnLock) {
+  return Object.entries(yarnLock).map(([key, value]) => {
+    if (key === '__metadata') return
+    const capture = /^(@[^@/]+\/[^@]+|[^@/]+)@([^:]+):(.+)$/.exec(value.resolution)
+    if (!capture) throw new Error(`Failed to parse resolution: ${value.resolution}`)
+    if (capture[2] === 'workspace') return
+    if (capture[2] !== 'npm') throw new Error(`Unsupported resolution protocol: ${capture[2]}`)
+    return `${capture[1].replace('/', '-')}-${capture[2]}-${capture[3].replace(':', '-')}`
+  }).filter(Boolean) as string[]
+}
+
 const ENTRY_FILE = 'cirno.yml'
 const STATE_FILE = process.env.NODE_ENV === 'test' ? 'cirno-state.json' : 'cirno-state.gz'
 const gzip: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.gzip)
@@ -140,6 +151,17 @@ export class Cirno {
     await fs.writeFile(join(this.cwd, STATE_FILE), await gzip(Buffer.from(JSON.stringify(this.state))))
   }
 
+  async loadCache() {
+    const files = await fs.readdir(join(this.cwd, 'home/.yarn/cache'))
+    const cache: Record<string, Record<string, string>> = Object.create(null)
+    for (const name of files) {
+      const capture = /^(.+)-([0-9a-f]{10})-([0-9a-f]+)\.zip$/.exec(name)
+      if (!capture) continue
+      (cache[capture[3]] ??= {})[capture[1]] = name
+    }
+    return cache
+  }
+
   async yarn(cwd: string, args: string[]) {
     const pkgMeta: Package = JSON.parse(await fs.readFile(join(cwd, '/package.json'), 'utf8'))
     const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkgMeta.packageManager)
@@ -179,5 +201,33 @@ export class Cirno {
         resolve(code)
       })
     })
+  }
+
+  async gc() {
+    const cache = await this.loadCache()
+    const releases = new Set(await fs.readdir(join(this.cwd, 'home/.yarn/releases')))
+    await Promise.all(Object.keys(this.apps).map(async (id) => {
+      const { pkg, yarnLock } = await loadMeta(join(this.cwd, 'apps', id))
+      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)
+      if (capture) releases.delete(`yarn-${capture[1]}.cjs`)
+      for (const prefix of getCacheFiles(yarnLock)) {
+        delete cache[yarnLock.__metadata.cacheKey]?.[prefix]
+      }
+    }))
+    for (const { pkg, yarnLock } of Object.values(this.state).map(x => Object.values(x)).flat()) {
+      const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)
+      if (capture) releases.delete(`yarn-${capture[1]}.cjs`)
+      for (const prefix of getCacheFiles(yarnLock)) {
+        delete cache[yarnLock.__metadata.cacheKey]?.[prefix]
+      }
+    }
+    for (const name of releases) {
+      await fs.rm(join(this.cwd, 'home/.yarn/releases', name))
+    }
+    for (const prefixes of Object.values(cache)) {
+      for (const name of Object.values(prefixes)) {
+        await fs.rm(join(this.cwd, 'home/.yarn/cache', name))
+      }
+    }
   }
 }

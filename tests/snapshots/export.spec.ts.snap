@@ -32,7 +32,6 @@ entries:
             entries: []
   - type: directory
     name: tmp
-    entries: []
 
 `;
 
@@ -112,10 +111,6 @@ entries:
                 name: yarn-4.2.2.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -187,10 +182,6 @@ entries:
                 name: yarn-4.2.2.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -220,28 +211,14 @@ entries:
         entries:
           - type: directory
             name: cache
-            entries:
-              - type: file
-                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
-              - type: file
-                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
-              - type: file
-                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
-              - type: file
-                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+            entries: []
           - type: directory
             name: index
           - type: directory
             name: releases
-            entries:
-              - type: file
-                name: yarn-4.2.2.cjs
+            entries: []
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -321,9 +298,5 @@ entries:
                 name: yarn-4.2.2.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;

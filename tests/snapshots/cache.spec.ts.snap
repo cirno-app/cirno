@@ -32,7 +32,6 @@ entries:
             entries: []
   - type: directory
     name: tmp
-    entries: []
 
 `;
 
@@ -104,10 +103,6 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -213,16 +208,12 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
 exports[`step 4: cirno import /fixtures/baz 1`] = `
 stdout: |
-  ➤ YN0000: · Yarn 4.2.2
+  ➤ YN0000: · Yarn 4.3.1
   ➤ YN0000: ┌ Resolution step
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Fetch step
@@ -356,9 +347,104 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
+
+`;
+
+exports[`step 5: cirno remove <#2> 1`] = `
+stdout: |2
+   SUCCESS  Instance 5ab7bff9 is successfully removed.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
     entries:
       - type: directory
-        name: tsx-501
-        entries: []
+        name: b6394418
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: file
+    name: cirno-state.json
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: foo
+          created: '<timestamp>'
+          backups: []
+        - id: b6394418
+          name: baz
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-10c0.zip'
+              - type: file
+                name: argparse-npm-1.0.10-528934e59d-10c0.zip
+              - type: file
+                name: esprima-npm-4.0.1-1084e98778-10c0.zip
+              - type: file
+                name: js-yaml-npm-3.14.1-b968c6095e-10c0.zip
+              - type: file
+                name: sprintf-js-npm-1.0.3-73f0a322fa-10c0.zip
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
+    name: tmp
 
 `;

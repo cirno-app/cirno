@@ -1,6 +1,6 @@
 import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
-import { Cirno, loadMeta } from '../index.ts'
+import { Cirno, getCacheFiles, loadMeta } from '../index.ts'
 import { error, loadIntoZip, success } from '../utils.ts'
 import { stringifySyml } from '@yarnpkg/parsers'
 import { ZipFS } from '@yarnpkg/libzip'
@@ -44,22 +44,11 @@ export default (cli: CAC) => cli
       const { version, cacheKey } = yarnLock.__metadata ?? {}
       if (version !== '8') throw new Error(`Unsupported yarn.lock version: ${version}.`)
       await fs.mkdir(join(temp, '.yarn/cache'), { recursive: true })
-      const files = await fs.readdir(join(cwd, 'home/.yarn/cache'))
-      const cacheMap: Record<string, [string, string]> = Object.create(null)
-      for (const name of files) {
-        const capture = /^(.+)-([0-9a-f]{10})-([0-9a-f]+)\.zip$/.exec(name)
-        if (!capture) continue
-        cacheMap[capture[1]] = [name, `${capture[1]}-${capture[2]}-${cacheKey}.zip`]
-      }
-      for (const [key, value] of Object.entries(yarnLock)) {
-        if (key === '__metadata') continue
-        const capture = /^(@[^@/]+\/[^@]+|[^@/]+)@([^:]+):(.+)$/.exec(value.resolution)
-        if (!capture) throw new Error(`Failed to parse resolution: ${value.resolution}`)
-        if (capture[2] === 'workspace') continue
-        if (capture[2] !== 'npm') throw new Error(`Unsupported resolution protocol: ${capture[2]}`)
-        const name = cacheMap[`${capture[1].replace('/', '-')}-${capture[2]}-${capture[3].replace(':', '-')}`]
-        if (!name) throw new Error(`Cache not found: ${value.resolution}`)
-        await fs.cp(join(cwd, 'home/.yarn/cache', name[0]), join(temp, '.yarn/cache', name[1]))
+      const cache = (await cirno.loadCache())[cacheKey] ?? {}
+      for (const prefix of getCacheFiles(yarnLock)) {
+        const name = cache[prefix]
+        if (!name) throw new Error(`Cache not found: ${prefix}`)
+        await fs.cp(join(cwd, 'home/.yarn/cache', name), join(temp, '.yarn/cache', name))
       }
       yarnRc.enableGlobalCache = false
 

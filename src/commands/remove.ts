@@ -34,6 +34,7 @@ export default (cli: CAC) => cli
         delete cirno.state[id]
       }
     }
+    await cirno.gc()
     await cirno.save()
     success(`Instance ${id} is successfully removed.`)
   })

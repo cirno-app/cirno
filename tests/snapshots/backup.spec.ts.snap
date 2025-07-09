@@ -32,7 +32,6 @@ entries:
             entries: []
   - type: directory
     name: tmp
-    entries: []
 
 `;
 
@@ -104,10 +103,6 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -194,10 +189,6 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -284,10 +275,6 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -397,10 +384,6 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -487,10 +470,6 @@ entries:
                 name: yarn-4.3.1.cjs
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -525,15 +504,9 @@ entries:
             name: index
           - type: directory
             name: releases
-            entries:
-              - type: file
-                name: yarn-4.3.1.cjs
+            entries: []
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;
 
@@ -568,14 +541,8 @@ entries:
             name: index
           - type: directory
             name: releases
-            entries:
-              - type: file
-                name: yarn-4.3.1.cjs
+            entries: []
   - type: directory
     name: tmp
-    entries:
-      - type: directory
-        name: tsx-501
-        entries: []
 
 `;

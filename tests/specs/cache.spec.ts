@@ -5,4 +5,5 @@ makeEnv('cache', (ctx) => {
   const uuid1 = ctx.pass(['import', useFixture('foo')])
   const uuid2 = ctx.pass(['import', useFixture('bar')])
   const uuid3 = ctx.pass(['import', useFixture('baz')])
+  ctx.pass(['remove', uuid2])
 })

@@ -11,6 +11,7 @@ import registerBackup from './commands/backup.ts'
 import registerRestore from './commands/restore.ts'
 import registerList from './commands/list.ts'
 import registerYarn from './commands/yarn.ts'
+import registerGc from './commands/gc.ts'
 
 const require = createRequire(import.meta.url)
 const { version } = require('../package.json')
@@ -26,6 +27,7 @@ registerBackup(cli)
 registerRemove(cli)
 registerList(cli)
 registerYarn(cli)
+registerGc(cli)
 
 cli.parse()
 
