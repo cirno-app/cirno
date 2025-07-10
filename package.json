@@ -7,12 +7,12 @@
   "bin": "lib/cli.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cordiverse/cirno.git"
+    "url": "git+https://github.com/cirno-app/cirno.git"
   },
   "bugs": {
-    "url": "https://github.com/cordiverse/cirno/issues"
+    "url": "https://github.com/cirno-app/cirno/issues"
   },
-  "homepage": "https://github.com/cordiverse/cirno",
+  "homepage": "https://github.com/cirno-app/cirno",
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "files": [

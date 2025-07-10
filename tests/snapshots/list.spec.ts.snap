@@ -1,0 +1,377 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step 1: cirno init 1`] = `
+stdout: |2
+   SUCCESS  Cirno project initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: file
+    name: cirno-state.json
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 2: cirno import /fixtures/foo 1`] = `
+stdout: |
+  ➤ YN0000: · Yarn 4.3.1
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done
+   SUCCESS  Successfully imported instance cd5fbb72.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: file
+    name: cirno-state.json
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: foo
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 3: cirno clone <#1> 1`] = `
+stdout: |2
+   SUCCESS  Successfully created a cloned instance 5ab7bff9.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: file
+    name: cirno-state.json
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: foo
+          created: '<timestamp>'
+          backups: []
+        - id: 5ab7bff9
+          name: foo
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 4: cirno backup <#2> 1`] = `
+stdout: |2
+   SUCCESS  Successfully created a backup instance b6394418.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: file
+        name: 5ab7bff9.bak.zip
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: file
+    name: cirno-state.json
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: foo
+          created: '<timestamp>'
+          backups: []
+        - id: 5ab7bff9
+          name: foo
+          created: '<timestamp>'
+          backups:
+            - id: b6394418
+              type: manual
+              created: '<timestamp>'
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 5: cirno list 1`] = `
+stdout: " INFO  Found 2 applications:\\n├── cd5fbb72\\tfoo\\n└── 5ab7bff9\\tfoo\\n    └── b6394418\\n"
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: file
+        name: 5ab7bff9.bak.zip
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: file
+    name: cirno-state.json
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: foo
+          created: '<timestamp>'
+          backups: []
+        - id: 5ab7bff9
+          name: foo
+          created: '<timestamp>'
+          backups:
+            - id: b6394418
+              type: manual
+              created: '<timestamp>'
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+  - type: directory
+    name: tmp
+
+`;

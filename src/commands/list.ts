@@ -6,6 +6,7 @@ import { info } from '../utils.ts'
 export default (cli: CAC) => cli
   .command('list', 'List all applications')
   .alias('ls')
+  .alias('tree')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--json', 'Output as JSON')
   .action(async (options) => {
@@ -15,7 +16,12 @@ export default (cli: CAC) => cli
     if (options.json) return console.log(JSON.stringify(apps))
     if (!apps.length) return info('No applications found.')
     info(`Found ${apps.length} applications:`)
-    for (const app of apps) {
-      console.log(`${app.id}\t${app.name}`)
-    }
+    apps.forEach((app, index) => {
+      const prefix = index === apps.length - 1 ? '└' : '├'
+      console.log(`${prefix}── ${app.id}\t${app.name}`)
+      app.backups.forEach((backup, index) => {
+        const prefix = index === app.backups.length - 1 ? '└' : '├'
+        console.log(`    ${prefix}── ${backup.id}`)
+      })
+    })
   })
