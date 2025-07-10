@@ -117,26 +117,6 @@ entries:
     name: apps
     entries:
       - type: directory
-        name: 5ab7bff9
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
         name: cd5fbb72
         entries:
           - type: file
@@ -156,6 +136,8 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+      - type: file
+        name: cd5fbb72.bak.zip
   - type: file
     name: cirno-state.json
   - type: file
@@ -203,26 +185,6 @@ entries:
     name: apps
     entries:
       - type: directory
-        name: 5ab7bff9
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
         name: cd5fbb72
         entries:
           - type: file
@@ -242,6 +204,8 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+      - type: file
+        name: cd5fbb72.bak.zip
   - type: file
     name: cirno-state.json
   - type: file
@@ -289,46 +253,6 @@ entries:
     name: apps
     entries:
       - type: directory
-        name: 5ab7bff9
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
-        name: b6394418
-        entries:
-          - type: file
-            name: .pnp.cjs
-          - type: directory
-            name: .yarn
-            entries:
-              - type: file
-                name: install-state.gz
-          - type: file
-            name: .yarnrc.yml
-            content: |
-              enableTips: false
-
-              nodeLinker: pnp
-          - type: file
-            name: package.json
-          - type: file
-            name: yarn.lock
-      - type: directory
         name: cd5fbb72
         entries:
           - type: file
@@ -348,6 +272,8 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+      - type: file
+        name: cd5fbb72.bak.zip
   - type: file
     name: cirno-state.json
   - type: file

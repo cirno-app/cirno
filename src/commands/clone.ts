@@ -1,6 +1,5 @@
 import { CAC } from 'cac'
-import { resolve } from 'node:path'
-import { cp } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
 import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
@@ -20,7 +19,7 @@ export default (cli: CAC) => cli
       backups: [],
     }
     cirno.state[newId] = {}
-    await cp(cwd + '/apps/' + id, cwd + '/apps/' + newId, { recursive: true })
+    await cirno.clone(app, id, join(cwd, 'apps', newId))
     await cirno.save()
     success(`Successfully created a cloned instance ${newId}.`)
   })

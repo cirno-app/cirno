@@ -25,12 +25,12 @@ export default (cli: CAC) => cli
   .action(async (id: string, dest: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
-    cirno.get(id, 'export')
+    const app = cirno.get(id, 'export')
     if (!dest) return error('Missing output path. See `cirno remove --help` for usage.')
     try {
       const full = join(cwd, dest)
       const temp = cwd + '/tmp/' + id
-      await fs.cp(cwd + '/apps/' + id, temp, { recursive: true, force: true })
+      await cirno.clone(app, id, temp)
       const { pkg, yarnLock, yarnRc } = await loadMeta(temp)
 
       // yarnPath

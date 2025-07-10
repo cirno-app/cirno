@@ -20,13 +20,15 @@ export function success(message: string): never {
 }
 
 export async function dumpFromZip(zip: ZipFS, root: string, base = '/') {
-  const dirents = await zip.readdirPromise(base as PortablePath, { withFileTypes: true })
+  const [dirents] = await Promise.all([
+    zip.readdirPromise(base as PortablePath, { withFileTypes: true }),
+    fs.mkdir(root),
+  ])
   await Promise.all(dirents.map(async (dirent) => {
     if (dirent.isFile()) {
       const buffer = await zip.readFilePromise(base + dirent.name as PortablePath)
       await fs.writeFile(join(root, dirent.name), buffer)
     } else if (dirent.isDirectory()) {
-      await fs.mkdir(join(root, dirent.name))
       await dumpFromZip(zip, join(root, dirent.name), base + dirent.name + '/')
     } else {
       throw new Error(`Unsupported file type`)
@@ -35,13 +37,15 @@ export async function dumpFromZip(zip: ZipFS, root: string, base = '/') {
 }
 
 export async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
-  const dirents = await fs.readdir(root, { withFileTypes: true })
+  const [dirents] = await Promise.all([
+    fs.readdir(root, { withFileTypes: true }),
+    base === '/' ? undefined : zip.mkdirPromise(base as PortablePath, { recursive: true }),
+  ])
   await Promise.all(dirents.map(async (dirent) => {
     if (dirent.isFile()) {
       const buffer = await fs.readFile(join(root, dirent.name))
       await zip.writeFilePromise(base + dirent.name as PortablePath, buffer)
     } else if (dirent.isDirectory()) {
-      await zip.mkdirPromise(base + dirent.name as PortablePath)
       await loadIntoZip(zip, join(root, dirent.name), base + dirent.name + '/')
     } else {
       throw new Error(`Unsupported file type`)

@@ -29,7 +29,6 @@ export default (cli: CAC) => cli
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
 
     const temp = cwd + '/tmp/' + Math.random().toString(36).slice(2, 10).padEnd(8, '0')
-    await fs.mkdir(temp, { recursive: true })
     try {
       const parsed = parseImport(src, cwd)
       if (typeof parsed === 'string') {
@@ -82,7 +81,7 @@ export default (cli: CAC) => cli
         backups: [],
       }
       cirno.state[id] = {}
-      await fs.rename(temp, cwd + '/apps/' + id)
+      await fs.rename(temp, join(cwd, 'apps', id))
       await cirno.save()
       success(`Successfully imported instance ${id}.`)
     } catch (e) {

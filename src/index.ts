@@ -1,11 +1,12 @@
 import * as fs from 'node:fs/promises'
 import * as yaml from 'js-yaml'
 import * as zlib from 'node:zlib'
-import { error } from './utils.ts'
+import { dumpFromZip, error } from './utils.ts'
 import { join } from 'node:path'
 import { fork } from 'node:child_process'
 import { promisify } from 'node:util'
 import { parseSyml } from '@yarnpkg/parsers'
+import { ZipFS } from '@yarnpkg/libzip'
 
 export interface YarnRc {
   yarnPath?: string
@@ -151,6 +152,16 @@ export class Cirno {
     await fs.writeFile(join(this.cwd, STATE_FILE), await gzip(Buffer.from(JSON.stringify(this.state))))
   }
 
+  async clone(app: App, id: string, dest: string) {
+    if (app.id === id) {
+      await fs.cp(join(this.cwd, 'apps', id), dest, { recursive: true })
+    } else {
+      const zip = new ZipFS(await fs.readFile(join(this.cwd, 'apps', id + '.bak.zip')))
+      await dumpFromZip(zip, dest, '/' + id + '/')
+      zip.getBufferAndClose()
+    }
+  }
+
   async loadCache() {
     const files = await fs.readdir(join(this.cwd, 'home/.yarn/cache'))
     const cache: Record<string, Record<string, string>> = Object.create(null)
@@ -206,7 +217,7 @@ export class Cirno {
   async gc() {
     const cache = await this.loadCache()
     const releases = new Set(await fs.readdir(join(this.cwd, 'home/.yarn/releases')))
-    await Promise.all(Object.keys(this.apps).map(async (id) => {
+    await Promise.all(Object.keys(this.state).map(async (id) => {
       const { pkg, yarnLock } = await loadMeta(join(this.cwd, 'apps', id))
       const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)
       if (capture) releases.delete(`yarn-${capture[1]}.cjs`)

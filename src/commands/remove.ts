@@ -1,8 +1,10 @@
 import { CAC } from 'cac'
-import { resolve } from 'node:path'
-import { rename, rm } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
+import { readFile, rm, writeFile } from 'node:fs/promises'
 import { Cirno } from '../index.ts'
-import { success } from '../utils.ts'
+import { dumpFromZip, success } from '../utils.ts'
+import { ZipFS } from '@yarnpkg/libzip'
+import { PortablePath } from '@yarnpkg/fslib'
 
 export default (cli: CAC) => cli
   .command('remove [id]', 'Remove an instance')
@@ -16,25 +18,34 @@ export default (cli: CAC) => cli
     const count = app.id === id
       ? Infinity
       : app.backups.findIndex(backup => backup.id === id)
+    const zip = app.backups.length
+      ? new ZipFS(await readFile(join(cwd, 'apps', app.id + '.bak.zip')))
+      : undefined
     const backups = options.recursive
       ? app.backups.splice(0, count + 1)
       : app.backups.splice(count, 1)
     for (const backup of backups) {
-      await rm(cwd + '/apps/' + backup.id, { recursive: true, force: true })
+      await zip!.rmPromise('/' + backup.id as PortablePath, { recursive: true, force: true })
       delete cirno.apps[backup.id]
       delete cirno.state[app.id][backup.id]
     }
     if (app.id === id) {
-      await rm(cwd + '/apps/' + id, { recursive: true, force: true })
+      await rm(join(cwd, 'apps', id), { recursive: true, force: true })
       const backup = app.backups.pop()
       if (backup) {
-        await rename(cwd + '/apps/' + backup.id, cwd + '/apps/' + id)
+        await dumpFromZip(zip!, join(cwd, 'apps', id), '/' + backup.id + '/')
+        await zip!.rmPromise('/' + backup.id as PortablePath, { recursive: true, force: true })
       } else {
         delete cirno.apps[id]
         delete cirno.state[id]
       }
     }
-    await cirno.gc()
+    if (app.backups.length) {
+      await writeFile(join(cwd, 'apps', app.id + '.bak.zip'), zip!.getBufferAndClose())
+    } else if (zip) {
+      await rm(join(cwd, 'apps', app.id + '.bak.zip'))
+    }
     await cirno.save()
+    await cirno.gc()
     success(`Instance ${id} is successfully removed.`)
   })
