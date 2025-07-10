@@ -20,10 +20,11 @@ function parseImport(src: string, cwd: string) {
 }
 
 export default (cli: CAC) => cli
-  .command('import [src] [name]', 'Import an instance')
+  .command('import [src]', 'Import an instance')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
-  .action(async (src: string, name: string, options) => {
+  .option('--name <name>', 'Specify the new application name')
+  .action(async (src: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     if (!src) return error('Missing source path or url. See `cirno import --help` for usage.')
@@ -46,7 +47,7 @@ export default (cli: CAC) => cli
       }
 
       const { pkg, yarnLock, yarnRc } = await loadMeta(temp)
-      name ||= pkg.name
+      const name = options.name || pkg.name
 
       // yarnPath
       const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)

@@ -4,17 +4,18 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('clone [id] [name]', 'Clone an instance')
+  .command('clone [id]', 'Clone an instance')
   .option('--cwd <path>', 'Specify the project folder')
   .option('--id <id>', 'Specify the new instance ID')
-  .action(async (id: string, name: string, options) => {
+  .option('--name <name>', 'Specify the new application name')
+  .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
     const app = cirno.get(id, 'clone')
     const newId = cirno.createId(options.id)
     cirno.apps[newId] = {
       id: newId,
-      name: name ?? app.name,
+      name: options.name ?? app.name,
       created: new Date().toISOString(),
       backups: [],
     }

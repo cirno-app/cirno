@@ -42,10 +42,6 @@ Restore to a backup. See [Backup Timeline](#backup-timeline) for more informatio
 
 List all applications in the project.
 
-### `cirno show <id>`
-
-Show the information of an application or backup.
-
 ### `cirno yarn <id>`
 
 Execute `yarn` in an application.

@@ -4,6 +4,7 @@ import { Cirno } from '../index.ts'
 
 export default (cli: CAC) => cli
   .command('gc', 'Garbage collection')
+  .alias('prune')
   .option('--cwd <path>', 'Specify the project folder')
   .action(async (options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
