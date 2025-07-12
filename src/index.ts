@@ -1,12 +1,11 @@
 import * as fs from 'node:fs/promises'
 import * as yaml from 'js-yaml'
 import * as zlib from 'node:zlib'
-import { dumpFromZip, error } from './utils.ts'
+import { error, Tar } from './utils.ts'
 import { join } from 'node:path'
 import { fork } from 'node:child_process'
 import { promisify } from 'node:util'
 import { parseSyml } from '@yarnpkg/parsers'
-import { ZipFS } from '@yarnpkg/libzip'
 
 export interface YarnRc {
   yarnPath?: string
@@ -85,9 +84,9 @@ export function getCacheFiles(yarnLock: YarnLock) {
 }
 
 const ENTRY_FILE = 'cirno.yml'
-const STATE_FILE = process.env.NODE_ENV === 'test' ? 'cirno-state.json' : 'cirno-state.gz'
-const gzip: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.gzip)
-const gunzip: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.gunzip)
+const STATE_FILE = process.env.NODE_ENV === 'test' ? 'cirno-state.json' : 'cirno-state.br'
+const compress: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.brotliCompress)
+const decompress: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.brotliDecompress)
 
 export class Cirno {
   public apps: Record<string, App> = Object.create(null)
@@ -104,7 +103,7 @@ export class Cirno {
   static async init(cwd: string, create = false, force = false) {
     try {
       const manifest = yaml.load(await fs.readFile(join(cwd, ENTRY_FILE), 'utf8')) as Manifest
-      const state = JSON.parse((await gunzip(await fs.readFile(join(cwd, STATE_FILE)))).toString())
+      const state = JSON.parse((await decompress(await fs.readFile(join(cwd, STATE_FILE)))).toString())
       if (create && force) throw new Error()
       if (create) error('Project already exists. Use `cirno init -f` to overwrite.')
       if (manifest.version !== version) error(`Unsupported version: ${manifest.version}`)
@@ -149,16 +148,16 @@ export class Cirno {
       .filter(([id, app]) => id === app.id)
       .map(([_, app]) => app)
     await fs.writeFile(join(this.cwd, ENTRY_FILE), yaml.dump(this.data))
-    await fs.writeFile(join(this.cwd, STATE_FILE), await gzip(Buffer.from(JSON.stringify(this.state))))
+    await fs.writeFile(join(this.cwd, STATE_FILE), await compress(Buffer.from(JSON.stringify(this.state))))
   }
 
   async clone(app: App, id: string, dest: string) {
     if (app.id === id) {
       await fs.cp(join(this.cwd, 'apps', id), dest, { recursive: true })
     } else {
-      const zip = new ZipFS(await fs.readFile(join(this.cwd, 'apps', id + '.bak.zip')))
-      await dumpFromZip(zip, dest, '/' + id + '/')
-      zip.getBufferAndClose()
+      const tar = new Tar()
+      await tar.loadFile(join(this.cwd, 'apps', id + '.baka'))
+      await tar.dumpDir(dest, '/' + id + '/')
     }
   }
 

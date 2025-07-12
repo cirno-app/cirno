@@ -1,8 +1,13 @@
 import { PortablePath } from '@yarnpkg/fslib'
 import { ZipFS } from '@yarnpkg/libzip'
 import { join } from 'node:path'
+import * as tarFs from 'tar-fs'
+import * as tarStream from 'tar-stream'
 import * as fs from 'node:fs/promises'
 import k from 'kleur'
+import { createReadStream, createWriteStream } from 'node:fs'
+import { createBrotliCompress, createBrotliDecompress } from 'node:zlib'
+import { finished } from 'node:stream/promises'
 
 export function info(message: string): undefined {
   console.log(k.bold(k.bgBlue(' INFO ') + ' ' + k.white(message)))
@@ -51,4 +56,59 @@ export async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
       throw new Error(`Unsupported file type`)
     }
   }))
+}
+
+export class Tar {
+  private pack = tarStream.pack()
+
+  async loadFile(root: string, filter: (header: tarStream.Headers) => boolean | Tar = () => true) {
+    const extract = tarStream.extract()
+    extract.on('entry', (header, stream, callback) => {
+      const result = filter(header)
+      if (result === false) {
+        stream.resume()
+      } else if (result === true) {
+        stream.pipe(this.pack.entry(header, callback))
+      } else {
+        stream.pipe(result.pack.entry(header, callback))
+      }
+    })
+    createReadStream(root)
+      // .pipe(createBrotliDecompress())
+      .pipe(extract)
+  }
+
+  async loadDir(root: string, base = '/') {
+    base = base.slice(1)
+    tarFs.pack(root, {
+      pack: this.pack,
+      finalize: false,
+      map: (header) => {
+        header.name = join(base, header.name)
+        return header
+      },
+    })
+  }
+
+  async dumpFile(root: string) {
+    // this.pack.finalize()
+    const stream = this.pack
+      // .pipe(createBrotliCompress())
+      .pipe(createWriteStream(root))
+    // await finished(stream)
+  }
+
+  async dumpDir(root: string, base = '/') {
+    base = base.slice(1)
+    const stream = this.pack.pipe(tarFs.extract(root, {
+      filter: (_, header) => {
+        if (header?.name.startsWith(base)) {
+          header.name = header.name.slice(base.length)
+          return true
+        }
+        return false
+      },
+    }))
+    await finished(stream)
+  }
 }

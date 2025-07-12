@@ -1,9 +1,7 @@
 import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
 import { Cirno, loadMeta } from '../index.ts'
-import { error, loadIntoZip, success } from '../utils.ts'
-import { ZipFS } from '@yarnpkg/libzip'
-import { readFile, writeFile } from 'node:fs/promises'
+import { error, success, Tar } from '../utils.ts'
 
 export default (cli: CAC) => cli
   .command('backup [id]', 'Backup an application')
@@ -14,9 +12,10 @@ export default (cli: CAC) => cli
     const cirno = await Cirno.init(cwd)
     const app = cirno.get(id, 'backup')
     if (app.id !== id) error('Cannot backup a base instance.')
-    const zip = new ZipFS(app.backups.length
-      ? await readFile(join(cwd, 'apps', id + '.bak.zip'))
-      : null)
+    const tar = new Tar()
+    if (app.backups.length) {
+      await tar.loadFile(join(cwd, 'apps', id + '.tar'))
+    }
     const meta = await loadMeta(join(cwd, 'apps', id))
     const newId = cirno.createId(options.id)
     cirno.state[app.id][newId] = meta
@@ -25,8 +24,8 @@ export default (cli: CAC) => cli
       type: 'manual',
       created: new Date().toISOString(),
     })
-    await loadIntoZip(zip, join(cwd, 'apps', id), '/' + newId + '/')
-    await writeFile(join(cwd, 'apps', id + '.bak.zip'), zip.getBufferAndClose())
+    await tar.loadDir(join(cwd, 'apps', id), '/' + newId + '/')
+    await tar.dumpFile(join(cwd, 'apps', id + '.tar'))
     await cirno.save()
     success(`Successfully created a backup instance ${newId}.`)
   })
