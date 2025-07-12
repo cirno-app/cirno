@@ -4,12 +4,12 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('init', 'Initialize a new project')
-  .option('--cwd <path>', 'Specify the project folder')
-  .option('-f, --force', 'Overwrite existing project')
+  .command('init', 'Initialize a new environment')
+  .option('--cwd <path>', 'Specify the root folder')
+  .option('-f, --force', 'Overwrite existing environment')
   .action(async (options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd, true, options.force)
     await cirno.save()
-    success(`Cirno project initialized at ${cwd}.`)
+    success(`Cirno environment initialized at ${cwd}.`)
   })

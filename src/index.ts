@@ -95,10 +95,10 @@ export class Cirno {
   public apps: Record<string, App> = Object.create(null)
 
   private constructor(public cwd: string, public data: Manifest, public state: Record<string, Record<string, Meta>>) {
-    for (const project of data.apps) {
-      this.apps[project.id] = project
-      for (const backup of project.backups) {
-        this.apps[backup.id] = project
+    for (const app of data.apps) {
+      this.apps[app.id] = app
+      for (const backup of app.backups) {
+        this.apps[backup.id] = app
       }
     }
   }
@@ -112,7 +112,7 @@ export class Cirno {
       if (manifest.version !== version) error(`Unsupported version: ${manifest.version}`)
       return new Cirno(cwd, manifest, state)
     } catch (e) {
-      if (!create) error('Use `cirno init` to create a new project.')
+      if (!create) error('Use `cirno init` to create a new environment.')
       await fs.rm(cwd, { recursive: true, force: true })
       await fs.mkdir(cwd, { recursive: true })
       await fs.mkdir(cwd + '/apps')

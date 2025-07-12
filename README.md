@@ -6,9 +6,9 @@ Zero-Install Package Manager for Node.js.
 
 ### `cirno init`
 
-- `-f, --force`: overwrite existing project.
+- `-f, --force`: overwrite existing environment.
 
-Initialize a new Cirno project.
+Initialize a new Cirno environment.
 
 ### `cirno import <src>`
 
@@ -40,7 +40,7 @@ Restore to a backup. See [Backup Timeline](#backup-timeline) for more informatio
 
 - `--json`: output as JSON.
 
-List all applications in the project.
+List all applications in the environment.
 
 ### `cirno yarn <id>`
 

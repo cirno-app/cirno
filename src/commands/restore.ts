@@ -6,7 +6,7 @@ import { error, success, Tar } from '../utils.ts'
 
 export default (cli: CAC) => cli
   .command('restore [backup]', 'Restore to a backup')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)

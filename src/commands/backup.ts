@@ -5,7 +5,7 @@ import { error, success, Tar } from '../utils.ts'
 
 export default (cli: CAC) => cli
   .command('backup [id]', 'Backup an application')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .option('--id <id>', 'Specify the new instance ID')
   .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')

@@ -7,7 +7,7 @@ export default (cli: CAC) => cli
   .command('list', 'List all applications')
   .alias('ls')
   .alias('tree')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .option('--json', 'Output as JSON')
   .action(async (options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')

@@ -8,7 +8,7 @@ import { Pack } from 'tar-fs'
 export default (cli: CAC) => cli
   .command('remove [id]', 'Remove an instance')
   .alias('rm')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .option('-r, --recursive', 'Remove backups recursively')
   .action(async (id: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')

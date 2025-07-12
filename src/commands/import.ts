@@ -25,7 +25,7 @@ function parseImport(src: string, cwd: string) {
 
 export default (cli: CAC) => cli
   .command('import [src]', 'Import an instance')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .option('--id <id>', 'Specify the new instance ID')
   .option('--name <name>', 'Specify the new application name')
   .action(async (src: string, options) => {

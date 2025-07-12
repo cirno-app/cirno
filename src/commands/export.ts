@@ -20,7 +20,7 @@ function formatSize(size: number) {
 
 export default (cli: CAC) => cli
   .command('export [id] [dest]', 'Export an instance')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .option('--zip', 'Export as a zip file')
   .action(async (id: string, dest: string, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')

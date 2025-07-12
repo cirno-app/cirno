@@ -4,7 +4,7 @@ import { Cirno } from '../index.ts'
 
 export default (cli: CAC) => cli
   .command('yarn [id]', 'Execute Yarn in an application')
-  .option('--cwd <path>', 'Specify the project folder')
+  .option('--cwd <path>', 'Specify the root folder')
   .action(async (id, options) => {
     const cwd = resolve(process.cwd(), options.cwd ?? '.')
     const cirno = await Cirno.init(cwd)
