@@ -69,6 +69,8 @@ entries:
           - type: file
             name: .yarnrc.yml
             content: |
+              enableTelemetry: false
+
               enableTips: false
 
               nodeLinker: pnp
@@ -135,6 +137,8 @@ entries:
           - type: file
             name: .yarnrc.yml
             content: |
+              enableTelemetry: false
+
               enableTips: false
 
               nodeLinker: pnp
@@ -206,6 +210,8 @@ entries:
           - type: file
             name: .yarnrc.yml
             content: |
+              enableTelemetry: false
+
               enableTips: false
 
               nodeLinker: pnp
@@ -277,6 +283,8 @@ entries:
           - type: file
             name: .yarnrc.yml
             content: |
+              enableTelemetry: false
+
               enableTips: false
 
               nodeLinker: pnp
@@ -351,6 +359,8 @@ entries:
           - type: file
             name: .yarnrc.yml
             content: |
+              enableTelemetry: false
+
               enableTips: false
 
               nodeLinker: pnp

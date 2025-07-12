@@ -1,7 +1,7 @@
 {
   "name": "cirno",
   "description": "Zero-Install Package Manager for Node.js",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "packageManager": "yarn@4.3.1",
   "type": "module",
   "bin": "lib/cli.js",
@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsc -b",
     "lint": "eslint --cache",
-    "postinstall": "node --import tsx tests/prepare.ts",
+    "pretest": "node --import tsx tests/prepare.ts",
     "test": "vitest run",
     "test:text": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=text",
     "test:json": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=json",
