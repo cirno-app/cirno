@@ -60,42 +60,68 @@ export async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
 
 export class Tar {
   private pack = tarStream.pack()
+  private tasks: (() => Promise<void>)[] = []
 
   async loadFile(root: string, filter: (header: tarStream.Headers) => boolean | Tar = () => true) {
-    const extract = tarStream.extract()
-    extract.on('entry', (header, stream, callback) => {
-      const result = filter(header)
-      if (result === false) {
-        stream.resume()
-      } else if (result === true) {
-        stream.pipe(this.pack.entry(header, callback))
-      } else {
-        stream.pipe(result.pack.entry(header, callback))
-      }
+    this.tasks.push(async () => {
+      const extract = tarStream.extract()
+      extract.on('entry', (header, stream, callback) => {
+        console.log(1, header.name)
+        const result = filter(header)
+        if (result === false) {
+          stream.resume()
+        } else if (result === true) {
+          stream.pipe(this.pack.entry(header, callback))
+        } else {
+          stream.pipe(result.pack.entry(header, callback))
+        }
+      })
+      await new Promise<void>((resolve, reject) => {
+        extract.on('finish', resolve)
+        extract.on('error', reject)
+        createReadStream(root)
+          // .pipe(createBrotliDecompress())
+          .pipe(extract)
+      })
+      // await finished(extract)
     })
-    createReadStream(root)
-      // .pipe(createBrotliDecompress())
-      .pipe(extract)
   }
 
   async loadDir(root: string, base = '/') {
     base = base.slice(1)
-    tarFs.pack(root, {
-      pack: this.pack,
-      finalize: false,
-      map: (header) => {
-        header.name = join(base, header.name)
-        return header
-      },
+    this.tasks.push(async () => {
+      const extract = tarStream.extract()
+      extract.on('entry', (header, stream, callback) => {
+        console.log(2, header.name)
+        stream.pipe(this.pack.entry(header, callback))
+      })
+      tarFs.pack(root, {
+        map: (header) => {
+          header.name = join(base, header.name)
+          return header
+        },
+      }).pipe(extract)
+      await finished(extract)
+      // tarFs.pack(root, {
+      //   pack: this.pack,
+      //   finalize: false,
+      //   map: (header) => {
+      //     header.name = join(base, header.name)
+      //     return header
+      //   },
+      // })
     })
   }
 
   async dumpFile(root: string) {
-    // this.pack.finalize()
     const stream = this.pack
       // .pipe(createBrotliCompress())
       .pipe(createWriteStream(root))
-    // await finished(stream)
+    for (const task of this.tasks) {
+      await task()
+    }
+    this.pack.finalize()
+    await finished(stream)
   }
 
   async dumpDir(root: string, base = '/') {
@@ -109,6 +135,9 @@ export class Tar {
         return false
       },
     }))
+    for (const task of this.tasks) {
+      await task()
+    }
     await finished(stream)
   }
 }
