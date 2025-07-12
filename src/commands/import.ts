@@ -2,14 +2,10 @@ import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ZipFS } from '@yarnpkg/libzip'
-import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
-import { Cirno, loadMeta, YarnRc } from '../index.ts'
+import { stringifySyml } from '@yarnpkg/parsers'
+import { Cirno, loadMeta } from '../index.ts'
 import { dumpFromZip, error, success } from '../utils.ts'
 import * as fs from 'node:fs/promises'
-import { Readable } from 'node:stream'
-import { extract } from 'tar-fs'
-import { createGunzip } from 'node:zlib'
-import { finished } from 'node:stream/promises'
 
 function parseImport(src: string, cwd: string) {
   try {
@@ -54,26 +50,16 @@ export default (cli: CAC) => cli
       const name = options.name || pkg.name
 
       // yarnPath
+      if (!pkg.packageManager) error('Missing `packageManager` in package.json.')
       const capture = /^yarn@(\d+\.\d+\.\d+)/.exec(pkg.packageManager)
-      if (!capture) throw new Error('Failed to detect yarn version.')
+      if (!capture) error(`Unsupported package manager: ${pkg.packageManager}.`)
       if (yarnRc.yarnPath) {
         const yarnPath = resolve(temp, yarnRc.yarnPath)
         await fs.rename(yarnPath, join(cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`))
         await fs.rm(join(temp, '.yarn/releases'), { recursive: true, force: true })
         delete yarnRc.yarnPath
       } else {
-        let registry = yarnRc.npmRegistryServer
-        if (!registry) {
-          const globalRc = parseSyml(await fs.readFile(join(cwd, 'home/.yarnrc.yml'), 'utf8')) as YarnRc
-          registry = globalRc.npmRegistryServer ?? 'https://registry.yarnpkg.com'
-        }
-        const response = await fetch(`${registry}/@yarnpkg/cli-dist/-/cli-dist-${capture[1]}.tgz`)
-        const temp = join(cwd, 'tmp', `yarn-${capture[1]}`)
-        await finished(Readable.fromWeb(response.body as any)
-          .pipe(createGunzip())
-          .pipe(extract(temp, { strip: 1 })))
-        await fs.rename(join(temp, 'bin/yarn.js'), join(cwd, `home/.yarn/releases/yarn-${capture[1]}.cjs`))
-        await fs.rm(temp, { recursive: true, force: true })
+        await cirno.downloadYarn(capture[1], yarnRc.npmRegistryServer)
       }
 
       // cacheFolder, enableGlobalCache

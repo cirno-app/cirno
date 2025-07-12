@@ -1,11 +1,14 @@
 import * as fs from 'node:fs/promises'
 import * as yaml from 'js-yaml'
 import * as zlib from 'node:zlib'
-import { error, Tar } from './utils.ts'
+import { error, info, Tar } from './utils.ts'
 import { join } from 'node:path'
 import { fork } from 'node:child_process'
 import { promisify } from 'node:util'
 import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
+import { Readable } from 'node:stream'
+import { finished } from 'node:stream/promises'
+import { extract } from 'tar-fs'
 
 export interface YarnRc {
   cacheFolder?: string
@@ -179,6 +182,29 @@ export class Cirno {
       (cache[capture[3]] ??= {})[capture[1]] = name
     }
     return cache
+  }
+
+  async downloadYarn(version: string, registry?: string) {
+    const dest = join(this.cwd, `home/.yarn/releases/yarn-${version}.cjs`)
+    try {
+      await fs.access(dest)
+      return
+    } catch {}
+    if (!registry) {
+      const globalRc = parseSyml(await fs.readFile(join(this.cwd, 'home/.yarnrc.yml'), 'utf8')) as YarnRc
+      registry = globalRc.npmRegistryServer ?? 'https://registry.yarnpkg.com'
+    }
+    info(`Downloading yarn@${version} from ${registry}`)
+    const response = await fetch(`${registry}/@yarnpkg/cli-dist/-/cli-dist-${version}.tgz`)
+    const temp = join(this.cwd, 'tmp', `yarn-${version}`)
+    try {
+      await finished(Readable.fromWeb(response.body as any)
+        .pipe(zlib.createGunzip())
+        .pipe(extract(temp, { strip: 1 })))
+      await fs.rename(join(temp, 'bin/yarn.js'), dest)
+    } finally {
+      await fs.rm(temp, { recursive: true, force: true })
+    }
   }
 
   async yarn(cwd: string, args: string[]) {
