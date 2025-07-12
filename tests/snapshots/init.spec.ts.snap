@@ -74,6 +74,12 @@ entries:
           - type: directory
             name: releases
             entries: []
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -112,6 +118,12 @@ entries:
           - type: directory
             name: releases
             entries: []
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 

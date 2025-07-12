@@ -5,11 +5,14 @@ import { error, Tar } from './utils.ts'
 import { join } from 'node:path'
 import { fork } from 'node:child_process'
 import { promisify } from 'node:util'
-import { parseSyml } from '@yarnpkg/parsers'
+import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
 
 export interface YarnRc {
+  cacheFolder?: string
+  enableGlobalCache?: 'true' | 'false'
+  nodeLinker?: 'node-modules' | 'pnp' | 'pnpm'
+  npmRegistryServer?: string
   yarnPath?: string
-  enableGlobalCache?: boolean
 }
 
 export interface YarnLock extends Record<string, YarnLock.Entry> {
@@ -124,6 +127,10 @@ export class Cirno {
         await fs.mkdir(cwd + '/home/AppData/Local')
         await fs.mkdir(cwd + '/home/AppData/Roaming')
       }
+      await fs.writeFile(cwd + '/home/.yarnrc.yml', stringifySyml({
+        enableTips: 'false',
+        nodeLinker: 'pnp',
+      }))
       return new Cirno(cwd, { version, config: {}, apps: [] }, {})
     }
   }

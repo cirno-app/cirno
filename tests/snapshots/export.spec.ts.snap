@@ -33,6 +33,12 @@ entries:
           - type: directory
             name: releases
             entries: []
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -117,6 +123,12 @@ entries:
             entries:
               - type: file
                 name: yarn-4.2.2.cjs
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -193,6 +205,12 @@ entries:
             entries:
               - type: file
                 name: yarn-4.2.2.cjs
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -233,6 +251,12 @@ entries:
           - type: directory
             name: releases
             entries: []
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -317,6 +341,12 @@ entries:
             entries:
               - type: file
                 name: yarn-4.2.2.cjs
+      - type: file
+        name: .yarnrc.yml
+        content: |
+          enableTips: false
+
+          nodeLinker: pnp
   - type: directory
     name: tmp
 
