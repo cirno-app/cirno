@@ -1,7 +1,7 @@
 import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
-import { rename, rm } from 'node:fs/promises'
-import { Backup, Cirno } from '../index.ts'
+import { rm } from 'node:fs/promises'
+import { Cirno } from '../index.ts'
 import { success, Tar } from '../utils.ts'
 import { Pack } from 'tar-fs'
 
@@ -17,7 +17,7 @@ export default (cli: CAC) => cli
     const count = app.id === id
       ? Infinity
       : app.backups.findIndex(backup => backup.id === id)
-    const tar = new Tar()
+    const tar = new Tar(join(cwd, 'apps', app.id + '.baka'))
     const oldLength = app.backups.length
     const backups = options.recursive
       ? app.backups.splice(0, count + 1)
@@ -26,37 +26,27 @@ export default (cli: CAC) => cli
       delete cirno.apps[backup.id]
       delete cirno.state[app.id][backup.id]
     }
-    let restore: Backup | undefined
+    let pack: Pack | undefined
     if (app.id === id) {
       await rm(join(cwd, 'apps', id), { recursive: true, force: true })
-      restore = app.backups.pop()
-      if (!restore) {
+      const restore = app.backups.pop()
+      if (restore) {
+        pack = tar.extract(join(cwd, 'apps', app.id), 1)
+      } else {
         delete cirno.apps[id]
         delete cirno.state[id]
       }
     }
-    let pack: Pack | undefined
-    if (restore) {
-      pack = tar.createPack()
-      tar.dumpDir(join(cwd, 'apps', app.id), 1, pack)
-    }
-    if (app.backups.length || restore) {
-      tar.loadFile(join(cwd, 'apps', app.id + '.baka'), (header) => {
+    if (app.backups.length || pack) {
+      tar.load((header) => {
         const [part] = header.name.split('/', 1)
         if (app.backups.some(backup => backup.id === part)) return true
-        return restore ? pack! : false
+        return pack ?? false
       })
     }
-    const tmp = join(cwd, 'tmp', app.id + '.baka')
-    if (oldLength && app.backups.length) {
-      tar.dumpFile(tmp)
-    }
-    await tar.finalize()
-    if (oldLength && app.backups.length) {
-      await rename(tmp, join(cwd, 'apps', app.id + '.baka'))
-    }
-    if (oldLength && !app.backups.length) {
-      await rm(join(cwd, 'apps', app.id + '.baka'))
+    if (oldLength) {
+      tar.dump(join(cwd, 'tmp', app.id + '.baka'), !!app.backups.length)
+      await tar.finalize()
     }
     await cirno.save()
     await cirno.gc()

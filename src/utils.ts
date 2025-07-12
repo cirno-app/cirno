@@ -60,68 +60,73 @@ export async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
 }
 
 export class Tar {
+  private callback?: () => Promise<void>
   private packs = [tarStream.pack()]
-  private readTasks: (() => Promise<void>)[] = []
-  private writeStreams: Writable[] = []
+  private readables: Writable[] = []
+  private writables: Writable[] = []
 
-  createPack() {
+  constructor(public path: string) {}
+
+  load(filter: (header: tarStream.Headers, callback: (error?: unknown) => void) => boolean | tarStream.Pack = () => true) {
+    const extract = createReadStream(this.path)
+      .pipe(createBrotliDecompress())
+      .pipe(tarStream.extract())
+    extract.on('entry', (header, stream, callback) => {
+      const result = filter(header, callback)
+      if (result === false) {
+        stream.resume()
+        callback()
+      } else if (result === true) {
+        stream.pipe(this.packs[0].entry(header, callback))
+      } else {
+        stream.pipe(result.entry(header, callback))
+      }
+    })
+    this.readables.push(extract)
+  }
+
+  pack(root: string, base = '') {
+    const extract = tarStream.extract()
+    extract.on('entry', (header, stream, callback) => {
+      stream.pipe(this.packs[0].entry(header, callback))
+    })
+    tarFs.pack(root, {
+      map: (header) => {
+        header.name = join(base, header.name)
+        return header
+      },
+    }).pipe(extract)
+    this.readables.push(extract)
+  }
+
+  dump(temp: string, write = true) {
+    if (write) {
+      const stream = this.packs[0]
+        .pipe(createBrotliCompress())
+        .pipe(createWriteStream(temp))
+      this.writables.push(stream)
+      this.callback = async () => {
+        await fs.rename(temp, this.path)
+      }
+    } else {
+      this.callback = async () => {
+        await fs.rm(this.path)
+      }
+    }
+  }
+
+  extract(root: string, strip = 0) {
     const pack = tarStream.pack()
     this.packs.push(pack)
+    const stream = pack.pipe(tarFs.extract(root, { strip }))
+    this.writables.push(stream)
     return pack
   }
 
-  loadFile(root: string, filter: (header: tarStream.Headers, callback: (error?: unknown) => void) => boolean | tarStream.Pack = () => true) {
-    this.readTasks.push(async () => {
-      const extract = createReadStream(root)
-        .pipe(createBrotliDecompress())
-        .pipe(tarStream.extract())
-      extract.on('entry', (header, stream, callback) => {
-        const result = filter(header, callback)
-        if (result === false) {
-          stream.resume()
-          callback()
-        } else if (result === true) {
-          stream.pipe(this.packs[0].entry(header, callback))
-        } else {
-          stream.pipe(result.entry(header, callback))
-        }
-      })
-      await finished(extract)
-    })
-  }
-
-  loadDir(root: string, base = '/') {
-    base = base.slice(1)
-    this.readTasks.push(async () => {
-      const extract = tarStream.extract()
-      extract.on('entry', (header, stream, callback) => {
-        stream.pipe(this.packs[0].entry(header, callback))
-      })
-      tarFs.pack(root, {
-        map: (header) => {
-          header.name = join(base, header.name)
-          return header
-        },
-      }).pipe(extract)
-      await finished(extract)
-    })
-  }
-
-  dumpFile(root: string, pack = this.packs[0]) {
-    const stream = pack
-      .pipe(createBrotliCompress())
-      .pipe(createWriteStream(root))
-    this.writeStreams.push(stream)
-  }
-
-  dumpDir(root: string, strip = 0, pack = this.packs[0]) {
-    const stream = pack.pipe(tarFs.extract(root, { strip }))
-    this.writeStreams.push(stream)
-  }
-
   async finalize() {
-    await Promise.all(this.readTasks.map(task => task()))
+    await Promise.all(this.readables.map(stream => finished(stream)))
     await Promise.all(this.packs.map(pack => pack.finalize()))
-    await Promise.all(this.writeStreams.map(stream => finished(stream)))
+    await Promise.all(this.writables.map(stream => finished(stream)))
+    await this.callback?.()
   }
 }

@@ -1,6 +1,6 @@
 import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
-import { rename, rm } from 'node:fs/promises'
+import { rm } from 'node:fs/promises'
 import { Cirno } from '../index.ts'
 import { error, success, Tar } from '../utils.ts'
 
@@ -14,10 +14,10 @@ export default (cli: CAC) => cli
     if (app.id === id) error('Cannot restore to a head instance.')
     const index = app.backups.findIndex(backup => backup.id === id)
     const backups = app.backups.splice(index)
-    const tar = new Tar()
-    const pack = tar.createPack()
-    const tmp = join(cwd, 'tmp', id + '.baka')
-    tar.loadFile(join(cwd, 'apps', app.id + '.baka'), (header) => {
+    const tar = new Tar(join(cwd, 'apps', app.id + '.baka'))
+    const pack = tar.extract(join(cwd, 'apps', app.id), 1)
+    await rm(join(cwd, 'apps', app.id), { recursive: true, force: true })
+    tar.load((header) => {
       const [part] = header.name.split('/', 1)
       if (app.backups.some(backup => backup.id === part)) return true
       return backups[0].id === part ? pack : false
@@ -26,17 +26,8 @@ export default (cli: CAC) => cli
       delete cirno.apps[backup.id]
       delete cirno.state[app.id][backup.id]
     }
-    await rm(join(cwd, 'apps', app.id), { recursive: true, force: true })
-    tar.dumpDir(join(cwd, 'apps', app.id), 1, pack)
-    if (app.backups.length) {
-      tar.dumpFile(tmp)
-    }
+    tar.dump(join(cwd, 'tmp', id + '.baka'), !!app.backups.length)
     await tar.finalize()
-    if (app.backups.length) {
-      await rename(tmp, join(cwd, 'apps', app.id + '.baka'))
-    } else {
-      await rm(join(cwd, 'apps', app.id + '.baka'))
-    }
     await cirno.save()
     success(`App ${app.id} is successfully restored to backup ${id}.`)
   })
