@@ -106,35 +106,48 @@ export class Cirno {
     }
   }
 
+  static async _init(cwd: string) {
+    await fs.mkdir(cwd, { recursive: true })
+    await fs.mkdir(cwd + '/apps')
+    await fs.mkdir(cwd + '/baka')
+    await fs.mkdir(cwd + '/home')
+    await fs.mkdir(cwd + '/home/.yarn')
+    await fs.mkdir(cwd + '/home/.yarn/cache')
+    await fs.mkdir(cwd + '/home/.yarn/releases')
+    await fs.mkdir(cwd + '/tmp')
+    if (process.platform === 'win32') {
+      await fs.mkdir(cwd + '/home/AppData')
+      await fs.mkdir(cwd + '/home/AppData/Local')
+      await fs.mkdir(cwd + '/home/AppData/Roaming')
+    }
+    await fs.writeFile(cwd + '/home/.yarnrc.yml', stringifySyml({
+      enableTips: 'false',
+      nodeLinker: 'pnp',
+    }))
+  }
+
   static async init(cwd: string, create = false, force = false) {
+    const files = await fs.readdir(cwd).catch<string[]>(() => [])
+    if (create) {
+      if (files.length) {
+        if (!force) error('Target directory is not empty. Use `cirno init -f` to overwrite.')
+        await Promise.all(files.map(file => fs.rm(join(cwd, file), { recursive: true, force: true })))
+      }
+      await this._init(cwd)
+      return new Cirno(cwd, { version, config: {}, apps: [] }, {})
+    }
+
     try {
       const manifest = yaml.load(await fs.readFile(join(cwd, ENTRY_FILE), 'utf8')) as Manifest
       const state = JSON.parse((await decompress(await fs.readFile(join(cwd, STATE_FILE)))).toString())
-      if (create && force) throw new Error()
-      if (create) error('Project already exists. Use `cirno init -f` to overwrite.')
       if (manifest.version !== version) error(`Unsupported version: ${manifest.version}`)
       return new Cirno(cwd, manifest, state)
     } catch (e) {
-      if (!create) error('Use `cirno init` to create a new environment.')
-      await fs.rm(cwd, { recursive: true, force: true })
-      await fs.mkdir(cwd, { recursive: true })
-      await fs.mkdir(cwd + '/apps')
-      await fs.mkdir(cwd + '/baka')
-      await fs.mkdir(cwd + '/home')
-      await fs.mkdir(cwd + '/home/.yarn')
-      await fs.mkdir(cwd + '/home/.yarn/cache')
-      await fs.mkdir(cwd + '/home/.yarn/releases')
-      await fs.mkdir(cwd + '/tmp')
-      if (process.platform === 'win32') {
-        await fs.mkdir(cwd + '/home/AppData')
-        await fs.mkdir(cwd + '/home/AppData/Local')
-        await fs.mkdir(cwd + '/home/AppData/Roaming')
+      if (files.length) {
+        error('Target directory is not a valid Cirno environment. Use `cirno init -f` to overwrite or choose another directory.')
+      } else {
+        error('Target directory is empty. Use `cirno init` to create a new environment.')
       }
-      await fs.writeFile(cwd + '/home/.yarnrc.yml', stringifySyml({
-        enableTips: 'false',
-        nodeLinker: 'pnp',
-      }))
-      return new Cirno(cwd, { version, config: {}, apps: [] }, {})
     }
   }
 

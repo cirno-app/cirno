@@ -50,7 +50,7 @@ export default (cli: CAC) => cli
         if (!name) throw new Error(`Cache not found: ${prefix}`)
         await fs.cp(join(cwd, 'home/.yarn/cache', name), join(temp, '.yarn/cache', name))
       }
-      yarnRc.enableGlobalCache = false
+      yarnRc.enableGlobalCache = 'false'
 
       await fs.writeFile(temp + '/.yarnrc.yml', stringifySyml(yarnRc))
 

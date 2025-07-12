@@ -2,7 +2,7 @@
 
 exports[`step 1: cirno init 1`] = `
 stdout: |2
-   SUCCESS  Cirno project initialized at /data.
+   SUCCESS  Cirno environment initialized at /data.
 stderr: ''
 code: 0
 signal: null

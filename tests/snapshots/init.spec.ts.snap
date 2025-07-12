@@ -2,13 +2,14 @@
 
 exports[`step 1: cirno 1`] = `
 stdout: |
-  cirno/0.2.2
+  cirno/0.3.0
 
   Usage:
     $ cirno <command> [options]
 
   Commands:
-    init                Initialize a new project
+    init                Initialize a new environment
+    create [name]       Create a new application
     import [src]        Import an instance
     export [id] [dest]  Export an instance
     clone [id]          Clone an instance
@@ -21,6 +22,7 @@ stdout: |
 
   For more info, run any command with the \`--help\` flag:
     $ cirno init --help
+    $ cirno create --help
     $ cirno import --help
     $ cirno export --help
     $ cirno clone --help
@@ -43,7 +45,7 @@ entries: []
 
 exports[`step 2: cirno init 1`] = `
 stdout: |2
-   SUCCESS  Cirno project initialized at /data.
+   SUCCESS  Cirno environment initialized at /data.
 stderr: ''
 code: 0
 signal: null
@@ -87,7 +89,7 @@ entries:
 
 exports[`step 3: cirno init 1`] = `
 stdout: |2
-   ERROR  Project already exists. Use \`cirno init -f\` to overwrite.
+   ERROR  Target directory is not empty. Use \`cirno init -f\` to overwrite.
 stderr: ''
 code: 1
 signal: null
