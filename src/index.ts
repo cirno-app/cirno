@@ -156,8 +156,9 @@ export class Cirno {
       await fs.cp(join(this.cwd, 'apps', id), dest, { recursive: true })
     } else {
       const tar = new Tar()
-      await tar.loadFile(join(this.cwd, 'apps', id + '.baka'))
-      await tar.dumpDir(dest, '/' + id + '/')
+      tar.loadFile(join(this.cwd, 'apps', id + '.baka'))
+      tar.dumpDir(dest, 1)
+      await tar.finalize()
     }
   }
 

@@ -137,7 +137,7 @@ entries:
           - type: file
             name: yarn.lock
       - type: file
-        name: cd5fbb72.bak.zip
+        name: cd5fbb72.baka
   - type: file
     name: cirno-state.json
   - type: file
@@ -205,7 +205,7 @@ entries:
           - type: file
             name: yarn.lock
       - type: file
-        name: cd5fbb72.bak.zip
+        name: cd5fbb72.baka
   - type: file
     name: cirno-state.json
   - type: file
@@ -273,7 +273,7 @@ entries:
           - type: file
             name: yarn.lock
       - type: file
-        name: cd5fbb72.bak.zip
+        name: cd5fbb72.baka
   - type: file
     name: cirno-state.json
   - type: file

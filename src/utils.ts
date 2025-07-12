@@ -8,6 +8,7 @@ import k from 'kleur'
 import { createReadStream, createWriteStream } from 'node:fs'
 import { createBrotliCompress, createBrotliDecompress } from 'node:zlib'
 import { finished } from 'node:stream/promises'
+import { Writable } from 'node:stream'
 
 export function info(message: string): undefined {
   console.log(k.bold(k.bgBlue(' INFO ') + ' ' + k.white(message)))
@@ -59,41 +60,42 @@ export async function loadIntoZip(zip: ZipFS, root: string, base = '/') {
 }
 
 export class Tar {
-  private pack = tarStream.pack()
-  private tasks: (() => Promise<void>)[] = []
+  private packs = [tarStream.pack()]
+  private readTasks: (() => Promise<void>)[] = []
+  private writeStreams: Writable[] = []
 
-  async loadFile(root: string, filter: (header: tarStream.Headers) => boolean | Tar = () => true) {
-    this.tasks.push(async () => {
-      const extract = tarStream.extract()
+  createPack() {
+    const pack = tarStream.pack()
+    this.packs.push(pack)
+    return pack
+  }
+
+  loadFile(root: string, filter: (header: tarStream.Headers, callback: (error?: unknown) => void) => boolean | tarStream.Pack = () => true) {
+    this.readTasks.push(async () => {
+      const extract = createReadStream(root)
+        .pipe(createBrotliDecompress())
+        .pipe(tarStream.extract())
       extract.on('entry', (header, stream, callback) => {
-        console.log(1, header.name)
-        const result = filter(header)
+        const result = filter(header, callback)
         if (result === false) {
           stream.resume()
+          callback()
         } else if (result === true) {
-          stream.pipe(this.pack.entry(header, callback))
+          stream.pipe(this.packs[0].entry(header, callback))
         } else {
-          stream.pipe(result.pack.entry(header, callback))
+          stream.pipe(result.entry(header, callback))
         }
       })
-      await new Promise<void>((resolve, reject) => {
-        extract.on('finish', resolve)
-        extract.on('error', reject)
-        createReadStream(root)
-          // .pipe(createBrotliDecompress())
-          .pipe(extract)
-      })
-      // await finished(extract)
+      await finished(extract)
     })
   }
 
-  async loadDir(root: string, base = '/') {
+  loadDir(root: string, base = '/') {
     base = base.slice(1)
-    this.tasks.push(async () => {
+    this.readTasks.push(async () => {
       const extract = tarStream.extract()
       extract.on('entry', (header, stream, callback) => {
-        console.log(2, header.name)
-        stream.pipe(this.pack.entry(header, callback))
+        stream.pipe(this.packs[0].entry(header, callback))
       })
       tarFs.pack(root, {
         map: (header) => {
@@ -102,42 +104,24 @@ export class Tar {
         },
       }).pipe(extract)
       await finished(extract)
-      // tarFs.pack(root, {
-      //   pack: this.pack,
-      //   finalize: false,
-      //   map: (header) => {
-      //     header.name = join(base, header.name)
-      //     return header
-      //   },
-      // })
     })
   }
 
-  async dumpFile(root: string) {
-    const stream = this.pack
-      // .pipe(createBrotliCompress())
+  dumpFile(root: string, pack = this.packs[0]) {
+    const stream = pack
+      .pipe(createBrotliCompress())
       .pipe(createWriteStream(root))
-    for (const task of this.tasks) {
-      await task()
-    }
-    this.pack.finalize()
-    await finished(stream)
+    this.writeStreams.push(stream)
   }
 
-  async dumpDir(root: string, base = '/') {
-    base = base.slice(1)
-    const stream = this.pack.pipe(tarFs.extract(root, {
-      filter: (_, header) => {
-        if (header?.name.startsWith(base)) {
-          header.name = header.name.slice(base.length)
-          return true
-        }
-        return false
-      },
-    }))
-    for (const task of this.tasks) {
-      await task()
-    }
-    await finished(stream)
+  dumpDir(root: string, strip = 0, pack = this.packs[0]) {
+    const stream = pack.pipe(tarFs.extract(root, { strip }))
+    this.writeStreams.push(stream)
+  }
+
+  async finalize() {
+    await Promise.all(this.readTasks.map(task => task()))
+    await Promise.all(this.packs.map(pack => pack.finalize()))
+    await Promise.all(this.writeStreams.map(stream => finished(stream)))
   }
 }

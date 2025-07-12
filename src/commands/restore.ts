@@ -1,6 +1,6 @@
 import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
-import { rm } from 'node:fs/promises'
+import { rename, rm } from 'node:fs/promises'
 import { Cirno } from '../index.ts'
 import { error, success, Tar } from '../utils.ts'
 
@@ -15,20 +15,25 @@ export default (cli: CAC) => cli
     const index = app.backups.findIndex(backup => backup.id === id)
     const backups = app.backups.splice(index)
     const tar = new Tar()
-    const tar2 = new Tar()
-    await tar.loadFile(join(cwd, 'apps', app.id + '.baka'), (header) => {
+    const pack = tar.createPack()
+    const tmp = join(cwd, 'tmp', id + '.baka')
+    tar.loadFile(join(cwd, 'apps', app.id + '.baka'), (header) => {
       const [part] = header.name.split('/', 1)
       if (app.backups.some(backup => backup.id === part)) return true
-      return backups[0].id === part ? tar2 : false
+      return backups[0].id === part ? pack : false
     })
     for (const backup of app.backups.splice(index)) {
       delete cirno.apps[backup.id]
       delete cirno.state[app.id][backup.id]
     }
     await rm(join(cwd, 'apps', app.id), { recursive: true, force: true })
-    await tar2.dumpDir(join(cwd, 'apps', app.id))
+    tar.dumpDir(join(cwd, 'apps', app.id), 1, pack)
     if (app.backups.length) {
-      await tar.dumpFile(join(cwd, 'apps', app.id + '.baka'))
+      tar.dumpFile(tmp)
+    }
+    await tar.finalize()
+    if (app.backups.length) {
+      await rename(tmp, join(cwd, 'apps', app.id + '.baka'))
     } else {
       await rm(join(cwd, 'apps', app.id + '.baka'))
     }

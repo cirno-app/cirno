@@ -224,7 +224,7 @@ entries:
           - type: file
             name: yarn.lock
       - type: file
-        name: 5ab7bff9.bak.zip
+        name: 5ab7bff9.baka
       - type: directory
         name: cd5fbb72
         entries:
@@ -315,7 +315,7 @@ entries:
           - type: file
             name: yarn.lock
       - type: file
-        name: 5ab7bff9.bak.zip
+        name: 5ab7bff9.baka
       - type: directory
         name: cd5fbb72
         entries:

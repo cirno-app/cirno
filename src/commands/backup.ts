@@ -2,6 +2,7 @@ import { CAC } from 'cac'
 import { join, resolve } from 'node:path'
 import { Cirno, loadMeta } from '../index.ts'
 import { error, success, Tar } from '../utils.ts'
+import { rename } from 'node:fs/promises'
 
 export default (cli: CAC) => cli
   .command('backup [id]', 'Backup an application')
@@ -13,8 +14,9 @@ export default (cli: CAC) => cli
     const app = cirno.get(id, 'backup')
     if (app.id !== id) error('Cannot backup a base instance.')
     const tar = new Tar()
+    const tmp = join(cwd, 'tmp', id + '.baka')
     if (app.backups.length) {
-      await tar.loadFile(join(cwd, 'apps', id + '.tar'))
+      tar.loadFile(join(cwd, 'apps', id + '.baka'))
     }
     const meta = await loadMeta(join(cwd, 'apps', id))
     const newId = cirno.createId(options.id)
@@ -24,8 +26,10 @@ export default (cli: CAC) => cli
       type: 'manual',
       created: new Date().toISOString(),
     })
-    await tar.loadDir(join(cwd, 'apps', id), '/' + newId + '/')
-    await tar.dumpFile(join(cwd, 'apps', id + '.tar'))
+    tar.loadDir(join(cwd, 'apps', id), '/' + newId + '/')
+    tar.dumpFile(tmp)
+    await tar.finalize()
+    await rename(tmp, join(cwd, 'apps', id + '.baka'))
     await cirno.save()
     success(`Successfully created a backup instance ${newId}.`)
   })

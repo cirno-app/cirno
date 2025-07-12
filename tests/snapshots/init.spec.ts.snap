@@ -2,7 +2,7 @@
 
 exports[`step 1: cirno 1`] = `
 stdout: |
-  cirno/0.2.0
+  cirno/0.2.1
 
   Usage:
     $ cirno <command> [options]
