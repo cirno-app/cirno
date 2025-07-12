@@ -17,7 +17,7 @@ export default (cli: CAC) => cli
     const count = app.id === id
       ? Infinity
       : app.backups.findIndex(backup => backup.id === id)
-    const tar = new Tar(join(cwd, 'apps', app.id + '.baka'))
+    const tar = new Tar(join(cwd, 'baka', app.id + '.tar.br'))
     const oldLength = app.backups.length
     const backups = options.recursive
       ? app.backups.splice(0, count + 1)

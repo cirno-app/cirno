@@ -14,7 +14,7 @@ export default (cli: CAC) => cli
     if (app.id === id) error('Cannot restore to a head instance.')
     const index = app.backups.findIndex(backup => backup.id === id)
     const backups = app.backups.splice(index)
-    const tar = new Tar(join(cwd, 'apps', app.id + '.baka'))
+    const tar = new Tar(join(cwd, 'baka', app.id + '.tar.br'))
     const pack = tar.extract(join(cwd, 'apps', app.id), 1)
     await rm(join(cwd, 'apps', app.id), { recursive: true, force: true })
     tar.load((header) => {

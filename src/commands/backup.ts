@@ -12,7 +12,7 @@ export default (cli: CAC) => cli
     const cirno = await Cirno.init(cwd)
     const app = cirno.get(id, 'backup')
     if (app.id !== id) error('Cannot backup a base instance.')
-    const tar = new Tar(join(cwd, 'apps', id + '.baka'))
+    const tar = new Tar(join(cwd, 'baka', id + '.tar.br'))
     if (app.backups.length) {
       tar.load()
     }

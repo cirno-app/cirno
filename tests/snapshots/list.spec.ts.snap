@@ -10,8 +10,11 @@ entries:
   - type: directory
     name: apps
     entries: []
+  - type: directory
+    name: baka
+    entries: []
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |
@@ -73,8 +76,11 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |
@@ -156,8 +162,11 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |
@@ -223,8 +232,6 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
-      - type: file
-        name: 5ab7bff9.baka
       - type: directory
         name: cd5fbb72
         entries:
@@ -245,8 +252,13 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: baka
+    entries:
+      - type: file
+        name: 5ab7bff9.tar.br
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |
@@ -314,8 +326,6 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
-      - type: file
-        name: 5ab7bff9.baka
       - type: directory
         name: cd5fbb72
         entries:
@@ -336,8 +346,13 @@ entries:
             name: package.json
           - type: file
             name: yarn.lock
+  - type: directory
+    name: baka
+    entries:
+      - type: file
+        name: 5ab7bff9.tar.br
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |

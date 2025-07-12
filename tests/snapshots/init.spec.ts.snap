@@ -51,8 +51,11 @@ entries:
   - type: directory
     name: apps
     entries: []
+  - type: directory
+    name: baka
+    entries: []
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |
@@ -86,8 +89,11 @@ entries:
   - type: directory
     name: apps
     entries: []
+  - type: directory
+    name: baka
+    entries: []
   - type: file
-    name: cirno-state.json
+    name: cirno-baka.br
   - type: file
     name: cirno.yml
     content: |

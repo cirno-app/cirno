@@ -84,9 +84,9 @@ export function getCacheFiles(yarnLock: YarnLock) {
 }
 
 const ENTRY_FILE = 'cirno.yml'
-const STATE_FILE = process.env.NODE_ENV === 'test' ? 'cirno-state.json' : 'cirno-state.br'
-const compress: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.brotliCompress)
-const decompress: (input: Buffer) => Promise<Buffer> = process.env.NODE_ENV === 'test' ? async (x) => x : promisify(zlib.brotliDecompress)
+const STATE_FILE = 'cirno-baka.br'
+const compress = promisify(zlib.brotliCompress)
+const decompress = promisify(zlib.brotliDecompress)
 
 export class Cirno {
   public apps: Record<string, App> = Object.create(null)
@@ -113,6 +113,7 @@ export class Cirno {
       await fs.rm(cwd, { recursive: true, force: true })
       await fs.mkdir(cwd, { recursive: true })
       await fs.mkdir(cwd + '/apps')
+      await fs.mkdir(cwd + '/baka')
       await fs.mkdir(cwd + '/home')
       await fs.mkdir(cwd + '/home/.yarn')
       await fs.mkdir(cwd + '/home/.yarn/cache')
@@ -155,7 +156,7 @@ export class Cirno {
     if (app.id === id) {
       await fs.cp(join(this.cwd, 'apps', id), dest, { recursive: true })
     } else {
-      const tar = new Tar(join(this.cwd, 'apps', id + '.baka'))
+      const tar = new Tar(join(this.cwd, 'baka', id + '.tar.br'))
       tar.load()
       tar.extract(dest, 1)
       await tar.finalize()
