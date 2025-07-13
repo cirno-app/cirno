@@ -1,7 +1,7 @@
 {
   "name": "cirno",
   "description": "Zero-Install Package Manager for Node.js",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "packageManager": "yarn@4.3.1",
   "type": "module",
   "bin": "lib/cli.js",

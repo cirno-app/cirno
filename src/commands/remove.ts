@@ -6,7 +6,7 @@ import { success, Tar } from '../utils.ts'
 import { Pack } from 'tar-fs'
 
 export default (cli: CAC) => cli
-  .command('remove [id]', 'Remove an instance')
+  .command('remove [id]', 'Remove an application or backup')
   .alias('rm')
   .option('--cwd <path>', 'Specify the root folder')
   .option('-r, --recursive', 'Remove backups recursively')

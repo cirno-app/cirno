@@ -19,7 +19,7 @@ function formatSize(size: number) {
 }
 
 export default (cli: CAC) => cli
-  .command('export [id] [dest]', 'Export an instance')
+  .command('export [id] [dest]', 'Export an application')
   .option('--cwd <path>', 'Specify the root folder')
   .option('--zip', 'Export as a zip file')
   .action(async (id: string, dest: string, options) => {

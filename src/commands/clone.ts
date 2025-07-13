@@ -4,7 +4,7 @@ import { Cirno } from '../index.ts'
 import { success } from '../utils.ts'
 
 export default (cli: CAC) => cli
-  .command('clone [id]', 'Clone an instance')
+  .command('clone [id]', 'Clone an application or backup')
   .option('--cwd <path>', 'Specify the root folder')
   .option('--id <id>', 'Specify the new instance ID')
   .option('--name <name>', 'Specify the new application name')

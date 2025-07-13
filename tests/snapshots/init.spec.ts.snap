@@ -2,7 +2,7 @@
 
 exports[`step 1: cirno 1`] = `
 stdout: |
-  cirno/0.3.0
+  cirno/0.3.2
 
   Usage:
     $ cirno <command> [options]
@@ -10,12 +10,12 @@ stdout: |
   Commands:
     init                Initialize a new environment
     create [name]       Create a new application
-    import [src]        Import an instance
-    export [id] [dest]  Export an instance
-    clone [id]          Clone an instance
+    import [src]        Import an application
+    export [id] [dest]  Export an application
+    clone [id]          Clone an application or backup
     restore [backup]    Restore to a backup
     backup [id]         Backup an application
-    remove [id]         Remove an instance
+    remove [id]         Remove an application or backup
     list                List all applications
     yarn [id]           Execute Yarn in an application
     gc                  Garbage collection
