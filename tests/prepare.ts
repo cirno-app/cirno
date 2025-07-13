@@ -14,7 +14,7 @@ function prepare(cwd: URL) {
   execute(cwd, 'yarn')
 }
 
-const baseURL = new URL('./fixtures', import.meta.url)
+const baseURL = new URL('./fixtures/', import.meta.url)
 const dirents = readdirSync(baseURL, { withFileTypes: true })
 for (const dirent of dirents) {
   if (!dirent.isDirectory()) continue

@@ -35,10 +35,6 @@ entries:
             entries: []
       - type: file
         name: .yarnrc.yml
-        content: |
-          enableTips: false
-
-          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -52,8 +48,9 @@ stdout: |
   ➤ YN0000: ┌ Fetch step
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
   ➤ YN0000: └ Completed
-  ➤ YN0000: · Done
+  ➤ YN0000: · Done with warnings
    SUCCESS  Successfully imported instance cd5fbb72.
 stderr: ''
 code: 0
@@ -67,6 +64,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -117,10 +116,6 @@ entries:
                 name: yarn-4.3.1.cjs
       - type: file
         name: .yarnrc.yml
-        content: |
-          enableTips: false
-
-          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -134,8 +129,9 @@ stdout: |
   ➤ YN0000: ┌ Fetch step
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
   ➤ YN0000: └ Completed
-  ➤ YN0000: · Done
+  ➤ YN0000: · Done with warnings
    SUCCESS  Successfully imported instance 5ab7bff9.
 stderr: ''
 code: 0
@@ -149,6 +145,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -171,6 +169,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -235,10 +235,6 @@ entries:
                 name: yarn-4.3.1.cjs
       - type: file
         name: .yarnrc.yml
-        content: |
-          enableTips: false
-
-          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -252,8 +248,9 @@ stdout: |
   ➤ YN0000: ┌ Fetch step
   ➤ YN0000: └ Completed
   ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
   ➤ YN0000: └ Completed
-  ➤ YN0000: · Done
+  ➤ YN0000: · Done with warnings
    SUCCESS  Successfully imported instance b6394418.
 stderr: ''
 code: 0
@@ -267,6 +264,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -289,6 +288,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -311,6 +312,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -389,10 +392,6 @@ entries:
                 name: yarn-4.3.1.cjs
       - type: file
         name: .yarnrc.yml
-        content: |
-          enableTips: false
-
-          nodeLinker: pnp
   - type: directory
     name: tmp
 
@@ -413,6 +412,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -435,6 +436,8 @@ entries:
         entries:
           - type: file
             name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
           - type: directory
             name: .yarn
             entries:
@@ -501,10 +504,6 @@ entries:
                 name: yarn-4.3.1.cjs
       - type: file
         name: .yarnrc.yml
-        content: |
-          enableTips: false
-
-          nodeLinker: pnp
   - type: directory
     name: tmp
 

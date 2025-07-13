@@ -3,6 +3,7 @@ import { fork } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { beforeAll, expect, it } from 'vitest'
 import { v5 } from 'uuid'
+import { isMatch } from 'micromatch'
 
 const root = fileURLToPath(new URL('../temp', import.meta.url))
 
@@ -23,7 +24,12 @@ interface Entry {
 
 const ISO_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/gm
 
-async function traverse(root: string) {
+const CONTENT_VISIBLE = [
+  '/cirno.yml',
+  '/apps/*/.yarnrc.yml',
+]
+
+async function traverse(root: string, base = '') {
   const result: Entry[] = []
   const files = await readdir(root, { withFileTypes: true })
   for (const file of files) {
@@ -32,12 +38,12 @@ async function traverse(root: string) {
       if (['AppData'].includes(file.name)) continue
       const entry: Entry = { type: 'directory', name: file.name }
       if (!['index', 'tmp'].includes(file.name)) {
-        entry.entries = await traverse(root + '/' + file.name)
+        entry.entries = await traverse(root + '/' + file.name, base + '/' + file.name)
       }
       result.push(entry)
     } else {
       const entry: Entry = { type: 'file', name: file.name }
-      if (['cirno.yml', '.yarnrc.yml'].includes(file.name)) {
+      if (isMatch(base + '/' + file.name, CONTENT_VISIBLE)) {
         const content = await readFile(root + '/' + file.name, 'utf8')
         entry.content = content.replace(ISO_REGEX, '<timestamp>')
       }
@@ -64,8 +70,8 @@ function spawn(args: string[], root: string) {
     child.stdout!.on('data', (data) => stdout += data)
     child.stderr!.on('data', (data) => stderr += data)
     child.on('exit', async (code, signal) => {
-      stdout = stdout.replace(root, '').replace(/(Completed|Done) in ([\w ]+)/g, '$1')
-      stderr = stderr.replace(root, '').replace(/(Completed|Done) in ([\w ]+)/g, '$1')
+      stdout = stdout.replace(root, '').replace(/((Completed|Done).+) in ([\w ]+)/g, '$1')
+      stderr = stderr.replace(root, '').replace(/((Completed|Done).+) in ([\w ]+)/g, '$1')
       const entries = await traverse(cwd)
       const output = { stdout, stderr, code, signal, entries }
       Object.defineProperty(output, '__SERIALIZER__', { value: 'yaml' })

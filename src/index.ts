@@ -123,6 +123,7 @@ export class Cirno {
     await fs.writeFile(cwd + '/home/.yarnrc.yml', stringifySyml({
       enableTips: 'false',
       nodeLinker: 'pnp',
+      pnpEnableEsmLoader: 'true',
     }))
   }
 
