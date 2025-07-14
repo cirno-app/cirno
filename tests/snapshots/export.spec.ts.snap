@@ -40,7 +40,7 @@ entries:
 
 `;
 
-exports[`step 2: cirno import /fixtures/bar 1`] = `
+exports[`step 2: cirno import /fixtures/dep-1 1`] = `
 stdout: |
   ➤ YN0000: · Yarn 4.2.2
   ➤ YN0000: ┌ Resolution step
@@ -95,7 +95,7 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: bar
+          name: '@fixture/dep-1'
           created: '<timestamp>'
           backups: []
   - type: directory
@@ -129,9 +129,9 @@ entries:
 
 `;
 
-exports[`step 3: cirno export <#1> /exports/bar.zip 1`] = `
+exports[`step 3: cirno export <#1> /exports/dep-1.zip 1`] = `
 stdout: |2
-   SUCCESS  Successfully exported instance cd5fbb72 to /exports/bar.zip (1.3 MB).
+   SUCCESS  Successfully exported instance cd5fbb72 to /exports/dep-1.zip (1.3 MB).
 stderr: ''
 code: 0
 signal: null
@@ -175,7 +175,7 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: bar
+          name: '@fixture/dep-1'
           created: '<timestamp>'
           backups: []
   - type: directory
@@ -251,7 +251,7 @@ entries:
 
 `;
 
-exports[`step 5: cirno import /exports/bar.zip 1`] = `
+exports[`step 5: cirno import /exports/dep-1.zip 1`] = `
 stdout: |
   ➤ YN0000: · Yarn 4.2.2
   ➤ YN0000: ┌ Resolution step
@@ -306,7 +306,7 @@ entries:
       config: {}
       apps:
         - id: 5ab7bff9
-          name: bar
+          name: '@fixture/dep-1'
           created: '<timestamp>'
           backups: []
   - type: directory

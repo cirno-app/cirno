@@ -5,6 +5,14 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"@fixture/dep-1@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@fixture/dep-1@workspace:."
+  dependencies:
+    "@yarnpkg/libzip": "npm:^3.1.0"
+  languageName: unknown
+  linkType: soft
+
 "@types/emscripten@npm:^1.39.6":
   version: 1.39.13
   resolution: "@types/emscripten@npm:1.39.13"
@@ -33,14 +41,6 @@ __metadata:
   checksum: 10c0/11e12724d916584e748dc3cb364840f3763799492108b39b008301b817e43689d34a68d7ecb1cab9610cc058aa5967e5088658774ae0fbe77a18b8cdb5ad382a
   languageName: node
   linkType: hard
-
-"bar@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "bar@workspace:."
-  dependencies:
-    "@yarnpkg/libzip": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
 
 "tslib@npm:^2.4.0":
   version: 2.6.3

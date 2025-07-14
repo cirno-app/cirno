@@ -40,7 +40,7 @@ entries:
 
 `;
 
-exports[`step 2: cirno import /fixtures/foo 1`] = `
+exports[`step 2: cirno import /fixtures/base 1`] = `
 stdout: |
   ➤ YN0000: · Yarn 4.3.1
   ➤ YN0000: ┌ Resolution step
@@ -95,7 +95,7 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: foo
+          name: '@fixture/base'
           created: '<timestamp>'
           backups: []
   - type: directory
@@ -121,7 +121,7 @@ entries:
 
 `;
 
-exports[`step 3: cirno import /fixtures/bar 1`] = `
+exports[`step 3: cirno import /fixtures/dep-1 1`] = `
 stdout: |
   ➤ YN0000: · Yarn 4.2.2
   ➤ YN0000: ┌ Resolution step
@@ -200,11 +200,11 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: foo
+          name: '@fixture/base'
           created: '<timestamp>'
           backups: []
         - id: 5ab7bff9
-          name: bar
+          name: '@fixture/dep-1'
           created: '<timestamp>'
           backups: []
   - type: directory
@@ -240,7 +240,7 @@ entries:
 
 `;
 
-exports[`step 4: cirno import /fixtures/baz 1`] = `
+exports[`step 4: cirno import /fixtures/dep-2 1`] = `
 stdout: |
   ➤ YN0000: · Yarn 4.3.1
   ➤ YN0000: ┌ Resolution step
@@ -343,15 +343,15 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: foo
+          name: '@fixture/base'
           created: '<timestamp>'
           backups: []
         - id: 5ab7bff9
-          name: bar
+          name: '@fixture/dep-1'
           created: '<timestamp>'
           backups: []
         - id: b6394418
-          name: baz
+          name: '@fixture/dep-2'
           created: '<timestamp>'
           backups: []
   - type: directory
@@ -467,11 +467,11 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: foo
+          name: '@fixture/base'
           created: '<timestamp>'
           backups: []
         - id: b6394418
-          name: baz
+          name: '@fixture/dep-2'
           created: '<timestamp>'
           backups: []
   - type: directory
@@ -555,7 +555,7 @@ entries:
       config: {}
       apps:
         - id: cd5fbb72
-          name: foo
+          name: '@fixture/base'
           created: '<timestamp>'
           backups: []
   - type: directory

@@ -5,6 +5,14 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"@fixture/dep-2@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@fixture/dep-2@workspace:."
+  dependencies:
+    "@yarnpkg/parsers": "npm:^3.0.2"
+  languageName: unknown
+  linkType: soft
+
 "@yarnpkg/parsers@npm:^3.0.2":
   version: 3.0.2
   resolution: "@yarnpkg/parsers@npm:3.0.2"
@@ -23,14 +31,6 @@ __metadata:
   checksum: 10c0/b2972c5c23c63df66bca144dbc65d180efa74f25f8fd9b7d9a0a6c88ae839db32df3d54770dcb6460cf840d232b60695d1a6b1053f599d84e73f7437087712de
   languageName: node
   linkType: hard
-
-"baz@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "baz@workspace:."
-  dependencies:
-    "@yarnpkg/parsers": "npm:^3.0.2"
-  languageName: unknown
-  linkType: soft
 
 "esprima@npm:^4.0.0":
   version: 4.0.1

@@ -5,8 +5,8 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"foo@workspace:.":
+"@fixture/base@workspace:.":
   version: 0.0.0-use.local
-  resolution: "foo@workspace:."
+  resolution: "@fixture/base@workspace:."
   languageName: unknown
   linkType: soft

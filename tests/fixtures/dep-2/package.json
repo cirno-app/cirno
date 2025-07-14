@@ -1,5 +1,5 @@
 {
-  "name": "baz",
+  "name": "@fixture/dep-2",
   "version": "1.0.0",
   "packageManager": "yarn@4.3.1",
   "dependencies": {

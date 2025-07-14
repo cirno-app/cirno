@@ -2,7 +2,7 @@ import { makeEnv, useFixture } from '../shared'
 
 makeEnv('restore', (ctx) => {
   ctx.pass(['init'])
-  const uuid1 = ctx.pass(['import', useFixture('foo')])
+  const uuid1 = ctx.pass(['import', useFixture('base')])
 
   // create the first backup (#2 -> #1)
   const uuid2 = ctx.pass(['backup', uuid1])
