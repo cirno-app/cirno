@@ -1,4 +1,4 @@
-import { makeEnv, useExport, useFixture } from '../shared'
+import { makeEnv, useFixture } from '../shared'
 
 makeEnv('cache', (ctx) => {
   ctx.pass(['init'])
@@ -6,4 +6,5 @@ makeEnv('cache', (ctx) => {
   const uuid2 = ctx.pass(['import', useFixture('bar')])
   const uuid3 = ctx.pass(['import', useFixture('baz')])
   ctx.pass(['remove', uuid2])
+  ctx.pass(['remove', uuid3])
 })
