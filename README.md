@@ -52,6 +52,8 @@ Arguments after `--` will be passed to `yarn`.
 
 Remove unused packages from the cache.
 
+Automatically executed by `cirno remove`.
+
 ## Concepts
 
 ### Application

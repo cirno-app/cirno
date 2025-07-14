@@ -1,0 +1,11 @@
+diff --git a/index.js b/index.js
+index bcb7eba7ada7de0dae55924403c49c0e16aea384..0db026b9645cf0efbc79bc5f608a36dff342bf6c 100644
+--- a/index.js
++++ b/index.js
+@@ -1,5 +1,6 @@
+ 'use strict';
+ 
++// noop patch 1
+ 
+ var loader = require('./lib/loader');
+ var dumper = require('./lib/dumper');

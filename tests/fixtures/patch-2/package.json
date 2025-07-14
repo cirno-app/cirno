@@ -1,0 +1,8 @@
+{
+  "name": "@fixture/patch-2",
+  "version": "1.0.0",
+  "packageManager": "yarn@4.3.1",
+  "dependencies": {
+    "js-yaml": "patch:js-yaml@npm%3A4.1.0#~/.yarn/patches/js-yaml-npm-4.1.0-3606f32312.patch"
+  }
+}

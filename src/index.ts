@@ -9,6 +9,7 @@ import { parseSyml, stringifySyml } from '@yarnpkg/parsers'
 import { Readable } from 'node:stream'
 import { finished } from 'node:stream/promises'
 import { extract } from 'tar-fs'
+import { slugifyLocator, tryParseLocator } from './yarn.ts'
 
 export interface YarnRc {
   cacheFolder?: string
@@ -81,11 +82,10 @@ export async function loadMeta(cwd: string): Promise<Meta> {
 export function getCacheFiles(yarnLock: YarnLock) {
   return Object.entries(yarnLock).map(([key, value]) => {
     if (key === '__metadata') return
-    const capture = /^(@[^@/]+\/[^@]+|[^@/]+)@([^:]+):(.+)$/.exec(value.resolution)
-    if (!capture) throw new Error(`Failed to parse resolution: ${value.resolution}`)
-    if (capture[2] === 'workspace') return
-    if (capture[2] !== 'npm') throw new Error(`Unsupported resolution protocol: ${capture[2]}`)
-    return `${capture[1].replace('/', '-')}-${capture[2]}-${capture[3].replace(':', '-')}`
+    const locator = tryParseLocator(value.resolution, true)
+    if (!locator) throw new Error(`Failed to parse resolution: ${value.resolution}`)
+    if (locator.reference.startsWith('workspace:')) return
+    return slugifyLocator(locator)
   }).filter(Boolean) as string[]
 }
 
@@ -191,9 +191,9 @@ export class Cirno {
     const files = await fs.readdir(join(this.cwd, 'home/.yarn/cache'))
     const cache: Record<string, Record<string, string>> = Object.create(null)
     for (const name of files) {
-      const capture = /^(.+)-([0-9a-f]{10})-([0-9a-f]+)\.zip$/.exec(name)
+      const capture = /^(.+)-([0-9a-f]+)\.zip$/.exec(name)
       if (!capture) continue
-      (cache[capture[3]] ??= {})[capture[1]] = name
+      (cache[capture[2]] ??= {})[capture[1]] = name
     }
     return cache
   }
