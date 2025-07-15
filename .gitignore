@@ -3,7 +3,6 @@ lib
 dist
 temp
 
-todo.md
 yarn.lock
 coverage/
 node_modules/
