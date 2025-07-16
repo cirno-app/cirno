@@ -1,5 +1,14 @@
-use anyhow::Result;
+use anyhow::{Error, Result};
+use axum::{
+    Json, Router,
+    extract::Path,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    routing::post,
+};
 use clap::{Args, Parser, Subcommand};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Parser)]
 struct Cli {
@@ -31,6 +40,21 @@ async fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Run(_args) => {
+            let api_routes = Router::new()
+                .route("/gc", post(controller_gc))
+                .route("/app/{id}/backup", post(controller_app_backup))
+                .route("/app/{id}/start", post(controller_app_start))
+                .route("/app/{id}/stop", post(controller_app_stop))
+                .route("/window/open", post(controller_window_open))
+                .route("/window/{id}/close", post(controller_window_close));
+
+            let app = Router::new()
+                .nest("/api/v1", api_routes)
+                .fallback(handler_notfound);
+
+            let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+
+            axum::serve(listener, app).await?;
         }
 
         Commands::Start(_args) => {
@@ -41,4 +65,49 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+struct AppError(Error);
+
+// Tell axum how to convert `AppError` into a response.
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        (StatusCode::INTERNAL_SERVER_ERROR, "").into_response()
+    }
+}
+
+async fn controller_gc() -> Result<(StatusCode, Json<Value>), AppError> {
+    (StatusCode::OK, Json(serde_json::json!({})))
+}
+
+async fn controller_app_backup(
+    Path(id): Path<String>,
+) -> Result<(StatusCode, Json<Value>), AppError> {
+    (StatusCode::OK, Json(serde_json::json!({})))
+}
+
+async fn controller_app_start(
+    Path(id): Path<String>,
+) -> Result<(StatusCode, Json<Value>), AppError> {
+    (StatusCode::OK, Json(serde_json::json!({})))
+}
+
+async fn controller_app_stop(
+    Path(id): Path<String>,
+) -> Result<(StatusCode, Json<Value>), AppError> {
+    (StatusCode::OK, Json(serde_json::json!({})))
+}
+
+async fn controller_window_open() -> Result<(StatusCode, Json<Value>), AppError> {
+    (StatusCode::OK, Json(serde_json::json!({})))
+}
+
+async fn controller_window_close(
+    Path(id): Path<String>,
+) -> Result<(StatusCode, Json<Value>), AppError> {
+    (StatusCode::OK, Json(serde_json::json!({})))
+}
+
+async fn handler_notfound() -> (StatusCode, [u8; 0]) {
+    (StatusCode::NOT_FOUND, [])
 }
