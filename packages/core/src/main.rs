@@ -154,7 +154,7 @@ enum WryStateRegistryError {
 struct WryState {}
 
 struct WryStateRegistry {
-    inner: RwLock<WryStateRegistryIntl>,
+    intl: RwLock<WryStateRegistryIntl>,
 }
 
 struct WryStateRegistryIntl {
@@ -165,7 +165,7 @@ struct WryStateRegistryIntl {
 impl WryStateRegistry {
     pub fn new() -> Self {
         Self {
-            inner: RwLock::new(WryStateRegistryIntl {
+            intl: RwLock::new(WryStateRegistryIntl {
                 map: AtomicU64::new(0),
                 reg: [(); 64].map(|_| None),
             }),
@@ -176,14 +176,14 @@ impl WryStateRegistry {
         &self,
         state: WryState,
     ) -> Result<(u8, Arc<RwLock<WryState>>), WryStateRegistryError> {
-        let mut inner = self.inner.write().unwrap();
-        let bitmap = inner.map.load(Ordering::Acquire);
+        let mut intl = self.intl.write().unwrap();
+        let bitmap = intl.map.load(Ordering::Acquire);
         let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
 
         match free_bit {
             Some(id) => {
                 let arc = Arc::new(RwLock::new(state));
-                inner.reg[id] = Some(arc.clone());
+                intl.reg[id] = Some(arc.clone());
 
                 Ok((id as u8, arc))
             }
@@ -192,34 +192,32 @@ impl WryStateRegistry {
     }
 
     pub fn get(&self, id: u8) -> Result<Arc<RwLock<WryState>>, WryStateRegistryError> {
-        let inner = self.inner.read().unwrap();
+        let intl = self.intl.read().unwrap();
 
         if id >= 64 {
             return Err(WryStateRegistryError::InvalidId(id));
         }
 
-        inner.reg[id as usize]
+        intl.reg[id as usize]
             .as_ref()
             .map(Arc::clone)
             .ok_or(WryStateRegistryError::WindowNotFound(id))
     }
 
     pub fn destroy(&self, id: u8) -> Result<(), WryStateRegistryError> {
-        let mut inner = self.inner.write().unwrap();
+        let mut intl = self.intl.write().unwrap();
 
         if id >= 64 {
             return Err(WryStateRegistryError::InvalidId(id));
         }
 
-        let state = inner.reg[id as usize].take();
+        let state = intl.reg[id as usize].take();
 
-        if state.is_none() {
+        let Some(state) = state else {
             return Err(WryStateRegistryError::WindowNotFound(id));
-        }
+        };
 
-        let state = state.unwrap();
-
-        inner.map.fetch_and(!(1 << id), Ordering::AcqRel);
+        intl.map.fetch_and(!(1 << id), Ordering::AcqRel);
 
         Ok(())
     }
