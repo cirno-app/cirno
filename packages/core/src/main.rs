@@ -71,10 +71,18 @@ async fn main() -> Result<()> {
 
 struct AppError(Error);
 
-// Tell axum how to convert `AppError` into a response.
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         (StatusCode::INTERNAL_SERVER_ERROR, "").into_response()
+    }
+}
+
+impl<E> From<E> for AppError
+where
+    E: Into<anyhow::Error>,
+{
+    fn from(err: E) -> Self {
+        Self(err.into())
     }
 }
 
@@ -102,14 +110,14 @@ async fn controller_app_stop(
 
 async fn controller_window_open() -> Result<(StatusCode, Json<Value>), AppError> {
     let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
+    let window = WindowBuilder::new().build(&event_loop)?;
 
     let builder = WebViewBuilder::new().with_url("https://tauri.app");
 
     #[cfg(not(target_os = "linux"))]
-    let webview = builder.build(&window).unwrap();
+    let webview = builder.build(&window)?;
     #[cfg(target_os = "linux")]
-    let webview = builder.build_gtk(window.gtk_window()).unwrap();
+    let webview = builder.build_gtk(window.gtk_window())?;
 
     (StatusCode::OK, Json(serde_json::json!({})))
 }
