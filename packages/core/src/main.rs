@@ -9,7 +9,10 @@ use axum::{
 use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::sync::{Arc, RwLock, atomic::Ordering};
+use std::{collections::VecDeque, sync::atomic::AtomicU64};
 use tao::{event_loop::EventLoop, window::WindowBuilder};
+use thiserror::Error;
 use wry::WebViewBuilder;
 
 #[derive(Parser)]
@@ -131,3 +134,91 @@ async fn controller_window_close(
 async fn handler_notfound() -> (StatusCode, [u8; 0]) {
     (StatusCode::NOT_FOUND, [])
 }
+
+// region: WryState
+
+#[derive(Debug, Error)]
+enum WryStateRegistryError {
+    #[error("Registry is full, no available IDs")]
+    RegistryFull,
+    #[error("Invalid ID: {0} (must be 0-63)")]
+    InvalidId(u8),
+    #[error("No window found for ID: {0}")]
+    WindowNotFound(u8),
+}
+
+struct WryState {}
+
+struct WryStateRegistry {
+    inner: RwLock<WryStateRegistryIntl>,
+}
+
+struct WryStateRegistryIntl {
+    map: AtomicU64,
+    reg: [Option<Arc<RwLock<WryState>>>; 64],
+}
+
+impl WryStateRegistry {
+    pub fn new() -> Self {
+        Self {
+            inner: RwLock::new(WryStateRegistryIntl {
+                map: AtomicU64::new(0),
+                reg: [(); 64].map(|_| None),
+            }),
+        }
+    }
+
+    pub fn create(
+        &self,
+        state: WryState,
+    ) -> Result<(u8, Arc<RwLock<WryState>>), WryStateRegistryError> {
+        let mut inner = self.inner.write().unwrap();
+        let bitmap = inner.map.load(Ordering::Acquire);
+        let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
+
+        match free_bit {
+            Some(id) => {
+                let arc = Arc::new(RwLock::new(state));
+                inner.reg[id] = Some(arc.clone());
+
+                Ok((id as u8, arc))
+            }
+            None => Err(WryStateRegistryError::RegistryFull),
+        }
+    }
+
+    pub fn get(&self, id: u8) -> Result<Arc<RwLock<WryState>>, WryStateRegistryError> {
+        let inner = self.inner.read().unwrap();
+
+        if id >= 64 {
+            return Err(WryStateRegistryError::InvalidId(id));
+        }
+
+        inner.reg[id as usize]
+            .as_ref()
+            .map(Arc::clone)
+            .ok_or(WryStateRegistryError::WindowNotFound(id))
+    }
+
+    pub fn destroy(&self, id: u8) -> Result<(), WryStateRegistryError> {
+        let mut inner = self.inner.write().unwrap();
+
+        if id >= 64 {
+            return Err(WryStateRegistryError::InvalidId(id));
+        }
+
+        let state = inner.reg[id as usize].take();
+
+        if state.is_none() {
+            return Err(WryStateRegistryError::WindowNotFound(id));
+        }
+
+        let state = state.unwrap();
+
+        inner.map.fetch_and(!(1 << id), Ordering::AcqRel);
+
+        Ok(())
+    }
+}
+
+// endregion
