@@ -1,7 +1,7 @@
 use anyhow::{Error, Result};
 use axum::{
     Json, Router,
-    extract::Path,
+    extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::post,
@@ -9,8 +9,8 @@ use axum::{
 use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, RwLock, atomic::Ordering};
-use std::{collections::VecDeque, sync::atomic::AtomicU64};
 use tao::{event_loop::EventLoop, window::WindowBuilder};
 use thiserror::Error;
 use wry::WebViewBuilder;
@@ -45,6 +45,10 @@ async fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Run(_args) => {
+            let app_state = Arc::new(AppState {
+                wry: WryStateRegistry::new(),
+            });
+
             let api_routes = Router::new()
                 .route("/gc", post(controller_gc))
                 .route("/app/{id}/backup", post(controller_app_backup))
@@ -55,7 +59,8 @@ async fn main() -> Result<()> {
 
             let app = Router::new()
                 .nest("/api/v1", api_routes)
-                .fallback(handler_notfound);
+                .fallback(handler_notfound)
+                .with_state(app_state);
 
             let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
 
@@ -70,6 +75,10 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+struct AppState {
+    wry: WryStateRegistry,
 }
 
 struct AppError(Error);
@@ -93,29 +102,36 @@ where
     }
 }
 
-async fn controller_gc() -> Result<(StatusCode, Json<Value>), AppError> {
+async fn controller_gc(
+    State(app_state): State<Arc<AppState>>,
+) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
 async fn controller_app_backup(
+    State(app_state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
 async fn controller_app_start(
+    State(app_state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
 async fn controller_app_stop(
+    State(app_state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
-async fn controller_window_open() -> Result<(StatusCode, Json<Value>), AppError> {
+async fn controller_window_open(
+    State(app_state): State<Arc<AppState>>,
+) -> Result<(StatusCode, Json<Value>), AppError> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop)?;
 
@@ -130,12 +146,13 @@ async fn controller_window_open() -> Result<(StatusCode, Json<Value>), AppError>
 }
 
 async fn controller_window_close(
+    State(app_state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
-async fn handler_notfound() -> (StatusCode, [u8; 0]) {
+async fn handler_notfound(State(app_state): State<Arc<AppState>>) -> (StatusCode, [u8; 0]) {
     (StatusCode::NOT_FOUND, [])
 }
 
