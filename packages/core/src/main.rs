@@ -9,6 +9,8 @@ use axum::{
 use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tao::{event_loop::EventLoop, window::WindowBuilder};
+use wry::WebViewBuilder;
 
 #[derive(Parser)]
 struct Cli {
@@ -99,6 +101,16 @@ async fn controller_app_stop(
 }
 
 async fn controller_window_open() -> Result<(StatusCode, Json<Value>), AppError> {
+    let event_loop = EventLoop::new();
+    let window = WindowBuilder::new().build(&event_loop).unwrap();
+
+    let builder = WebViewBuilder::new().with_url("https://tauri.app");
+
+    #[cfg(not(target_os = "linux"))]
+    let webview = builder.build(&window).unwrap();
+    #[cfg(target_os = "linux")]
+    let webview = builder.build_gtk(window.gtk_window()).unwrap();
+
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
