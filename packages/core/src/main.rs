@@ -76,7 +76,11 @@ struct AppError(Error);
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        (StatusCode::INTERNAL_SERVER_ERROR, "").into_response()
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error: {}", self.0),
+        )
+            .into_response()
     }
 }
 
