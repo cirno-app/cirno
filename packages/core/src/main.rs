@@ -1,3 +1,5 @@
+use crate::log::combined_logger::CombinedLogger;
+use ::log::error;
 use anyhow::{Error, Result};
 use axum::{
     Json, Router,
@@ -9,11 +11,16 @@ use axum::{
 use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, RwLock, atomic::Ordering};
+use std::{
+    process::{ExitCode, exit},
+    sync::atomic::AtomicU64,
+};
 use tao::{event_loop::EventLoop, window::WindowBuilder};
 use thiserror::Error;
 use wry::WebViewBuilder;
+
+mod log;
 
 #[derive(Parser)]
 struct Cli {
@@ -39,12 +46,31 @@ struct StartArgs {}
 #[derive(Args)]
 struct StopArgs {}
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> ExitCode {
+    let logger = CombinedLogger::init();
+
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(main_async(logger))
+}
+
+async fn main_async(logger: Arc<CombinedLogger>) -> ExitCode {
+    match main_async_intl(logger).await {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(err) => {
+            error!("{err:?}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Run(_args) => {
+        Commands::Run(_args) => {s
             let app_state = Arc::new(AppState {
                 wry: WryStateRegistry::new(),
             });

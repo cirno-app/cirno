@@ -288,6 +288,7 @@ dependencies = [
  "anyhow",
  "axum",
  "clap",
+ "log",
  "serde",
  "serde_json",
  "tao",
