@@ -12,10 +12,7 @@ use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::{Arc, RwLock, atomic::Ordering};
-use std::{
-    process::{ExitCode, exit},
-    sync::atomic::AtomicU64,
-};
+use std::{process::ExitCode, sync::atomic::AtomicU64};
 use tao::{event_loop::EventLoop, window::WindowBuilder};
 use thiserror::Error;
 use wry::WebViewBuilder;
