@@ -1,5 +1,5 @@
 use crate::log::combined_logger::CombinedLogger;
-use ::log::error;
+use ::log::{LevelFilter, error};
 use anyhow::{Error, Result};
 use axum::{
     Json, Router,
@@ -45,6 +45,12 @@ struct StopArgs {}
 
 fn main() -> ExitCode {
     let logger = CombinedLogger::init();
+
+    logger.push(Box::new(
+        env_logger::builder()
+            .filter_level(LevelFilter::Info)
+            .build(),
+    ));
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
