@@ -304,6 +304,7 @@ dependencies = [
  "arc-swap",
  "axum",
  "clap",
+ "clap-verbosity-flag",
  "env_logger",
  "log",
  "serde",
@@ -322,6 +323,16 @@ checksum = "40b6887a1d8685cebccf115538db5c0efe625ccac9696ad45c409d96566e910f"
 dependencies = [
  "clap_builder",
  "clap_derive",
+]
+
+[[package]]
+name = "clap-verbosity-flag"
+version = "3.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eeab6a5cdfc795a05538422012f20a5496f050223c91be4e5420bfd13c641fb1"
+dependencies = [
+ "clap",
+ "log",
 ]
 
 [[package]]

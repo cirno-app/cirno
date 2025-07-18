@@ -1,5 +1,5 @@
 use crate::log::combined_logger::CombinedLogger;
-use ::log::{LevelFilter, error};
+use ::log::error;
 use anyhow::{Error, Result};
 use axum::{
     Json, Router,
@@ -9,23 +9,32 @@ use axum::{
     routing::post,
 };
 use clap::{Args, Parser, Subcommand};
+use clap_verbosity_flag::{InfoLevel, Verbosity};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::sync::{Arc, RwLock, atomic::Ordering};
-use std::{process::ExitCode, sync::atomic::AtomicU64};
+use std::{
+    process::ExitCode,
+    sync::{
+        Arc, RwLock,
+        atomic::{AtomicU64, Ordering},
+    },
+};
 use tao::{event_loop::EventLoop, window::WindowBuilder};
 use thiserror::Error;
 use wry::WebViewBuilder;
 
 mod log;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+
+    #[command(flatten)]
+    verbosity: Verbosity<InfoLevel>,
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 enum Commands {
     Run(RunArgs),
 
@@ -34,23 +43,17 @@ enum Commands {
     Stop(StopArgs),
 }
 
-#[derive(Args)]
+#[derive(Debug, Args)]
 struct RunArgs {}
 
-#[derive(Args)]
+#[derive(Debug, Args)]
 struct StartArgs {}
 
-#[derive(Args)]
+#[derive(Debug, Args)]
 struct StopArgs {}
 
 fn main() -> ExitCode {
     let logger = CombinedLogger::init();
-
-    logger.push(Arc::new(
-        env_logger::builder()
-            .filter_level(LevelFilter::Info)
-            .build(),
-    ));
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
@@ -71,6 +74,12 @@ async fn main_async(logger: Arc<CombinedLogger>) -> ExitCode {
 
 async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     let cli = Cli::parse();
+
+    logger.push(Arc::new(
+        env_logger::builder()
+            .filter_level(cli.verbosity.into())
+            .build(),
+    ));
 
     match &cli.command {
         Commands::Run(_args) => {s
