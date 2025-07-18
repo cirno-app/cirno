@@ -1,4 +1,4 @@
-use ::log::{Log, Metadata, Record, set_boxed_logger};
+use ::log::{Log, Metadata, Record, set_boxed_logger, set_max_level};
 use arc_swap::ArcSwap;
 use std::sync::Arc;
 
@@ -17,6 +17,7 @@ impl CombinedLogger {
             intl: combined_logger.clone(),
         };
         set_boxed_logger(Box::new(combined_logger_log)).unwrap();
+        set_max_level(log::LevelFilter::Trace);
         combined_logger
     }
 
