@@ -1,8 +1,9 @@
 use ::log::{Log, Metadata, Record, set_boxed_logger};
+use arc_swap::ArcSwap;
 use std::sync::Arc;
 
 pub struct CombinedLogger {
-    logger: Vec<Box<dyn Log>>,
+    loggers: ArcSwap<Vec<Arc<dyn Log>>>,
 }
 
 struct CombinedLoggerLog {
@@ -20,17 +21,23 @@ impl CombinedLogger {
     }
 
     fn new() -> CombinedLogger {
-        CombinedLogger { logger: vec![] }
+        CombinedLogger {
+            loggers: ArcSwap::from_pointee(vec![]),
+        }
     }
 
-    pub fn push(&mut self, logger: Box<dyn Log>) {
-        self.logger.push(logger);
+    pub fn push(&self, logger: Arc<dyn Log>) {
+        self.loggers.rcu(|l_old| {
+            let mut l_new = Vec::clone(&l_old);
+            l_new.push(logger.clone());
+            l_new
+        });
     }
 }
 
 impl Log for CombinedLoggerLog {
     fn enabled(&self, metadata: &Metadata) -> bool {
-        for logger in &self.intl.logger {
+        for logger in self.intl.loggers.load().iter() {
             if logger.enabled(metadata) {
                 return true;
             }
@@ -40,13 +47,13 @@ impl Log for CombinedLoggerLog {
     }
 
     fn log(&self, record: &Record) {
-        for logger in &self.intl.logger {
+        for logger in self.intl.loggers.load().iter() {
             logger.log(record);
         }
     }
 
     fn flush(&self) {
-        for logger in &self.intl.logger {
+        for logger in self.intl.loggers.load().iter() {
             logger.flush();
         }
     }

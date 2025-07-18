@@ -46,7 +46,7 @@ struct StopArgs {}
 fn main() -> ExitCode {
     let logger = CombinedLogger::init();
 
-    logger.push(Box::new(
+    logger.push(Arc::new(
         env_logger::builder()
             .filter_level(LevelFilter::Info)
             .build(),
