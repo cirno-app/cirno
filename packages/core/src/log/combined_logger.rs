@@ -29,7 +29,7 @@ impl CombinedLogger {
 
     pub fn push(&self, logger: Arc<dyn Log>) {
         self.loggers.rcu(|l_old| {
-            let mut l_new = Vec::clone(&l_old);
+            let mut l_new = Vec::clone(l_old);
             l_new.push(logger.clone());
             l_new
         });
