@@ -1,5 +1,5 @@
 use crate::log::combined_logger::CombinedLogger;
-use ::log::error;
+use ::log::{debug, error, info};
 use anyhow::{Error, Result};
 use axum::{
     Json, Router,
@@ -13,6 +13,7 @@ use clap_verbosity_flag::{InfoLevel, Verbosity};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
+    env::{args, current_exe},
     process::ExitCode,
     sync::{
         Arc, RwLock,
@@ -80,6 +81,12 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             .filter_level(cli.verbosity.into())
             .build(),
     ));
+
+    info!("Cirno");
+
+    let exe_path = current_exe()?;
+    debug!("Executable: {}", exe_path.display());
+    debug!("Arguments: {:?}", args().collect::<Vec<_>>());
 
     match &cli.command {
         Commands::Run(_args) => {s
