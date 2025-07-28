@@ -1,4 +1,4 @@
-use crate::log::CombinedLogger;
+use crate::{config::load_config, log::CombinedLogger};
 use ::log::{debug, error, info};
 use anyhow::{Error, Result};
 use axum::{
@@ -24,6 +24,7 @@ use tao::{event_loop::EventLoop, window::WindowBuilder};
 use thiserror::Error;
 use wry::WebViewBuilder;
 
+mod config;
 mod log;
 
 #[derive(Debug, Parser)]
@@ -87,6 +88,8 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     let exe_path = current_exe()?;
     debug!("Executable: {}", exe_path.display());
     debug!("Arguments: {:?}", args().collect::<Vec<_>>());
+
+    load_config();
 
     match &cli.command {
         Commands::Run(_args) => {s
