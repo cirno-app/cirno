@@ -1,4 +1,7 @@
-use crate::{config::load_config, log::CombinedLogger};
+use crate::{
+    config::{EnvironmentState, load_config},
+    log::CombinedLogger,
+};
 use ::log::{debug, error, info};
 use anyhow::{Error, Result};
 use axum::{
@@ -87,13 +90,19 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     let exe_path = current_exe()?;
     debug!("Executable: {}", exe_path.display());
+
+    let mut exe_dir = exe_path.clone();
+    exe_dir.pop();
+    debug!("Executable dir: {}", exe_dir.display());
+
     debug!("Arguments: {:?}", args().collect::<Vec<_>>());
 
-    load_config();
+    let env = load_config(exe_dir);
 
     match &cli.command {
         Commands::Run(_args) => {s
             let app_state = Arc::new(AppState {
+                env,
                 wry: WryStateRegistry::new(),
             });
 
@@ -126,6 +135,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 }
 
 struct AppState {
+    env: EnvironmentState,
     wry: WryStateRegistry,
 }
 
