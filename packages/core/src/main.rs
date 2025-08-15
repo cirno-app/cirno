@@ -13,7 +13,6 @@ use axum::{
 };
 use clap::{Args, Parser, Subcommand};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     env::{args, current_exe},
@@ -24,6 +23,7 @@ use std::{
     },
 };
 use tao::{event_loop::EventLoop, window::WindowBuilder};
+use tap::Tap;
 use thiserror::Error;
 use wry::WebViewBuilder;
 
@@ -91,13 +91,14 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     let exe_path = current_exe()?;
     debug!("Executable: {}", exe_path.display());
 
-    let mut exe_dir = exe_path.clone();
-    exe_dir.pop();
+    let exe_dir = exe_path.clone().tap_mut(|x| {
+        x.pop();
+    });
     debug!("Executable dir: {}", exe_dir.display());
 
     debug!("Arguments: {:?}", args().collect::<Vec<_>>());
 
-    let env = load_config(exe_dir);
+    let env = load_config(exe_dir).await?;
 
     match &cli.command {
         Commands::Run(_args) => {s
