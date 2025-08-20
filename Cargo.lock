@@ -314,6 +314,7 @@ dependencies = [
  "tap",
  "thiserror 2.0.14",
  "tokio",
+ "tokio-util",
  "wry",
 ]
 

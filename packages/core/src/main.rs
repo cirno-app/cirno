@@ -25,6 +25,8 @@ use std::{
 use tao::{event_loop::EventLoop, window::WindowBuilder};
 use tap::Tap;
 use thiserror::Error;
+use tokio::spawn;
+use tokio_util::sync::CancellationToken;
 use wry::WebViewBuilder;
 
 mod config;
@@ -101,12 +103,16 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     let env = load_config(exe_dir).await?;
 
     match &cli.command {
-        Commands::Run(_args) => {s
+        Commands::Run(_args) => {
             let app_state = Arc::new(AppState {
                 env,
+
+                shutdown_token: CancellationToken::new(),
+
                 wry: WryStateRegistry::new(),
             });
 
+            // Bind port
             let api_routes = Router::new()
                 .route("/gc", post(controller_gc))
                 .route("/app/{id}/backup", post(controller_app_backup))
@@ -118,11 +124,28 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             let app = Router::new()
                 .nest("/api/v1", api_routes)
                 .fallback(handler_notfound)
-                .with_state(app_state);
+                .with_state(app_state.clone());
 
             let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
 
-            axum::serve(listener, app).await?;
+            // Write daemon.lock only after port bound
+
+            // Start Server
+            let app_state = app_state.clone();
+            let shutdown_token = app_state.shutdown_token.clone();
+
+            spawn(async move {
+                let result = axum::serve(listener, app)
+                    .with_graceful_shutdown(async move {
+                        shutdown_token.cancelled().await;
+                    })
+                    .await;
+
+                if let Result::Err(err) = result {
+                    error!("{err}");
+                    app_state.shutdown();
+                }
+            });
         }
 
         Commands::Start(_args) => {
@@ -137,7 +160,16 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
 struct AppState {
     env: EnvironmentState,
+
+    shutdown_token: CancellationToken,
+
     wry: WryStateRegistry,
+}
+
+impl AppState {
+    fn shutdown(&self) {
+        self.shutdown_token.cancel();
+    }
 }
 
 struct AppError(Error);

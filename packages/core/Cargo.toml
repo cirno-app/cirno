@@ -24,4 +24,5 @@ tao = "0.34.0"
 tap = "1.0.1"
 thiserror = "2.0.12"
 tokio = { version = "1.45.1", features = ["full"] }
+tokio-util = "0.7.16"
 wry = "0.52.1"
