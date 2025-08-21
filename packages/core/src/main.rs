@@ -30,6 +30,7 @@ use tokio::spawn;
 use tokio_util::sync::CancellationToken;
 use wry::WebViewBuilder;
 
+mod app;
 mod config;
 mod daemon;
 mod log;
