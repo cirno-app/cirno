@@ -1,5 +1,6 @@
 use crate::{
     config::{EnvironmentState, load_config},
+    daemon::ProcessDaemon,
     log::CombinedLogger,
 };
 use ::log::{debug, error, info};
@@ -30,6 +31,7 @@ use tokio_util::sync::CancellationToken;
 use wry::WebViewBuilder;
 
 mod config;
+mod daemon;
 mod log;
 
 #[derive(Debug, Parser)]
@@ -104,6 +106,9 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     match &cli.command {
         Commands::Run(_args) => {
+            let process_daemon = ProcessDaemon::new();
+            process_daemon.init().await?;
+
             let app_state = Arc::new(AppState {
                 env,
 
