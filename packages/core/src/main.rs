@@ -1,3 +1,5 @@
+#![feature(exit_status_error)]
+
 use crate::{
     config::{EnvironmentState, load_config},
     daemon::ProcessDaemon,
@@ -34,6 +36,7 @@ mod app;
 mod config;
 mod daemon;
 mod log;
+mod proc;
 
 #[derive(Debug, Parser)]
 struct Cli {

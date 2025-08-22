@@ -1,5 +1,6 @@
-use std::{ffi::OsStr, path::Path};
-use tokio::process::Command;
+use anyhow::Result;
+use std::{ffi::OsStr, path::Path, process::ExitStatus};
+use tokio::process::{Child, Command};
 
 use crate::config::EnvironmentState;
 
@@ -7,7 +8,8 @@ use crate::config::EnvironmentState;
 ///
 /// Due to its importance, we decided to name it `CirnoProc` instead of Proc.
 pub struct CirnoProc {
-    proc: Command,
+    cmd: Command,
+    child: Child,
 }
 
 impl CirnoProc {
@@ -20,7 +22,7 @@ impl CirnoProc {
         proc.args(args);
         proc.current_dir(cwd);
 
-        CirnoProc { proc }
+        CirnoProc { cmd: proc }
     }
 
     pub fn new_node<IA: IntoIterator<Item = SA>, SA: AsRef<OsStr>, P: AsRef<Path>>(
@@ -41,5 +43,13 @@ impl CirnoProc {
         args.insert(0, yarn_path.as_os_str());
 
         CirnoProc::new_node(env, args, cwd)
+    }
+
+    pub async fn run(&mut self) -> Result<()> {
+        self.child = self.cmd.spawn()?;
+
+        self.child.wait().await?.exit_ok()?;
+
+        Ok(())
     }
 }
