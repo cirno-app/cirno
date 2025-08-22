@@ -9,7 +9,7 @@ use crate::config::EnvironmentState;
 /// Due to its importance, we decided to name it `CirnoProc` instead of Proc.
 pub struct CirnoProc {
     cmd: Command,
-    child: Child,
+    child: Option<Child>,
 }
 
 impl CirnoProc {
@@ -22,7 +22,10 @@ impl CirnoProc {
         proc.args(args);
         proc.current_dir(cwd);
 
-        CirnoProc { cmd: proc }
+        CirnoProc {
+            cmd: proc,
+            child: None,
+        }
     }
 
     pub fn new_node<IA: IntoIterator<Item = SA>, SA: AsRef<OsStr>, P: AsRef<Path>>(
@@ -46,9 +49,15 @@ impl CirnoProc {
     }
 
     pub async fn run(&mut self) -> Result<()> {
-        self.child = self.cmd.spawn()?;
+        self.child = Some(self.cmd.spawn()?);
 
-        self.child.wait().await?.exit_ok()?;
+        let child = self.child.as_mut().unwrap();
+
+        let exit_status = child.wait().await?;
+
+        self.child = None;
+
+        exit_status.exit_ok()?;
 
         Ok(())
     }
