@@ -5,23 +5,24 @@ use serde::Deserialize;
 use tokio::fs::{create_dir, read_to_string};
 
 pub struct EnvironmentState {
-    exe_dir: PathBuf,
-    config_path: PathBuf,
+    pub exe_dir: PathBuf,
+    pub bin_dir: PathBuf,
+    pub config_path: PathBuf,
 
-    data_dir: PathBuf,
-    apps_dir: PathBuf,
-    baka_dir: PathBuf,
-    home_dir: PathBuf,
-    home_yarn_dir: PathBuf,
-    home_yarn_cache_dir: PathBuf,
-    home_yarn_releases_dir: PathBuf,
-    home_appdata_dir: PathBuf,
-    home_appdata_local_dir: PathBuf,
-    home_appdata_roaming_dir: PathBuf,
-    logs_dir: PathBuf,
-    tmp_dir: PathBuf,
+    pub data_dir: PathBuf,
+    pub apps_dir: PathBuf,
+    pub baka_dir: PathBuf,
+    pub home_dir: PathBuf,
+    pub home_yarn_dir: PathBuf,
+    pub home_yarn_cache_dir: PathBuf,
+    pub home_yarn_releases_dir: PathBuf,
+    pub home_appdata_dir: PathBuf,
+    pub home_appdata_local_dir: PathBuf,
+    pub home_appdata_roaming_dir: PathBuf,
+    pub logs_dir: PathBuf,
+    pub tmp_dir: PathBuf,
 
-    config: CirnoConfig,
+    pub config: CirnoConfig,
 }
 
 #[derive(Deserialize, Debug)]
@@ -40,6 +41,9 @@ pub struct CirnoConfigConfig {}
 pub struct CirnoConfigApps {}
 
 pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
+    // bin_dir does not apply config redirect
+    let bin_dir = exe_dir.join("bin");
+
     let data_dir = exe_dir.join("data");
 
     create_dir(data_dir.clone()).await?;
@@ -77,6 +81,7 @@ pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
 
     Ok(EnvironmentState {
         exe_dir,
+        bin_dir,
         config_path,
 
         data_dir,
