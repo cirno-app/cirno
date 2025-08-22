@@ -110,9 +110,6 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     match &cli.command {
         Commands::Run(_args) => {
-            let process_daemon = ProcessDaemon::new();
-            process_daemon.init().await?;
-
             let app_state = Arc::new(AppState {
                 env,
 
@@ -120,6 +117,11 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
                 wry: WryStateRegistry::new(),
             });
+
+            // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
+            // Here we use Box::leak directly.
+            let process_daemon = Box::leak(Box::new(ProcessDaemon::new(app_state.clone())));
+            process_daemon.init().await?;
 
             // Bind port
             let api_routes = Router::new()

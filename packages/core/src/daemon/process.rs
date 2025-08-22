@@ -1,10 +1,16 @@
-use crate::app;
+use crate::{AppState, app, proc::CirnoProc};
 use anyhow::{Result, bail};
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    ffi::OsStr,
+    sync::{Arc, LazyLock},
+};
 use tokio::{
     spawn,
     sync::{Mutex, MutexGuard},
 };
+
+static ARG_START: LazyLock<Vec<&OsStr>> = LazyLock::new(|| vec![OsStr::new("start")]);
 
 struct DaemonProc {}
 
@@ -14,18 +20,20 @@ struct ProcessDaemonIntl {
 }
 
 pub struct ProcessDaemon {
+    app: Arc<AppState>,
     intl: Arc<Mutex<ProcessDaemonIntl>>,
 }
 
 impl ProcessDaemon {
-    pub async fn init(&self) -> Result<()> {
+    pub async fn init(&'static self) -> Result<()> {
         let daemon_intl = self.intl.lock().await;
 
         Ok(())
     }
 
-    pub fn new() -> ProcessDaemon {
+    pub fn new(app: Arc<AppState>) -> ProcessDaemon {
         ProcessDaemon {
+            app,
             intl: Arc::new(Mutex::new(ProcessDaemonIntl {
                 reg: [const { None }; 256],
                 name_reg: HashMap::new(),
@@ -33,7 +41,7 @@ impl ProcessDaemon {
         }
     }
 
-    pub async fn start(&self, name: &String) -> Result<()> {
+    pub async fn start(&'static self, name: &String) -> Result<()> {
         let exists = app::exists(name).await?;
 
         if !exists {
@@ -46,7 +54,7 @@ impl ProcessDaemon {
     }
 
     async fn start_intl(
-        &self,
+        &'static self,
         mut daemon_intl: MutexGuard<'_, ProcessDaemonIntl>,
         name: &str,
     ) -> Result<()> {
@@ -60,8 +68,17 @@ impl ProcessDaemon {
         daemon_intl.reg[index_usize] = Some(DaemonProc {});
         let dp = &daemon_intl.reg[index_usize];
 
+        let name = name.to_owned();
+
         spawn(async {
             loop {
+                let mut cp = CirnoProc::new_yarn(
+                    &self.app.env,
+                    &ARG_START,
+                    self.app.env.apps_dir.join(name.clone()),
+                );
+
+                let result = cp.run().await;
             }
 
             {
