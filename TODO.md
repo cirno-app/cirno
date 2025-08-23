@@ -19,7 +19,7 @@
     - [ ] 完成基本的应用和环境管理功能
 
 - [ ] HTTP IPC 服务器（8月11日 ~ 8月20日）
-    - [ ] 基于 tokio 和 axum 框架构建异步 HTTP 服务器
+    - [x] 基于 tokio 和 axum 框架构建异步 HTTP 服务器
     - [ ] 实现应用控制相关的 API 端点（start,stop,restart）
     - [ ] 开发请求认证和授权机制
     - [ ] 实现 JSON 格式的 API 响应和错误处理
