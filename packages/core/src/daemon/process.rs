@@ -1,5 +1,7 @@
 use crate::{AppState, app, proc::CirnoProc};
 use anyhow::{Result, bail};
+use log::warn;
+use std::process::ExitStatusError;
 use std::{
     collections::HashMap,
     ffi::OsStr,
@@ -70,7 +72,7 @@ impl ProcessDaemon {
 
         let name = name.to_owned();
 
-        spawn(async {
+        spawn(async move {
             loop {
                 let mut cp = CirnoProc::new_yarn(
                     &self.app.env,
@@ -79,6 +81,32 @@ impl ProcessDaemon {
                 );
 
                 let result = cp.run().await;
+
+                match result {
+                    Err(err) => match err.downcast_ref::<ExitStatusError>() {
+                        Some(exit_err) => {
+                            if let Some(exit_code) = exit_err.code() {
+                                if exit_code == 52 {
+                                    warn!("App {} exited with code restart (52). Restarting", name);
+                                } else {
+                                    warn!("App {} exited with code {}", name, exit_code);
+                                    break;
+                                }
+                            } else {
+                                warn!("App {} exited with error {}", name, err);
+                                break;
+                            }
+                        }
+                        None => {
+                            warn!("App {} exited with error {}", name, err);
+                            break;
+                        }
+                    },
+                    Ok(_) => {
+                        warn!("App {} exited", name);
+                        break;
+                    }
+                }
             }
 
             {
