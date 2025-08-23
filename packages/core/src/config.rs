@@ -1,7 +1,6 @@
-use std::path::PathBuf;
-
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::Deserialize;
+use std::path::PathBuf;
 use tokio::fs::{create_dir, read_to_string};
 
 pub struct EnvironmentState {
@@ -46,11 +45,18 @@ pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
 
     let data_dir = exe_dir.join("data");
 
-    create_dir(data_dir.clone()).await?;
+    create_dir(data_dir.clone())
+        .await
+        .context("Failed to create data dir")?;
 
     let config_path = data_dir.join("cirno.yml");
 
-    let config = serde_yaml::from_str(&read_to_string(config_path.clone()).await?)?;
+    let config = serde_yaml::from_str(
+        &read_to_string(config_path.clone())
+            .await
+            .context("Failed to read config file")?,
+    )
+    .context("Failed to parse config file")?;
 
     let apps_dir = data_dir.join("apps");
     let baka_dir = data_dir.join("baka");
@@ -64,20 +70,42 @@ pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
     let logs_dir = data_dir.join("logs");
     let tmp_dir = data_dir.join("tmp");
 
-    create_dir(apps_dir.clone()).await?;
-    create_dir(baka_dir.clone()).await?;
-    create_dir(home_dir.clone()).await?;
-    create_dir(home_yarn_dir.clone()).await?;
-    create_dir(home_yarn_cache_dir.clone()).await?;
-    create_dir(home_yarn_releases_dir.clone()).await?;
+    create_dir(apps_dir.clone())
+        .await
+        .context("Failed to create apps dir")?;
+    create_dir(baka_dir.clone())
+        .await
+        .context("Failed to create baka dir")?;
+    create_dir(home_dir.clone())
+        .await
+        .context("Failed to create home dir")?;
+    create_dir(home_yarn_dir.clone())
+        .await
+        .context("Failed to create home yarn dir")?;
+    create_dir(home_yarn_cache_dir.clone())
+        .await
+        .context("Failed to create home yarn cache dir")?;
+    create_dir(home_yarn_releases_dir.clone())
+        .await
+        .context("Failed to create home yarn releases dir")?;
     #[cfg(target_os = "windows")]
     {
-        create_dir(home_appdata_dir.clone()).await?;
-        create_dir(home_appdata_local_dir.clone()).await?;
-        create_dir(home_appdata_roaming_dir.clone()).await?;
+        create_dir(home_appdata_dir.clone())
+            .await
+            .context("Failed to create AppData dir")?;
+        create_dir(home_appdata_local_dir.clone())
+            .await
+            .context("Failed to create AppData Local dir")?;
+        create_dir(home_appdata_roaming_dir.clone())
+            .await
+            .context("Failed to create AppData Roaming dir")?;
     }
-    create_dir(logs_dir.clone()).await?;
-    create_dir(tmp_dir.clone()).await?;
+    create_dir(logs_dir.clone())
+        .await
+        .context("Failed to create logs dir")?;
+    create_dir(tmp_dir.clone())
+        .await
+        .context("Failed to create tmp dir")?;
 
     Ok(EnvironmentState {
         exe_dir,

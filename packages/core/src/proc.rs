@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::{ffi::OsStr, path::Path, process::ExitStatus};
 use tokio::process::{Child, Command};
 
@@ -49,7 +49,7 @@ impl CirnoProc {
     }
 
     pub async fn run(&mut self) -> Result<()> {
-        self.child = Some(self.cmd.spawn()?);
+        self.child = Some(self.cmd.spawn().context("Failed to spawn child process")?);
 
         let child = self.child.as_mut().unwrap();
 

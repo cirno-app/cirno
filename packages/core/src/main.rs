@@ -6,7 +6,7 @@ use crate::{
     log::CombinedLogger,
 };
 use ::log::{debug, error, info};
-use anyhow::{Error, Result};
+use anyhow::{Context, Error, Result};
 use axum::{
     Json, Router,
     extract::{Path, State},
@@ -96,7 +96,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     info!("Cirno");
 
-    let exe_path = current_exe()?;
+    let exe_path = current_exe().context("Failed to get current exe path")?;
     debug!("Executable: {}", exe_path.display());
 
     let exe_dir = exe_path.clone().tap_mut(|x| {
@@ -106,7 +106,9 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     debug!("Arguments: {:?}", args().collect::<Vec<_>>());
 
-    let env = load_config(exe_dir).await?;
+    let env = load_config(exe_dir)
+        .await
+        .context("Failed to load config")?;
 
     match &cli.command {
         Commands::Run(_args) => {
@@ -121,7 +123,10 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
             // Here we use Box::leak directly.
             let process_daemon = Box::leak(Box::new(ProcessDaemon::new(app_state.clone())));
-            process_daemon.init().await?;
+            process_daemon
+                .init()
+                .await
+                .context("Failed to init process daemon")?;
 
             // Bind port
             let api_routes = Router::new()
@@ -137,7 +142,9 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 .fallback(handler_notfound)
                 .with_state(app_state.clone());
 
-            let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+            let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+                .await
+                .context("Failed to bind tcp port")?;
 
             // Write daemon.lock only after port bound
 
@@ -235,14 +242,18 @@ async fn controller_window_open(
     State(app_state): State<Arc<AppState>>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().build(&event_loop)?;
+    let window = WindowBuilder::new()
+        .build(&event_loop)
+        .context("Failed to create window")?;
 
     let builder = WebViewBuilder::new().with_url("https://tauri.app");
 
     #[cfg(not(target_os = "linux"))]
-    let webview = builder.build(&window)?;
+    let webview = builder.build(&window).context("Failed to create webview")?;
     #[cfg(target_os = "linux")]
-    let webview = builder.build_gtk(window.gtk_window())?;
+    let webview = builder
+        .build_gtk(window.gtk_window())
+        .context("Failed to create webview")?;
 
     (StatusCode::OK, Json(serde_json::json!({})))
 }

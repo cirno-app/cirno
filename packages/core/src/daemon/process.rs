@@ -1,5 +1,5 @@
 use crate::{AppState, app, proc::CirnoProc};
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use log::warn;
 use std::process::ExitStatusError;
 use std::{
@@ -44,7 +44,9 @@ impl ProcessDaemon {
     }
 
     pub async fn start(&'static self, name: &String) -> Result<()> {
-        let exists = app::exists(name).await?;
+        let exists = app::exists(name)
+            .await
+            .context("Failed to check for existence")?;
 
         if !exists {
             bail!("App {} does not exist", name);
