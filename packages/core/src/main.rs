@@ -112,18 +112,23 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     match &cli.command {
         Commands::Run(_args) => {
-            let app_state = Arc::new(AppState {
-                env,
 
-                shutdown_token: CancellationToken::new(),
+            let app_state = Arc::new_cyclic(|app_state| {
+                AppState {
+                    env,
 
-                wry: WryStateRegistry::new(),
+                    shutdown_token: CancellationToken::new(),
+
+                    wry: WryStateRegistry::new(),
+
+                    // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
+                    // Here we use Box::leak directly.
+                    process_daemon: Box::leak(Box::new(ProcessDaemon::new(app_state.clone()))),
+                }
             });
 
-            // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
-            // Here we use Box::leak directly.
-            let process_daemon = Box::leak(Box::new(ProcessDaemon::new(app_state.clone())));
-            process_daemon
+            app_state
+                .process_daemon
                 .init()
                 .await
                 .context("Failed to init process daemon")?;
@@ -182,6 +187,8 @@ struct AppState {
     shutdown_token: CancellationToken,
 
     wry: WryStateRegistry,
+
+    process_daemon: &'static mut ProcessDaemon,
 }
 
 impl AppState {

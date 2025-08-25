@@ -2,6 +2,7 @@ use crate::{AppState, app, proc::CirnoProc};
 use anyhow::{Context, Result, bail};
 use log::warn;
 use std::process::ExitStatusError;
+use std::sync::Weak;
 use std::{
     collections::HashMap,
     ffi::OsStr,
@@ -22,20 +23,21 @@ struct ProcessDaemonIntl {
 }
 
 pub struct ProcessDaemon {
-    app: Arc<AppState>,
+    app_weak: Weak<AppState>,
     intl: Arc<Mutex<ProcessDaemonIntl>>,
 }
 
 impl ProcessDaemon {
-    pub async fn init(&'static self) -> Result<()> {
+    pub async fn init(&self) -> Result<()> {
+
         let daemon_intl = self.intl.lock().await;
 
         Ok(())
     }
 
-    pub fn new(app: Arc<AppState>) -> ProcessDaemon {
+    pub fn new(app_weak: Weak<AppState>) -> ProcessDaemon {
         ProcessDaemon {
-            app,
+            app_weak,
             intl: Arc::new(Mutex::new(ProcessDaemonIntl {
                 reg: [const { None }; 256],
                 name_reg: HashMap::new(),
@@ -43,7 +45,7 @@ impl ProcessDaemon {
         }
     }
 
-    pub async fn start(&'static self, name: &String) -> Result<()> {
+    pub async fn start(&self, name: &String) -> Result<()> {
         let exists = app::exists(name)
             .await
             .context("Failed to check for existence")?;
@@ -58,7 +60,7 @@ impl ProcessDaemon {
     }
 
     async fn start_intl(
-        &'static self,
+        &self,
         mut daemon_intl: MutexGuard<'_, ProcessDaemonIntl>,
         name: &str,
     ) -> Result<()> {
@@ -74,13 +76,12 @@ impl ProcessDaemon {
 
         let name = name.to_owned();
 
+        let app = self.app_weak.upgrade().unwrap();
+
         spawn(async move {
             loop {
-                let mut cp = CirnoProc::new_yarn(
-                    &self.app.env,
-                    &ARG_START,
-                    self.app.env.apps_dir.join(name.clone()),
-                );
+                let mut cp =
+                    CirnoProc::new_yarn(&app.env, &ARG_START, app.env.apps_dir.join(name.clone()));
 
                 let result = cp.run().await;
 
