@@ -4,20 +4,22 @@ use crate::{
     config::{EnvironmentState, load_config},
     daemon::ProcessDaemon,
     log::CombinedLogger,
-    server::AppClaim,
+    server::controller::{
+        app_backup::controller_app_backup, app_start::controller_app_start,
+        app_stop::controller_app_stop, gc::controller_gc, notfound::handler_notfound,
+        window_close::controller_window_close, window_open::controller_window_open,
+    },
 };
 use ::log::{debug, error, info};
 use anyhow::{Context, Error, Result};
 use axum::{
-    Json, Router,
-    extract::{Path, State},
+    Router,
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::post,
 };
 use clap::{Args, Parser, Subcommand};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
-use serde_json::Value;
 use std::{
     env::{args, current_exe},
     process::ExitCode,
@@ -26,12 +28,10 @@ use std::{
         atomic::{AtomicU64, Ordering},
     },
 };
-use tao::{event_loop::EventLoop, window::WindowBuilder};
 use tap::Tap;
 use thiserror::Error;
 use tokio::spawn;
 use tokio_util::sync::CancellationToken;
-use wry::WebViewBuilder;
 
 mod app;
 mod config;
@@ -218,73 +218,6 @@ where
     fn from(err: E) -> Self {
         Self(err.into())
     }
-}
-
-async fn controller_gc(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-) -> Result<(StatusCode, Json<Value>), AppError> {
-    (StatusCode::OK, Json(serde_json::json!({})))
-}
-
-async fn controller_app_backup(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-    Path(id): Path<String>,
-) -> Result<(StatusCode, Json<Value>), AppError> {
-    (StatusCode::OK, Json(serde_json::json!({})))
-}
-
-async fn controller_app_start(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-    Path(id): Path<String>,
-) -> Result<(StatusCode, Json<Value>), AppError> {
-    (StatusCode::OK, Json(serde_json::json!({})))
-}
-
-async fn controller_app_stop(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-    Path(id): Path<String>,
-) -> Result<(StatusCode, Json<Value>), AppError> {
-    (StatusCode::OK, Json(serde_json::json!({})))
-}
-
-async fn controller_window_open(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-) -> Result<(StatusCode, Json<Value>), AppError> {
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new()
-        .build(&event_loop)
-        .context("Failed to create window")?;
-
-    let builder = WebViewBuilder::new().with_url("https://tauri.app");
-
-    #[cfg(not(target_os = "linux"))]
-    let webview = builder.build(&window).context("Failed to create webview")?;
-    #[cfg(target_os = "linux")]
-    let webview = builder
-        .build_gtk(window.gtk_window())
-        .context("Failed to create webview")?;
-
-    (StatusCode::OK, Json(serde_json::json!({})))
-}
-
-async fn controller_window_close(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-    Path(id): Path<String>,
-) -> Result<(StatusCode, Json<Value>), AppError> {
-    (StatusCode::OK, Json(serde_json::json!({})))
-}
-
-async fn handler_notfound(
-    State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
-) -> (StatusCode, [u8; 0]) {
-    (StatusCode::NOT_FOUND, [])
 }
 
 // region: WryState

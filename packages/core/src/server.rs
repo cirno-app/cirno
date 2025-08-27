@@ -11,9 +11,10 @@ use axum_extra::{
 };
 use log::info;
 use serde::Serialize;
-use std::fmt::Debug;
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 use wry::http::StatusCode;
+
+pub mod controller;
 
 #[derive(FromRequest)]
 #[from_request(via(Json), rejection(ApiError))]
