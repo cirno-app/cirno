@@ -12,7 +12,8 @@ documentation.workspace = true
 [dependencies]
 anyhow = "1.0.98"
 arc-swap = "1.7.1"
-axum = { version = "0.8.4", features = ["http2"] }
+axum = { version = "0.8.4", features = ["http2", "macros"] }
+axum-extra = { version = "0.10.1", features = ["typed-header"] }
 clap = { version = "4.5.38", features = ["derive"] }
 clap-verbosity-flag = "3.0.3"
 env_logger = "0.11.8"
