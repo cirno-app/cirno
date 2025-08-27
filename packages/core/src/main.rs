@@ -4,6 +4,7 @@ use crate::{
     config::{EnvironmentState, load_config},
     daemon::ProcessDaemon,
     log::CombinedLogger,
+    server::AppClaim,
 };
 use ::log::{debug, error, info};
 use anyhow::{Context, Error, Result};
@@ -37,6 +38,7 @@ mod config;
 mod daemon;
 mod log;
 mod proc;
+mod server;
 
 #[derive(Debug, Parser)]
 struct Cli {
@@ -220,12 +222,14 @@ where
 
 async fn controller_gc(
     State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
 async fn controller_app_backup(
     State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
@@ -233,6 +237,7 @@ async fn controller_app_backup(
 
 async fn controller_app_start(
     State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
@@ -240,6 +245,7 @@ async fn controller_app_start(
 
 async fn controller_app_stop(
     State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
@@ -247,6 +253,7 @@ async fn controller_app_stop(
 
 async fn controller_window_open(
     State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
@@ -267,12 +274,16 @@ async fn controller_window_open(
 
 async fn controller_window_close(
     State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
     Path(id): Path<String>,
 ) -> Result<(StatusCode, Json<Value>), AppError> {
     (StatusCode::OK, Json(serde_json::json!({})))
 }
 
-async fn handler_notfound(State(app_state): State<Arc<AppState>>) -> (StatusCode, [u8; 0]) {
+async fn handler_notfound(
+    State(app_state): State<Arc<AppState>>,
+    claim: AppClaim,
+) -> (StatusCode, [u8; 0]) {
     (StatusCode::NOT_FOUND, [])
 }
 

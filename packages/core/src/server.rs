@@ -1,3 +1,4 @@
+use crate::AppState;
 use axum::{
     Json, RequestPartsExt,
     extract::{FromRequest, FromRequestParts},
@@ -11,6 +12,7 @@ use axum_extra::{
 use log::info;
 use serde::Serialize;
 use std::fmt::Debug;
+use std::sync::Arc;
 use wry::http::StatusCode;
 
 #[derive(FromRequest)]
@@ -44,26 +46,26 @@ where
     }
 }
 
-struct AppClaim {}
+pub struct AppClaim {}
 
-impl<S> FromRequestParts<S> for AppClaim
-where
-    S: Send + Sync,
-{
+impl FromRequestParts<Arc<AppState>> for AppClaim {
     type Rejection = ApiError;
 
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
+            // Return "403 Forbidden" for both authorization and authentication failures,
+            // but also log the specific reason for the failure.
+            // This prevents attackers from obtaining detailed information,
+            // while allowing service owners to troubleshoot in logs.
             .map_err(|err| {
                 info!("");
                 ApiError::AuthorizationError
             })?;
-        // Return "403 Forbidden" for both authorization and authentication failures,
-        // but also log the specific reason for the failure.
-        // This prevents attackers from obtaining detailed information,
-        // while allowing service owners to troubleshoot in logs.
 
         todo!()
     }
@@ -75,7 +77,7 @@ struct ErrorResponseBody {
     msg: String,
 }
 
-enum ApiError {
+pub enum ApiError {
     InvalidJsonError,
     AuthorizationError,
 }
