@@ -30,7 +30,10 @@ use std::{
 };
 use tap::Tap;
 use thiserror::Error;
-use tokio::{select, spawn, sync::oneshot::{channel, Sender}};
+use tokio::{
+    select, spawn,
+    sync::oneshot::{Sender, channel},
+};
 use tokio_util::sync::CancellationToken;
 
 mod app;
@@ -178,11 +181,57 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             // Init graceful shutdown on main thread
 
             // 1. Wait for shutdown signals
-            #[cfg(target_os = "widnows")]
-            select! {}
+            #[cfg(target_os = "windows")]
+            select! {
+                // Some signals do not work on Windows 7.
+                // Fill Err arm with std::future::pending.
+                //
+                // SIGQUIT
+                _ = async {
+                    match tokio::signal::windows::ctrl_break() {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
+                // SIGINT
+                _ = async {
+                    match tokio::signal::windows::ctrl_c() {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
+                // SIGTERM, "the normal way to politely ask a program to terminate"
+                _ = async {
+                    match tokio::signal::windows::ctrl_close() {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
+                _ = async {
+                    match tokio::signal::windows::ctrl_logoff() {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
+                _ = async {
+                    match tokio::signal::windows::ctrl_shutdown() {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
+            }
 
             #[cfg(not(target_os = "windows"))]
-            select! {}
+            select! {
+                // SIGTERM, "the normal way to politely ask a program to terminate"
+                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()).recv().await => shutdown_token.cancel(),
+                // SIGINT, Ctrl-C
+                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt()).recv().await => shutdown_token.cancel(),
+                // SIGQUIT, Ctrl-\
+                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::quit()).recv().await => shutdown_token.cancel(),
+                // SIGHUP, Terminal disconnected. SIGHUP also needs gracefully terminating
+                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::hangup()).recv().await => shutdown_token.cancel(),
+            }
         }
 
         Commands::Start(_args) => {
