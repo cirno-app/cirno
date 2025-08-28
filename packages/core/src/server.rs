@@ -1,7 +1,7 @@
 use crate::AppState;
 use axum::{
     Json, RequestPartsExt,
-    extract::{FromRequest, FromRequestParts},
+    extract::{FromRequest, FromRequestParts, rejection::JsonRejection},
     http::request::Parts,
     response::{IntoResponse, Response},
 };
@@ -79,17 +79,23 @@ struct ErrorResponseBody {
 }
 
 pub enum ApiError {
-    InvalidJsonError,
+    InvalidJsonError(String),
     AuthorizationError,
 }
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
         let (code, msg) = match self {
-            ApiError::InvalidJsonError => (StatusCode::BAD_REQUEST.as_u16(), "".to_owned()),
+            ApiError::InvalidJsonError(body) => (StatusCode::BAD_REQUEST.as_u16(), body),
             ApiError::AuthorizationError => (StatusCode::FORBIDDEN.as_u16(), "".to_owned()),
         };
 
         (StatusCode::OK, ApiJson(ErrorResponseBody { code, msg })).into_response()
+    }
+}
+
+impl From<JsonRejection> for ApiError {
+    fn from(value: JsonRejection) -> Self {
+        ApiError::InvalidJsonError(value.body_text())
     }
 }
