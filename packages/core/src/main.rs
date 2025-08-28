@@ -30,7 +30,7 @@ use std::{
 };
 use tap::Tap;
 use thiserror::Error;
-use tokio::spawn;
+use tokio::{select, spawn, sync::oneshot::{channel, Sender}};
 use tokio_util::sync::CancellationToken;
 
 mod app;
@@ -115,11 +115,13 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     match &cli.command {
         Commands::Run(_args) => {
 
+            let (shutdown_tx, shutdown_rx) = channel();
+
             let app_state = Arc::new_cyclic(|app_state| {
                 AppState {
                     env,
 
-                    shutdown_token: CancellationToken::new(),
+                    shutdown_tx,
 
                     wry: WryStateRegistry::new(),
 
@@ -157,12 +159,13 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
             // Start Server
             let app_state = app_state.clone();
-            let shutdown_token = app_state.shutdown_token.clone();
+            let shutdown_token = CancellationToken::new();
+            let server_shutdown_token = shutdown_token.clone();
 
             spawn(async move {
                 let result = axum::serve(listener, app)
                     .with_graceful_shutdown(async move {
-                        shutdown_token.cancelled().await;
+                        server_shutdown_token.cancelled().await;
                     })
                     .await;
 
@@ -171,6 +174,15 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                     app_state.shutdown();
                 }
             });
+
+            // Init graceful shutdown on main thread
+
+            // 1. Wait for shutdown signals
+            #[cfg(target_os = "widnows")]
+            select! {}
+
+            #[cfg(not(target_os = "windows"))]
+            select! {}
         }
 
         Commands::Start(_args) => {
@@ -186,7 +198,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 struct AppState {
     env: EnvironmentState,
 
-    shutdown_token: CancellationToken,
+    shutdown_tx: Sender<()>,
 
     wry: WryStateRegistry,
 
@@ -195,7 +207,7 @@ struct AppState {
 
 impl AppState {
     fn shutdown(&self) {
-        self.shutdown_token.cancel();
+        self.shutdown_tx.send(());
     }
 }
 
