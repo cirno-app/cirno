@@ -181,77 +181,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             // Init graceful shutdown on main thread
 
             // 1. Wait for shutdown signals
-            #[cfg(target_os = "windows")]
-            select! {
-                // Some signals do not work on Windows 7.
-                // Fill Err arm with std::future::pending.
-                //
-                // SIGQUIT
-                _ = async {
-                    match tokio::signal::windows::ctrl_break() {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                // SIGINT
-                _ = async {
-                    match tokio::signal::windows::ctrl_c() {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                // SIGTERM, "the normal way to politely ask a program to terminate"
-                _ = async {
-                    match tokio::signal::windows::ctrl_close() {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                _ = async {
-                    match tokio::signal::windows::ctrl_logoff() {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                _ = async {
-                    match tokio::signal::windows::ctrl_shutdown() {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-            }
-
-            #[cfg(not(target_os = "windows"))]
-            select! {
-                // SIGTERM, "the normal way to politely ask a program to terminate"
-                _ = async {
-                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                // SIGINT, Ctrl-C
-                _ = async {
-                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt()) {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                // SIGQUIT, Ctrl-\
-                _ = async {
-                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::quit()) {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-                // SIGHUP, Terminal disconnected. SIGHUP also needs gracefully terminating
-                _ = async {
-                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::hangup()) {
-                        Ok(mut signal) => signal.recv().await,
-                        Err(_) => std::future::pending().await,
-                    }
-                } => shutdown_token.cancel(),
-            }
+            shutdown_signal_received(shutdown_rx, shutdown_token).await;
         }
 
         Commands::Start(_args) => {
@@ -386,3 +316,86 @@ impl WryStateRegistry {
 }
 
 // endregion
+
+async fn shutdown_signal_received(
+    shutdown_rx: tokio::sync::oneshot::Receiver<()>,
+    shutdown_token: CancellationToken,
+) {
+    #[cfg(target_os = "windows")]
+    let signal = select! {
+        // Some signals do not work on Windows 7.
+        // Fill Err arm with std::future::pending.
+        //
+        // SIGQUIT
+        _ = async {
+            match tokio::signal::windows::ctrl_break() {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGQUIT",
+        // SIGINT
+        _ = async {
+            match tokio::signal::windows::ctrl_c() {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGINT",
+        // SIGTERM, "the normal way to politely ask a program to terminate"
+        _ = async {
+            match tokio::signal::windows::ctrl_close() {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGTERM",
+        _ = async {
+            match tokio::signal::windows::ctrl_logoff() {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "Logoff",
+        _ = async {
+            match tokio::signal::windows::ctrl_shutdown() {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "Shutdown",
+        _ = shutdown_rx => "Shutdown",
+    };
+
+    #[cfg(not(target_os = "windows"))]
+    let signal = select! {
+        // SIGTERM, "the normal way to politely ask a program to terminate"
+        _ = async {
+            match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGTERM",
+        // SIGINT, Ctrl-C
+        _ = async {
+            match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt()) {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGINT",
+        // SIGQUIT, Ctrl-\
+        _ = async {
+            match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::quit()) {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGQUIT",
+        // SIGHUP, Terminal disconnected. SIGHUP also needs gracefully terminating
+        _ = async {
+            match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::hangup()) {
+                Ok(mut signal) => signal.recv().await,
+                Err(_) => std::future::pending().await,
+            }
+        } => "SIGHUP",
+        _ = shutdown_rx => "Shutdown",
+    };
+
+    info!("{} signal received, starting to shutdown", signal);
+
+    shutdown_token.cancel();
+}
