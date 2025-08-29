@@ -178,10 +178,8 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 }
             });
 
-            // Init graceful shutdown on main thread
-
-            // 1. Wait for shutdown signals
-            shutdown_signal_received(shutdown_rx, shutdown_token).await;
+            // Graceful shutdown on main thread
+            graceful_shutdown(shutdown_rx, shutdown_token).await;
         }
 
         Commands::Start(_args) => {
@@ -317,12 +315,22 @@ impl WryStateRegistry {
 
 // endregion
 
-async fn shutdown_signal_received(
+async fn graceful_shutdown(
     shutdown_rx: tokio::sync::oneshot::Receiver<()>,
     shutdown_token: CancellationToken,
 ) {
+    // 1. Wait for shutdown signals
+    let signal = shutdown_signal_received(shutdown_rx).await;
+
+    info!("{} signal received, starting to shutdown", signal);
+
+    // 2. Tell all components to shutdown
+    shutdown_token.cancel();
+}
+
+async fn shutdown_signal_received(shutdown_rx: tokio::sync::oneshot::Receiver<()>) -> &'static str {
     #[cfg(target_os = "windows")]
-    let signal = select! {
+    select! {
         // Some signals do not work on Windows 7.
         // Fill Err arm with std::future::pending.
         //
@@ -360,10 +368,10 @@ async fn shutdown_signal_received(
             }
         } => "Shutdown",
         _ = shutdown_rx => "Shutdown",
-    };
+    }
 
     #[cfg(not(target_os = "windows"))]
-    let signal = select! {
+    select! {
         // SIGTERM, "the normal way to politely ask a program to terminate"
         _ = async {
             match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
@@ -393,9 +401,5 @@ async fn shutdown_signal_received(
             }
         } => "SIGHUP",
         _ = shutdown_rx => "Shutdown",
-    };
-
-    info!("{} signal received, starting to shutdown", signal);
-
-    shutdown_token.cancel();
+    }
 }
