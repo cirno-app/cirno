@@ -124,7 +124,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 AppState {
                     env,
 
-                    shutdown_tx,
+                    shutdown_tx: Some(shutdown_tx),
 
                     wry: WryStateRegistry::new(),
 
@@ -195,7 +195,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 struct AppState {
     env: EnvironmentState,
 
-    shutdown_tx: Sender<()>,
+    shutdown_tx: Option<Sender<()>>,
 
     wry: WryStateRegistry,
 
@@ -203,8 +203,8 @@ struct AppState {
 }
 
 impl AppState {
-    fn shutdown(&self) {
-        self.shutdown_tx.send(());
+    fn shutdown(&mut self) {
+        self.shutdown_tx.take().unwrap().send(());
     }
 }
 
