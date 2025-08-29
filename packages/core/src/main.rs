@@ -224,13 +224,33 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             #[cfg(not(target_os = "windows"))]
             select! {
                 // SIGTERM, "the normal way to politely ask a program to terminate"
-                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()).recv().await => shutdown_token.cancel(),
+                _ = async {
+                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
                 // SIGINT, Ctrl-C
-                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt()).recv().await => shutdown_token.cancel(),
+                _ = async {
+                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt()) {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
                 // SIGQUIT, Ctrl-\
-                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::quit()).recv().await => shutdown_token.cancel(),
+                _ = async {
+                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::quit()) {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
                 // SIGHUP, Terminal disconnected. SIGHUP also needs gracefully terminating
-                _ = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::hangup()).recv().await => shutdown_token.cancel(),
+                _ = async {
+                    match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::hangup()) {
+                        Ok(mut signal) => signal.recv().await,
+                        Err(_) => std::future::pending().await,
+                    }
+                } => shutdown_token.cancel(),
             }
         }
 
