@@ -30,10 +30,7 @@ use std::{
 };
 use tap::Tap;
 use thiserror::Error;
-use tokio::{
-    select, spawn,
-    sync::oneshot::{Sender, channel},
-};
+use tokio::{select, spawn, sync::Notify};
 use tokio_util::sync::CancellationToken;
 
 mod app;
@@ -118,13 +115,13 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     match &cli.command {
         Commands::Run(_args) => {
 
-            let (shutdown_tx, shutdown_rx) = channel();
+            let shutdown_notify = Arc::new(Notify::const_new());
 
             let app_state = Arc::new_cyclic(|app_state| {
                 AppState {
                     env,
 
-                    shutdown_tx: Some(shutdown_tx),
+                    shutdown_notify: shutdown_notify.clone(),
 
                     wry: WryStateRegistry::new(),
 
@@ -172,14 +169,14 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                     })
                     .await;
 
-                if let Result::Err(err) = result {
+                if let Err(err) = result {
                     error!("{err}");
                     app_state.shutdown();
                 }
             });
 
             // Graceful shutdown on main thread
-            graceful_shutdown(shutdown_rx, shutdown_token).await;
+            graceful_shutdown(shutdown_notify, shutdown_token).await;
         }
 
         Commands::Start(_args) => {
@@ -195,7 +192,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 struct AppState {
     env: EnvironmentState,
 
-    shutdown_tx: Option<Sender<()>>,
+    shutdown_notify: Arc<Notify>,
 
     wry: WryStateRegistry,
 
@@ -203,8 +200,8 @@ struct AppState {
 }
 
 impl AppState {
-    fn shutdown(&mut self) {
-        self.shutdown_tx.take().unwrap().send(());
+    fn shutdown(&self) {
+        self.shutdown_notify.notify_one();
     }
 }
 
@@ -315,12 +312,9 @@ impl WryStateRegistry {
 
 // endregion
 
-async fn graceful_shutdown(
-    shutdown_rx: tokio::sync::oneshot::Receiver<()>,
-    shutdown_token: CancellationToken,
-) {
+async fn graceful_shutdown(shutdown_notify: Arc<Notify>, shutdown_token: CancellationToken) {
     // 1. Wait for shutdown signals
-    let signal = shutdown_signal_received(shutdown_rx).await;
+    let signal = shutdown_signal_received(shutdown_notify).await;
 
     info!("{} signal received, starting to shutdown", signal);
 
@@ -328,7 +322,7 @@ async fn graceful_shutdown(
     shutdown_token.cancel();
 }
 
-async fn shutdown_signal_received(shutdown_rx: tokio::sync::oneshot::Receiver<()>) -> &'static str {
+async fn shutdown_signal_received(shutdown_notify: Arc<Notify>) -> &'static str {
     #[cfg(target_os = "windows")]
     select! {
         // Some signals do not work on Windows 7.
@@ -367,7 +361,7 @@ async fn shutdown_signal_received(shutdown_rx: tokio::sync::oneshot::Receiver<()
                 Err(_) => std::future::pending().await,
             }
         } => "Shutdown",
-        _ = shutdown_rx => "Shutdown",
+        _ = shutdown_notify.notified() => "Shutdown",
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -400,6 +394,6 @@ async fn shutdown_signal_received(shutdown_rx: tokio::sync::oneshot::Receiver<()
                 Err(_) => std::future::pending().await,
             }
         } => "SIGHUP",
-        _ = shutdown_rx => "Shutdown",
+        _ = shutdown_notify.notified() => "Shutdown",
     }
 }
