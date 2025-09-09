@@ -47,9 +47,9 @@ where
     }
 }
 
-pub struct AppClaim {}
+pub struct ServiceClaim {}
 
-impl FromRequestParts<Arc<AppState>> for AppClaim {
+impl FromRequestParts<Arc<AppState>> for ServiceClaim {
     type Rejection = ApiError;
 
     async fn from_request_parts(

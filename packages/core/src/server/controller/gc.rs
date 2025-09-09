@@ -1,6 +1,6 @@
 use crate::{
     AppError, AppState,
-    server::{ApiJson, AppClaim},
+    server::{ApiJson, ServiceClaim},
 };
 use axum::{Json, debug_handler, extract::State, http::StatusCode};
 use serde::Serialize;
@@ -13,7 +13,7 @@ pub struct Response {}
 #[debug_handler]
 pub async fn controller_gc(
     State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
+    claim: ServiceClaim,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
     Ok(ApiJson(Response {}))
 }

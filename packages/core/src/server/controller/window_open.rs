@@ -1,4 +1,4 @@
-use crate::{AppError, AppState, server::ApiJson, server::AppClaim, webview::WryCreateOptions};
+use crate::{AppError, AppState, server::ApiJson, server::ServiceClaim};
 use axum::{debug_handler, extract::State};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -20,7 +20,7 @@ pub struct Response {
 #[debug_handler]
 pub async fn controller_window_open(
     State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
+    claim: ServiceClaim,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
