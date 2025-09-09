@@ -109,7 +109,7 @@ pub enum ApiError {
 }
 
 impl IntoResponse for ApiError {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(self) -> Response {
         let (code, msg) = match self {
             ApiError::InvalidJsonError(body) => (StatusCode::BAD_REQUEST.as_u16(), body),
             ApiError::AuthorizationError => (StatusCode::FORBIDDEN.as_u16(), "".to_owned()),
