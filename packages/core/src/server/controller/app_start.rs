@@ -16,5 +16,7 @@ pub async fn controller_app_start(
     claim: AppClaim,
     Path(id): Path<String>,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
+    app_state.process_daemon.start(&id);
+
     Ok(ApiJson(Response {}))
 }
