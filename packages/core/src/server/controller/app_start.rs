@@ -13,7 +13,6 @@ pub struct Response {}
 #[debug_handler]
 pub async fn controller_app_start(
     State(app_state): State<Arc<AppState>>,
-    claim: AppClaim,
     Path(id): Path<String>,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
     app_state.process_daemon.start(&id);
