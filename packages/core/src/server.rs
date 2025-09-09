@@ -72,6 +72,31 @@ impl FromRequestParts<Arc<AppState>> for ServiceClaim {
     }
 }
 
+pub struct UserClaim {}
+
+impl FromRequestParts<Arc<AppState>> for UserClaim {
+    type Rejection = ApiError;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let TypedHeader(Authorization(bearer)) = parts
+            .extract::<TypedHeader<Authorization<Bearer>>>()
+            .await
+            // Return "403 Forbidden" for both authorization and authentication failures,
+            // but also log the specific reason for the failure.
+            // This prevents attackers from obtaining detailed information,
+            // while allowing service owners to troubleshoot in logs.
+            .map_err(|err| {
+                info!("");
+                ApiError::AuthorizationError
+            })?;
+
+        todo!()
+    }
+}
+
 #[derive(Debug, Serialize)]
 struct ErrorResponseBody {
     code: u16,
