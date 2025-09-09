@@ -18,7 +18,7 @@ pub mod controller;
 
 #[derive(FromRequest)]
 #[from_request(via(Json), rejection(ApiError))]
-struct ApiJson<T>(T);
+pub struct ApiJson<T>(T);
 
 impl<T> IntoResponse for ApiJson<T>
 where
