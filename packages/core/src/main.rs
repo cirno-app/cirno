@@ -117,19 +117,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
             let shutdown_notify = Arc::new(Notify::const_new());
 
-            let app_state = Arc::new_cyclic(|app_state| {
-                AppState {
-                    env,
-
-                    shutdown_notify: shutdown_notify.clone(),
-
-                    wry: WryStateRegistry::new(),
-
-                    // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
-                    // Here we use Box::leak directly.
-                    process_daemon: Box::leak(Box::new(ProcessDaemon::new(app_state.clone()))),
-                }
-            });
+            let app_state = AppState::new(env, &shutdown_notify);
 
             app_state
                 .process_daemon
@@ -200,6 +188,22 @@ struct AppState {
 }
 
 impl AppState {
+    fn new(env: EnvironmentState, shutdown_notify: &Arc<Notify>) -> Arc<AppState> {
+        Arc::new_cyclic(|app_state| {
+            AppState {
+                env,
+
+                shutdown_notify: shutdown_notify.clone(),
+
+                wry: WryStateRegistry::new(),
+
+                // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
+                // Here we use Box::leak directly.
+                process_daemon: Box::leak(Box::new(ProcessDaemon::new(app_state.clone()))),
+            }
+        })
+    }
+
     fn shutdown(&self) {
         self.shutdown_notify.notify_one();
     }
