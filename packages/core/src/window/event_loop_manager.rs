@@ -1,4 +1,5 @@
-use tao::event_loop::{ControlFlow::Wait, EventLoop, EventLoopBuilder};
+use std::sync::Arc;
+use tao::event_loop::{ControlFlow::Wait, EventLoop, EventLoopBuilder, EventLoopProxy};
 
 enum EventLoopManagerEvent<T> {
     CreateWindow,
@@ -9,13 +10,20 @@ pub struct EventLoopInit<T: 'static> {
     event_loop: EventLoop<EventLoopManagerEvent<T>>,
 }
 
-pub struct EventLoopManager<T: 'static> {}
+pub struct EventLoopManager<T: 'static> {
+    proxy: EventLoopProxy<EventLoopManagerEvent<T>>,
+}
 
 impl<T: 'static> EventLoopManager<T> {
-    pub fn new() -> (EventLoopInit<T>, EventLoopManager<T>) {
+    pub fn new() -> (EventLoopInit<T>, Arc<EventLoopManager<T>>) {
         let event_loop = EventLoopBuilder::<EventLoopManagerEvent<T>>::with_user_event().build();
 
-        (EventLoopInit { event_loop }, EventLoopManager::<T> {})
+        let proxy = event_loop.create_proxy();
+
+        (
+            EventLoopInit { event_loop },
+            Arc::new(EventLoopManager::<T> { proxy }),
+        )
     }
 }
 
@@ -25,28 +33,10 @@ impl<T: 'static> EventLoopInit<T> {
             *control_flow = Wait;
 
             match event {
-                tao::event::Event::NewEvents(start_cause) => todo!(),
-                tao::event::Event::WindowEvent {
-                    window_id, event, ..
-                } => todo!(),
-                tao::event::Event::DeviceEvent {
-                    device_id, event, ..
-                } => todo!(),
                 tao::event::Event::UserEvent(manager_event) => match manager_event {
                     EventLoopManagerEvent::CreateWindow => todo!(),
                     EventLoopManagerEvent::User(user_event) => todo!(),
                 },
-                tao::event::Event::Suspended => todo!(),
-                tao::event::Event::Resumed => todo!(),
-                tao::event::Event::MainEventsCleared => todo!(),
-                tao::event::Event::RedrawRequested(window_id) => todo!(),
-                tao::event::Event::RedrawEventsCleared => todo!(),
-                tao::event::Event::LoopDestroyed => todo!(),
-                tao::event::Event::Opened { urls } => todo!(),
-                tao::event::Event::Reopen {
-                    has_visible_windows,
-                    ..
-                } => todo!(),
                 _ => {}
             }
         })

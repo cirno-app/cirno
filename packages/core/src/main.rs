@@ -165,7 +165,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 }
             });
 
-            let (event_loop_init, event_loop_manager) = EventLoopManager::new();
+            let (event_loop_init, event_loop_manager) = EventLoopManager::<()>::new();
 
             event_loop_init.run();
 
