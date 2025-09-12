@@ -1,23 +1,27 @@
-use std::sync::Arc;
-use tao::event_loop::{ControlFlow::Wait, EventLoop, EventLoopBuilder, EventLoopProxy};
+use std::{pin::Pin, sync::Arc};
+use tao::{
+    event::Event,
+    event_loop::{ControlFlow::Wait, EventLoop, EventLoopBuilder, EventLoopProxy},
+};
 
-enum DispatcherEvent<T> {
-    CreateWindow,
-    User(T),
+enum DispatcherEvent {
+    Dispatch(Box<dyn FnOnce(Event<'_, Self>) -> ()>),
+    DispatchWait(Box<dyn FnOnce(Event<'_, Self>) -> ()>),
+    DispatchAwait(Box<dyn FnOnce(Event<'_, Self>) -> Pin<Box<dyn Future<Output = ()>>>>),
 }
 
-struct DispatcherIntl<T: 'static> {
-    proxy: EventLoopProxy<DispatcherEvent<T>>,
+struct DispatcherIntl {
+    proxy: EventLoopProxy<DispatcherEvent>,
 }
 
-pub struct Dispatcher<T: 'static> {
-    event_loop: Option<EventLoop<DispatcherEvent<T>>>,
-    intl: Arc<DispatcherIntl<T>>,
+pub struct Dispatcher {
+    event_loop: Option<EventLoop<DispatcherEvent>>,
+    intl: Arc<DispatcherIntl>,
 }
 
-pub struct EventLoopClosed<T>(T);
+pub struct EventLoopClosed;
 
-impl<T> Clone for Dispatcher<T> {
+impl Clone for Dispatcher {
     fn clone(&self) -> Self {
         Self {
             event_loop: None,
@@ -26,15 +30,15 @@ impl<T> Clone for Dispatcher<T> {
     }
 }
 
-impl<T: 'static> Dispatcher<T> {
-    pub fn new() -> Dispatcher<T> {
-        let event_loop = EventLoopBuilder::<DispatcherEvent<T>>::with_user_event().build();
+impl Dispatcher {
+    pub fn new() -> Dispatcher {
+        let event_loop = EventLoopBuilder::<DispatcherEvent>::with_user_event().build();
 
         let proxy = event_loop.create_proxy();
 
         Dispatcher {
             event_loop: Some(event_loop),
-            intl: Arc::new(DispatcherIntl::<T> { proxy }),
+            intl: Arc::new(DispatcherIntl { proxy }),
         }
     }
 
@@ -47,8 +51,9 @@ impl<T: 'static> Dispatcher<T> {
 
                 match event {
                     tao::event::Event::UserEvent(manager_event) => match manager_event {
-                        DispatcherEvent::CreateWindow => todo!(),
-                        DispatcherEvent::User(user_event) => todo!(),
+                        DispatcherEvent::Dispatch(fn_once) => todo!(),
+                        DispatcherEvent::DispatchWait(fn_once) => todo!(),
+                        DispatcherEvent::DispatchAwait(fn_once) => todo!(),
                     },
                     _ => {}
                 }
@@ -56,11 +61,46 @@ impl<T: 'static> Dispatcher<T> {
         }
     }
 
-    pub fn send_event(&self, event: T) -> Result<(), EventLoopClosed<T>> {
-        match self.intl.proxy.send_event(DispatcherEvent::User(event)) {
+    pub fn dispatch<F: FnOnce(Event<'_, DispatcherEvent>) -> () + 'static>(
+        &self,
+        f: F,
+    ) -> Result<(), EventLoopClosed> {
+        match self
+            .intl
+            .proxy
+            .send_event(DispatcherEvent::Dispatch(Box::new(f)))
+        {
             Ok(_) => Ok(()),
             Err(err) => Err(match err.0 {
-                DispatcherEvent::User(event) => EventLoopClosed(event),
+                DispatcherEvent::Dispatch(fn_once) => EventLoopClosed {},
+                _ => panic!(),
+            }),
+        }
+    }
+
+    pub fn dispatch_wait<R, F: FnOnce(Event<'_, DispatcherEvent>) -> R>(&self, f: F) {
+        match self
+            .intl
+            .proxy
+            .send_event(DispatcherEvent::Dispatch(Box::new(f)))
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(match err.0 {
+                DispatcherEvent::Dispatch(fn_once) => EventLoopClosed {},
+                _ => panic!(),
+            }),
+        }
+    }
+
+    pub async fn dispatch_await<R, F: AsyncFnOnce(Event<'_, DispatcherEvent>) -> R>(&self, f: F) {
+        match self
+            .intl
+            .proxy
+            .send_event(DispatcherEvent::Dispatch(Box::new(f)))
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(match err.0 {
+                DispatcherEvent::Dispatch(fn_once) => EventLoopClosed {},
                 _ => panic!(),
             }),
         }
