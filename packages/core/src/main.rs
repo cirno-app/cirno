@@ -9,7 +9,7 @@ use crate::{
         app_stop::controller_app_stop, gc::controller_gc, notfound::handler_notfound,
         window_close::controller_window_close, window_open::controller_window_open,
     },
-    window::event_loop_manager::EventLoopManager,
+    ui_dispatcher::Dispatcher,
 };
 use ::log::{debug, error, info};
 use anyhow::{Context, Error, Result};
@@ -36,6 +36,7 @@ mod daemon;
 mod log;
 mod proc;
 mod server;
+mod ui_dispatcher;
 mod webview;
 mod window;
 
@@ -162,9 +163,9 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 }
             });
 
-            let (event_loop_init, event_loop_manager) = EventLoopManager::<()>::new();
+            let dispatcher = Dispatcher::<()>::new();
 
-            event_loop_init.run();
+            dispatcher.run();
 
             // Graceful shutdown on main thread
             graceful_shutdown(shutdown_notify, shutdown_token).await;
