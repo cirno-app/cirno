@@ -1,9 +1,12 @@
-use anyhow::Result;
+use crate::AppState;
+use anyhow::{Context, Error, Result};
 use std::sync::{
-    Arc, RwLock,
+    Arc, RwLock, Weak,
     atomic::{AtomicU64, Ordering},
 };
+use tao::window::{Window, WindowBuilder};
 use thiserror::Error;
+use wry::WebViewBuilder;
 
 #[derive(Debug, Error)]
 enum WryStateRegistryError {
@@ -15,9 +18,12 @@ enum WryStateRegistryError {
     WindowNotFound(u8),
 }
 
-struct WryState {}
+pub struct WryState {
+    window: Window,
+}
 
-struct WryStateRegistry {
+pub struct WryStateRegistry {
+    app_weak: Weak<AppState>,
     intl: RwLock<WryStateRegistryIntl>,
 }
 
@@ -27,8 +33,9 @@ struct WryStateRegistryIntl {
 }
 
 impl WryStateRegistry {
-    pub fn new() -> Self {
+    pub fn new(app_weak: Weak<AppState>) -> Self {
         Self {
+            app_weak,
             intl: RwLock::new(WryStateRegistryIntl {
                 map: AtomicU64::new(0),
                 reg: [(); 64].map(|_| None),
@@ -36,22 +43,46 @@ impl WryStateRegistry {
         }
     }
 
-    pub fn create(
-        &self,
-        state: WryState,
-    ) -> Result<(u8, Arc<RwLock<WryState>>), WryStateRegistryError> {
+    pub fn create(&self) -> Result<(u8, Arc<RwLock<WryState>>)> {
         let mut intl = self.intl.write().unwrap();
         let bitmap = intl.map.load(Ordering::Acquire);
         let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
 
         match free_bit {
             Some(id) => {
-                let arc = Arc::new(RwLock::new(state));
+                let prev = intl.map.fetch_or(1 << id, Ordering::AcqRel);
+                if (prev & (1 << id)) != 0 {
+                    return Err(WryStateRegistryError::RegistryFull.into());
+                }
+
+                let window = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
+                    |event_loop| -> std::result::Result<_, Error> {
+                        let window = WindowBuilder::new()
+                            .build(event_loop)
+                            .context("Failed to create window")?;
+
+                        let builder = WebViewBuilder::new().with_url("https://tauri.app");
+
+                        #[cfg(not(target_os = "linux"))]
+                        let webview = builder.build(&window).context("Failed to create webview")?;
+                        #[cfg(target_os = "linux")]
+                        let webview = builder
+                            .build_gtk(window.gtk_window())
+                            .context("Failed to create webview")?;
+
+                        Box::leak(Box::new(webview));
+
+                        // Ok((window, webview))
+                        Ok(window)
+                    },
+                )??;
+
+                let arc = Arc::new(RwLock::new(WryState { window }));
                 intl.reg[id] = Some(arc.clone());
 
                 Ok((id as u8, arc))
             }
-            None => Err(WryStateRegistryError::RegistryFull),
+            None => Err(WryStateRegistryError::RegistryFull.into()),
         }
     }
 
