@@ -10,6 +10,7 @@ use crate::{
         window_close::controller_window_close, window_open::controller_window_open,
     },
     ui_dispatcher::Dispatcher,
+    webview::WryStateRegistry,
 };
 use ::log::{debug, error, info};
 use anyhow::{Context, Error, Result};
@@ -115,9 +116,14 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     match &cli.command {
         Commands::Run(_args) => {
 
-            let shutdown_notify = Arc::new(Notify::const_new());
+            // let shutdown_notify = Arc::new(Notify::const_new());
 
-            let app_state = AppState::new(env, &shutdown_notify);
+            let (dispatcher_init, dispatcher) = Dispatcher::new();
+
+            let app_state = AppState::new(
+                env, // &shutdown_notify,
+                dispatcher,
+            );
 
             app_state
                 .process_daemon
@@ -163,12 +169,10 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 }
             });
 
-            let dispatcher = Dispatcher::<()>::new();
-
-            dispatcher.run();
+            dispatcher_init.run();
 
             // Graceful shutdown on main thread
-            graceful_shutdown(shutdown_notify, shutdown_token).await;
+            // graceful_shutdown(shutdown_notify, shutdown_token).await;
         }
 
         Commands::Start(_args) => {
@@ -184,7 +188,8 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 struct AppState {
     env: EnvironmentState,
 
-    shutdown_notify: Arc<Notify>,
+    // shutdown_notify: Arc<Notify>,
+    dispatcher: Dispatcher,
 
     wry: WryStateRegistry,
 
@@ -192,14 +197,19 @@ struct AppState {
 }
 
 impl AppState {
-    fn new(env: EnvironmentState, shutdown_notify: &Arc<Notify>) -> Arc<AppState> {
+    fn new(
+        env: EnvironmentState,
+        // shutdown_notify: &Arc<Notify>,
+        dispatcher: Dispatcher,
+    ) -> Arc<AppState> {
         Arc::new_cyclic(|app_state| {
             AppState {
                 env,
 
-                shutdown_notify: shutdown_notify.clone(),
+                // shutdown_notify: shutdown_notify.clone(),
+                dispatcher,
 
-                wry: WryStateRegistry::new(),
+                wry: WryStateRegistry::new(app_state.clone()),
 
                 // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
                 // Here we use Box::leak directly.
@@ -209,7 +219,7 @@ impl AppState {
     }
 
     fn shutdown(&self) {
-        self.shutdown_notify.notify_one();
+        // self.shutdown_notify.notify_one();
     }
 }
 
