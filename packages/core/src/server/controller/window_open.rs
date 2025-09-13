@@ -1,40 +1,23 @@
-use crate::{AppError, AppState, server::ApiJson, server::ServiceClaim};
+use crate::{
+    AppError, AppState,
+    server::{ApiJson, ServiceClaim},
+};
+use anyhow::{Context, Error};
 use axum::{debug_handler, extract::State};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::sync::Arc;
-use anyhow::Context;
-use tao::{event_loop::EventLoop, window::WindowBuilder};
+use tao::window::WindowBuilder;
 use wry::WebViewBuilder;
 
-#[derive(Deserialize)]
-pub struct Request {
-    title: String,
-    url: String,
-}
-
 #[derive(Serialize)]
-pub struct Response {
-    id: u8,
-}
+pub struct Response {}
 
 #[debug_handler]
 pub async fn controller_window_open(
     State(app_state): State<Arc<AppState>>,
     claim: ServiceClaim,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new()
-        .build(&event_loop)
-        .context("Failed to create window")?;
-
-    let builder = WebViewBuilder::new().with_url("https://tauri.app");
-
-    #[cfg(not(target_os = "linux"))]
-    let webview = builder.build(&window).context("Failed to create webview")?;
-    #[cfg(target_os = "linux")]
-    let webview = builder
-        .build_gtk(window.gtk_window())
-        .context("Failed to create webview")?;
+    let (id, state) = app_state.wry.create()?;
 
     Ok(ApiJson(Response {}))
 }
