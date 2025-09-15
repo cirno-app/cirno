@@ -11,7 +11,7 @@ use std::{
 };
 use tao::window::{Window, WindowBuilder};
 use thiserror::Error;
-use wry::WebViewBuilder;
+use wry::{WebView, WebViewBuilder};
 
 #[derive(Debug, Error)]
 enum WryStateRegistryError {
@@ -67,7 +67,7 @@ impl WryStateRegistry {
                 }
 
                 let state = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
-                    |event_loop| -> std::result::Result<_, Error> {
+                    |event_loop| -> core::result::Result<_, Error> {
                         let window = WindowBuilder::new()
                             .build(event_loop)
                             .context("Failed to create window")?;
@@ -79,7 +79,7 @@ impl WryStateRegistry {
                         let wv_state = state.clone();
 
                         spawn(|| match wv_run(wv_state, rx) {
-                            std::result::Result::Ok(_) => (),
+                            core::result::Result::Ok(_) => (),
                             Err(err) => {
                                 error!("{err:?}");
                             }
@@ -97,39 +97,65 @@ impl WryStateRegistry {
         }
     }
 
-    pub fn get(&self, id: u8) -> Result<Arc<WryState>> {
+    pub fn get(&self, id: u8) -> core::result::Result<Arc<WryState>, WryStateRegistryError> {
         let intl = self.intl.read().unwrap();
 
         if id >= 64 {
-            return Err(WryStateRegistryError::InvalidId(id).into());
+            return Err(WryStateRegistryError::InvalidId(id));
         }
 
         intl.reg[id as usize]
             .as_ref()
             .map(Arc::clone)
-            .ok_or(WryStateRegistryError::WindowNotFound(id).into())
+            .ok_or(WryStateRegistryError::WindowNotFound(id))
     }
 
-    pub fn destroy(&self, id: u8) -> Result<()> {
+    pub fn destroy(&self, id: u8) -> core::result::Result<(), WryStateRegistryError> {
         let mut intl = self.intl.write().unwrap();
 
         if id >= 64 {
-            return Err(WryStateRegistryError::InvalidId(id).into());
+            return Err(WryStateRegistryError::InvalidId(id));
         }
 
         let state = intl.reg[id as usize].take();
 
         let Some(state) = state else {
-            return Err(WryStateRegistryError::WindowNotFound(id).into());
+            return Err(WryStateRegistryError::WindowNotFound(id));
         };
 
         intl.map.fetch_and(!(1 << id), Ordering::AcqRel);
 
-        Ok(())
+        core::result::Result::Ok(())
     }
 }
 
-enum WvEvent {}
+impl WryState {
+    fn dispatch<R: 'static + Send, F: 'static + FnOnce(&WebView) -> R + Send>(
+        &self,
+        f: F,
+    ) -> core::result::Result<R, EventLoopClosed> {
+        let (dispatch_tx, dispatch_rx) = sync_channel(0);
+
+        match self.tx.send(WvEvent::Dispatch(Box::new(move |webview| {
+            dispatch_tx.send(f(webview)).unwrap();
+        }))) {
+            core::result::Result::Ok(_) => core::result::Result::Ok(()),
+            Err(err) => Err(match err.0 {
+                WvEvent::Dispatch(_) => EventLoopClosed {},
+            }),
+        }?;
+
+        core::result::Result::Ok(dispatch_rx.recv().unwrap())
+    }
+}
+
+#[derive(Error, Debug)]
+#[error("event loop closed")]
+struct EventLoopClosed;
+
+enum WvEvent {
+    Dispatch(Box<dyn FnOnce(&WebView) -> () + Send>),
+}
 
 fn wv_run(state: Arc<WryState>, rx: Receiver<WvEvent>) -> Result<()> {
     let builder = WebViewBuilder::new().with_url("https://tauri.app");
