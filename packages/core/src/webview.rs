@@ -1,8 +1,13 @@
 use crate::AppState;
-use anyhow::{Context, Error, Result};
-use std::sync::{
-    Arc, RwLock, Weak,
-    atomic::{AtomicU64, Ordering},
+use anyhow::{Context, Error, Ok, Result};
+use log::error;
+use std::{
+    sync::{
+        Arc, RwLock, Weak,
+        atomic::{AtomicU64, Ordering},
+        mpsc::{Receiver, SyncSender, sync_channel},
+    },
+    thread::spawn,
 };
 use tao::window::{Window, WindowBuilder};
 use thiserror::Error;
@@ -20,6 +25,12 @@ enum WryStateRegistryError {
 
 pub struct WryState {
     window: Window,
+    tx: SyncSender<WvEvent>,
+}
+
+enum A {
+    B,
+    C,
 }
 
 pub struct WryStateRegistry {
@@ -29,7 +40,7 @@ pub struct WryStateRegistry {
 
 struct WryStateRegistryIntl {
     map: AtomicU64,
-    reg: [Option<Arc<RwLock<WryState>>>; 64],
+    reg: [Option<Arc<WryState>>; 64],
 }
 
 impl WryStateRegistry {
@@ -43,7 +54,7 @@ impl WryStateRegistry {
         }
     }
 
-    pub fn create(&self) -> Result<(u8, Arc<RwLock<WryState>>)> {
+    pub fn create(&self) -> Result<(u8, Arc<WryState>)> {
         let mut intl = self.intl.write().unwrap();
         let bitmap = intl.map.load(Ordering::Acquire);
         let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
@@ -55,65 +66,86 @@ impl WryStateRegistry {
                     return Err(WryStateRegistryError::RegistryFull.into());
                 }
 
-                let window = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
+                let state = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
                     |event_loop| -> std::result::Result<_, Error> {
                         let window = WindowBuilder::new()
                             .build(event_loop)
                             .context("Failed to create window")?;
 
-                        let builder = WebViewBuilder::new().with_url("https://tauri.app");
+                        let (tx, rx) = sync_channel(0);
 
-                        #[cfg(not(target_os = "linux"))]
-                        let webview = builder.build(&window).context("Failed to create webview")?;
-                        #[cfg(target_os = "linux")]
-                        let webview = builder
-                            .build_gtk(window.gtk_window())
-                            .context("Failed to create webview")?;
+                        let state = Arc::new(WryState { window, tx });
 
-                        Box::leak(Box::new(webview));
+                        let wv_state = state.clone();
 
-                        // Ok((window, webview))
-                        Ok(window)
+                        spawn(|| match wv_run(wv_state, rx) {
+                            std::result::Result::Ok(_) => (),
+                            Err(err) => {
+                                error!("{err:?}");
+                            }
+                        });
+
+                        Ok(state)
                     },
                 )??;
 
-                let arc = Arc::new(RwLock::new(WryState { window }));
-                intl.reg[id] = Some(arc.clone());
+                intl.reg[id] = Some(state.clone());
 
-                Ok((id as u8, arc))
+                Ok((id as u8, state))
             }
             None => Err(WryStateRegistryError::RegistryFull.into()),
         }
     }
 
-    pub fn get(&self, id: u8) -> Result<Arc<RwLock<WryState>>, WryStateRegistryError> {
+    pub fn get(&self, id: u8) -> Result<Arc<WryState>> {
         let intl = self.intl.read().unwrap();
 
         if id >= 64 {
-            return Err(WryStateRegistryError::InvalidId(id));
+            return Err(WryStateRegistryError::InvalidId(id).into());
         }
 
         intl.reg[id as usize]
             .as_ref()
             .map(Arc::clone)
-            .ok_or(WryStateRegistryError::WindowNotFound(id))
+            .ok_or(WryStateRegistryError::WindowNotFound(id).into())
     }
 
-    pub fn destroy(&self, id: u8) -> Result<(), WryStateRegistryError> {
+    pub fn destroy(&self, id: u8) -> Result<()> {
         let mut intl = self.intl.write().unwrap();
 
         if id >= 64 {
-            return Err(WryStateRegistryError::InvalidId(id));
+            return Err(WryStateRegistryError::InvalidId(id).into());
         }
 
         let state = intl.reg[id as usize].take();
 
         let Some(state) = state else {
-            return Err(WryStateRegistryError::WindowNotFound(id));
+            return Err(WryStateRegistryError::WindowNotFound(id).into());
         };
 
         intl.map.fetch_and(!(1 << id), Ordering::AcqRel);
 
         Ok(())
     }
+}
+
+enum WvEvent {}
+
+fn wv_run(state: Arc<WryState>, rx: Receiver<WvEvent>) -> Result<()> {
+    let builder = WebViewBuilder::new().with_url("https://tauri.app");
+
+    #[cfg(not(target_os = "linux"))]
+    let webview = builder
+        .build(&state.window)
+        .context("Failed to create webview")?;
+    #[cfg(target_os = "linux")]
+    let webview = builder
+        .build_gtk(state.window.gtk_window())
+        .context("Failed to create webview")?;
+
+    loop {
+        let a = rx.recv();
+    }
+
+    Ok(())
 }
