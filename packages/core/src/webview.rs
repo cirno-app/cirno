@@ -30,11 +30,6 @@ pub struct WryState {
     tx: SyncSender<WvEvent>,
 }
 
-enum A {
-    B,
-    C,
-}
-
 pub struct WryStateRegistry {
     app_weak: Weak<AppState>,
     intl: RwLock<WryStateRegistryIntl>,
