@@ -24,6 +24,7 @@ enum WryStateRegistryError {
 }
 
 pub struct WryState {
+    pub id: u8,
     app: Option<Arc<crate::daemon::process::AppProc>>,
     window: Window,
     tx: SyncSender<WvEvent>,
@@ -58,7 +59,7 @@ impl WryStateRegistry {
     pub fn create(
         &self,
         app: Option<Arc<crate::daemon::process::AppProc>>,
-    ) -> Result<(u8, Arc<WryState>)> {
+    ) -> Result<Weak<WryState>> {
         let mut intl = self.intl.write().unwrap();
         let bitmap = intl.map.load(Ordering::Acquire);
         let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
@@ -71,14 +72,19 @@ impl WryStateRegistry {
                 }
 
                 let state = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
-                    |event_loop| -> core::result::Result<_, Error> {
+                    move |event_loop| -> core::result::Result<_, Error> {
                         let window = WindowBuilder::new()
                             .build(event_loop)
                             .context("Failed to create window")?;
 
                         let (tx, rx) = sync_channel(0);
 
-                        let state = Arc::new(WryState { app, window, tx });
+                        let state = Arc::new(WryState {
+                            id: id as u8,
+                            app,
+                            window,
+                            tx,
+                        });
 
                         let wv_state = state.clone();
 
@@ -95,7 +101,7 @@ impl WryStateRegistry {
 
                 intl.reg[id] = Some(state.clone());
 
-                Ok((id as u8, state))
+                Ok(Arc::downgrade(&state))
             }
             None => Err(WryStateRegistryError::RegistryFull.into()),
         }
