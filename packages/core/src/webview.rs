@@ -150,12 +150,18 @@ impl WryState {
             dispatch_tx.send(f(webview)).unwrap();
         }))) {
             core::result::Result::Ok(_) => core::result::Result::Ok(()),
-            Err(err) => Err(match err.0 {
-                WvEvent::Dispatch(_) => EventLoopClosed {},
-            }),
+            Err(_) => Err(EventLoopClosed {}),
         }?;
 
         core::result::Result::Ok(dispatch_rx.recv().unwrap())
+    }
+
+    fn close(&self) -> core::result::Result<(), EventLoopClosed> {
+        // TODO: Should this become impl of Drop trait?
+        match self.tx.send(WvEvent::Close) {
+            core::result::Result::Ok(_) => core::result::Result::Ok(()),
+            Err(_) => Err(EventLoopClosed {}),
+        }
     }
 }
 
@@ -165,6 +171,7 @@ struct EventLoopClosed;
 
 enum WvEvent {
     Dispatch(Box<dyn FnOnce(&WebView) -> () + Send>),
+    Close,
 }
 
 fn wv_run(state: Arc<WryState>, rx: Receiver<WvEvent>) -> Result<()> {
@@ -179,10 +186,8 @@ fn wv_run(state: Arc<WryState>, rx: Receiver<WvEvent>) -> Result<()> {
         .build_gtk(state.window.gtk_window())
         .context("Failed to create webview")?;
 
-    loop {
-        match rx.recv()? {
-            WvEvent::Dispatch(fn_once) => fn_once(&webview),
-        }
+    while let WvEvent::Dispatch(fn_once) = rx.recv()? {
+        fn_once(&webview)
     }
 
     Ok(())
