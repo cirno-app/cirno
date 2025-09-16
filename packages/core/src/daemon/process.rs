@@ -15,10 +15,10 @@ use tokio::{
 
 static ARG_START: LazyLock<Vec<&OsStr>> = LazyLock::new(|| vec![OsStr::new("start")]);
 
-struct DaemonProc {}
+struct AppProc {}
 
 struct ProcessDaemonIntl {
-    reg: [Option<DaemonProc>; 256],
+    reg: [Option<AppProc>; 256],
     name_reg: HashMap<String, u8>,
 }
 
@@ -71,7 +71,7 @@ impl ProcessDaemon {
             bail!("Instance {} already started", name);
         }
 
-        daemon_intl.reg[index_usize] = Some(DaemonProc {});
+        daemon_intl.reg[index_usize] = Some(AppProc {});
         let dp = &daemon_intl.reg[index_usize];
 
         let name = name.to_owned();
