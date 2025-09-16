@@ -15,7 +15,7 @@ use tokio::{
 
 static ARG_START: LazyLock<Vec<&OsStr>> = LazyLock::new(|| vec![OsStr::new("start")]);
 
-struct AppProc {}
+pub struct AppProc {}
 
 struct ProcessDaemonIntl {
     reg: [Option<AppProc>; 256],

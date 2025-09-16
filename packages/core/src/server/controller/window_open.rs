@@ -13,7 +13,7 @@ pub async fn controller_window_open(
     State(app_state): State<Arc<AppState>>,
     claim: ServiceClaim,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
-    let (id, state) = app_state.wry.create()?;
+    let (id, state) = app_state.wry.create(None)?;
 
     Ok(ApiJson(Response { id }))
 }

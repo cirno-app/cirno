@@ -24,6 +24,7 @@ enum WryStateRegistryError {
 }
 
 pub struct WryState {
+    app: Option<Arc<crate::daemon::process::AppProc>>,
     window: Window,
     tx: SyncSender<WvEvent>,
 }
@@ -54,7 +55,10 @@ impl WryStateRegistry {
         }
     }
 
-    pub fn create(&self) -> Result<(u8, Arc<WryState>)> {
+    pub fn create(
+        &self,
+        app: Option<Arc<crate::daemon::process::AppProc>>,
+    ) -> Result<(u8, Arc<WryState>)> {
         let mut intl = self.intl.write().unwrap();
         let bitmap = intl.map.load(Ordering::Acquire);
         let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
@@ -74,7 +78,7 @@ impl WryStateRegistry {
 
                         let (tx, rx) = sync_channel(0);
 
-                        let state = Arc::new(WryState { window, tx });
+                        let state = Arc::new(WryState { app, window, tx });
 
                         let wv_state = state.clone();
 
