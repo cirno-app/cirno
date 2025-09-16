@@ -170,7 +170,9 @@ fn wv_run(state: Arc<WryState>, rx: Receiver<WvEvent>) -> Result<()> {
         .context("Failed to create webview")?;
 
     loop {
-        let a = rx.recv();
+        match rx.recv()? {
+            WvEvent::Dispatch(fn_once) => fn_once(&webview),
+        }
     }
 
     Ok(())
