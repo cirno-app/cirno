@@ -193,7 +193,7 @@ struct AppState {
 
     wry: WryStateRegistry,
 
-    process_daemon: &'static mut ProcessDaemon,
+    process_daemon: ProcessDaemon,
 }
 
 impl AppState {
@@ -211,9 +211,7 @@ impl AppState {
 
                 wry: WryStateRegistry::new(app_state.clone()),
 
-                // As a daemon, ProcessDaemon will of course continue to exist until the program exits.
-                // Here we use Box::leak directly.
-                process_daemon: Box::leak(Box::new(ProcessDaemon::new(app_state.clone()))),
+                process_daemon: ProcessDaemon::new(app_state.clone()),
             }
         })
     }
