@@ -4,7 +4,6 @@ use log::error;
 use std::{
     sync::{
         Arc, RwLock, Weak,
-        atomic::{AtomicU64, Ordering},
         mpsc::{Receiver, SyncSender, sync_channel},
     },
     thread::spawn,
@@ -36,7 +35,7 @@ pub struct WryStateRegistry {
 }
 
 struct WryStateRegistryIntl {
-    map: AtomicU64,
+    map: u64,
     reg: [Option<Arc<WryState>>; 64],
 }
 
@@ -45,7 +44,7 @@ impl WryStateRegistry {
         Self {
             app_weak,
             intl: RwLock::new(WryStateRegistryIntl {
-                map: AtomicU64::new(0),
+                map: 0,
                 reg: [(); 64].map(|_| None),
             }),
         }
@@ -56,15 +55,14 @@ impl WryStateRegistry {
         app: Option<Arc<crate::daemon::process::AppProc>>,
     ) -> Result<Weak<WryState>> {
         let mut intl = self.intl.write().unwrap();
-        let bitmap = intl.map.load(Ordering::Acquire);
-        let free_bit = (0..64).find(|i| (bitmap & (1 << i)) == 0);
+        let free_bit = (0..64).find(|i| (intl.map & (1 << i)) == 0);
 
         match free_bit {
             Some(id) => {
-                let prev = intl.map.fetch_or(1 << id, Ordering::AcqRel);
-                if (prev & (1 << id)) != 0 {
+                if (intl.map & (1 << id)) != 0 {
                     return Err(WryStateRegistryError::RegistryFull.into());
                 }
+                intl.map |= 1 << id;
 
                 let state = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
                     move |event_loop| -> core::result::Result<_, Error> {
@@ -128,7 +126,7 @@ impl WryStateRegistry {
             return Err(WryStateRegistryError::WindowNotFound(id));
         };
 
-        intl.map.fetch_and(!(1 << id), Ordering::AcqRel);
+        intl.map &= (!(1 << id));
 
         core::result::Result::Ok(())
     }
