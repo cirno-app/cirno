@@ -8,6 +8,7 @@ use std::{
     ffi::OsStr,
     sync::{Arc, LazyLock},
 };
+use thiserror::Error;
 use tokio::{
     spawn,
     sync::{Mutex, MutexGuard},
@@ -64,7 +65,7 @@ impl ProcessDaemon {
         mut daemon_intl: MutexGuard<'_, ProcessDaemonIntl>,
         name: &str,
     ) -> Result<()> {
-        let index = daemon_intl.get_index(name);
+        let index = daemon_intl.get_index(name)?;
         let index_usize = index as usize;
 
         if daemon_intl.reg[index_usize].is_some() {
@@ -124,16 +125,26 @@ impl ProcessDaemon {
 }
 
 impl ProcessDaemonIntl {
-    fn get_index(&self, name: &str) -> u8 {
+    fn get_index(&self, name: &str) -> core::result::Result<u8, ProcessDaemonError> {
         let mut index: u8 = 0;
 
         for (n, i) in &self.name_reg {
             if name == n {
-                return *i;
+                return core::result::Result::Ok(*i);
             }
             index += 1;
         }
 
-        index
+        if self.name_reg.len() > 256 {
+            return core::result::Result::Err(ProcessDaemonError::RegistryFull);
+        }
+
+        core::result::Result::Ok(index)
     }
+}
+
+#[derive(Error, Debug)]
+enum ProcessDaemonError {
+    #[error("process daemon registry is full")]
+    RegistryFull,
 }
