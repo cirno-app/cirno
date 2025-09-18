@@ -73,7 +73,7 @@ impl ProcessDaemon {
         }
 
         daemon_intl.reg[index_usize] = Some(AppProc {});
-        let dp = &daemon_intl.reg[index_usize];
+        let app_proc = &daemon_intl.reg[index_usize];
 
         let name = name.to_owned();
 
@@ -117,6 +117,11 @@ impl ProcessDaemon {
             }
 
             {
+                // This is the only place to drop AppProc; only when the process ends should AppProc be cleaned up.
+                // This will actually drop app_proc instantly
+                let app = app.clone();
+                let mut daemon_intl = app.process_daemon.intl.lock().await;
+                daemon_intl.reg[index_usize] = None;
             }
         });
 
