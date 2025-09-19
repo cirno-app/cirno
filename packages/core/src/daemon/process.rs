@@ -127,6 +127,17 @@ impl ProcessDaemon {
 
         Ok(())
     }
+
+    pub async fn claim(&self, token: &str) -> Option<Arc<AppProc>> {
+        let index: u8 = match token.parse() {
+            Ok(index) => index,
+            Err(_) => {
+                return None;
+            }
+        };
+
+        self.intl.lock().await.reg[index as usize].clone()
+    }
 }
 
 impl ProcessDaemonIntl {
