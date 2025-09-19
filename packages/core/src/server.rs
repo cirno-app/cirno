@@ -1,4 +1,4 @@
-use crate::AppState;
+use crate::{AppState, daemon::process::AppProc};
 use axum::{
     Json, RequestPartsExt,
     extract::{FromRequest, FromRequestParts, rejection::JsonRejection},
@@ -49,7 +49,9 @@ where
 
 pub struct UserClaim {}
 
-pub struct ServiceClaim {}
+pub struct ServiceClaim {
+    app_proc: Arc<AppProc>,
+}
 
 pub enum AppClaim {
     User(UserClaim),
@@ -75,7 +77,10 @@ impl FromRequestParts<Arc<AppState>> for AppClaim {
                 ApiError::AuthorizationError
             })?;
 
-        todo!()
+        match state.process_daemon.claim(bearer.token()).await {
+            Some(app_proc) => Ok(AppClaim::Service(ServiceClaim { app_proc })),
+            None => Err(ApiError::AuthorizationError),
+        }
     }
 }
 
