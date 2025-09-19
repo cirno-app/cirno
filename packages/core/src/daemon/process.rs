@@ -19,7 +19,7 @@ static ARG_START: LazyLock<Vec<&OsStr>> = LazyLock::new(|| vec![OsStr::new("star
 pub struct AppProc {}
 
 struct ProcessDaemonIntl {
-    reg: [Option<AppProc>; 256],
+    reg: [Option<Arc<AppProc>>; 256],
     name_reg: HashMap<String, u8>,
 }
 
@@ -72,7 +72,7 @@ impl ProcessDaemon {
             bail!("Instance {} already started", name);
         }
 
-        daemon_intl.reg[index_usize] = Some(AppProc {});
+        daemon_intl.reg[index_usize] = Some(Arc::new(AppProc {}));
         let app_proc = &daemon_intl.reg[index_usize];
 
         let name = name.to_owned();
