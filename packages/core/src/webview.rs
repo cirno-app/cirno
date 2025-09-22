@@ -87,16 +87,29 @@ impl WryStateRegistry {
                             tx,
                         });
 
-                        let wv_state = state.clone();
+                        let builder = WebViewBuilder::new().with_url(options.url);
 
-                        let wv_options = options.clone();
+                        #[cfg(not(target_os = "linux"))]
+                        let webview = builder
+                            .build(&state.window)
+                            .context("Failed to create webview")?;
+                        #[cfg(target_os = "linux")]
+                        let webview = builder
+                            .build_gtk(state.window.gtk_window())
+                            .context("Failed to create webview")?;
 
-                        spawn(|| match wv_run(wv_state, wv_options, rx) {
-                            core::result::Result::Ok(_) => (),
-                            Err(err) => {
-                                error!("{err:?}");
-                            }
-                        });
+                        Box::leak(Box::new(webview));
+
+                        // let wv_state = state.clone();
+
+                        // let wv_options = options.clone();
+
+                        // spawn(|| match wv_run(wv_state, wv_options, rx) {
+                        //     core::result::Result::Ok(_) => (),
+                        //     Err(err) => {
+                        //         error!("{err:?}");
+                        //     }
+                        // });
 
                         Ok(state)
                     },
