@@ -39,6 +39,12 @@ struct WryStateRegistryIntl {
     reg: [Option<Arc<WryState>>; 64],
 }
 
+#[derive(Clone)]
+pub struct WryCreateOptions {
+    pub title: String,
+    pub url: String,
+}
+
 impl WryStateRegistry {
     pub fn new(app_weak: Weak<AppState>) -> Self {
         Self {
@@ -53,6 +59,7 @@ impl WryStateRegistry {
     pub fn create(
         &self,
         app: Option<Arc<crate::daemon::process::AppProc>>,
+        options: WryCreateOptions,
     ) -> Result<Weak<WryState>> {
         let mut intl = self.intl.write().unwrap();
         let free_bit = (0..64).find(|i| (intl.map & (1 << i)) == 0);
@@ -67,6 +74,7 @@ impl WryStateRegistry {
                 let state = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
                     move |event_loop| -> core::result::Result<_, Error> {
                         let window = WindowBuilder::new()
+                            .with_title(options.title.clone())
                             .build(event_loop)
                             .context("Failed to create window")?;
 
@@ -81,7 +89,9 @@ impl WryStateRegistry {
 
                         let wv_state = state.clone();
 
-                        spawn(|| match wv_run(wv_state, rx) {
+                        let wv_options = options.clone();
+
+                        spawn(|| match wv_run(wv_state, wv_options, rx) {
                             core::result::Result::Ok(_) => (),
                             Err(err) => {
                                 error!("{err:?}");
@@ -167,8 +177,8 @@ enum WvEvent {
     Close,
 }
 
-fn wv_run(state: Arc<WryState>, rx: Receiver<WvEvent>) -> Result<()> {
-    let builder = WebViewBuilder::new().with_url("https://tauri.app");
+fn wv_run(state: Arc<WryState>, options: WryCreateOptions, rx: Receiver<WvEvent>) -> Result<()> {
+    let builder = WebViewBuilder::new().with_url(options.url);
 
     #[cfg(not(target_os = "linux"))]
     let webview = builder
