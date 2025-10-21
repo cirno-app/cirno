@@ -1,0 +1,124 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step 1: cirno 1`] = `
+stdout: |
+  cirno/0.3.2
+
+  Usage:
+    $ cirno <command> [options]
+
+  Commands:
+    init                Initialize a new environment
+    create [name]       Create a new application
+    import [src]        Import an application
+    export [id] [dest]  Export an application
+    clone [id]          Clone an application or backup
+    restore [backup]    Restore to a backup
+    backup [id]         Backup an application
+    remove [id]         Remove an application or backup
+    list                List all applications
+    yarn [id]           Execute Yarn in an application
+    gc                  Garbage collection
+
+  For more info, run any command with the \`--help\` flag:
+    $ cirno init --help
+    $ cirno create --help
+    $ cirno import --help
+    $ cirno export --help
+    $ cirno clone --help
+    $ cirno restore --help
+    $ cirno backup --help
+    $ cirno remove --help
+    $ cirno list --help
+    $ cirno yarn --help
+    $ cirno gc --help
+
+  Options:
+    -h, --help     Display this message 
+    -v, --version  Display version number 
+stderr: ''
+code: 0
+signal: null
+entries: []
+
+`;
+
+exports[`step 2: cirno init 1`] = `
+stdout: |2
+   SUCCESS  Cirno environment initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 3: cirno init 1`] = `
+stdout: |2
+   ERROR  Target directory is not empty. Use \`cirno init -f\` to overwrite.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;

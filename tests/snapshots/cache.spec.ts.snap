@@ -1,0 +1,582 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step 1: cirno init 1`] = `
+stdout: |2
+   SUCCESS  Cirno environment initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 2: cirno import /fixtures/base 1`] = `
+stdout: |
+  ➤ YN0000: · Yarn 4.3.1
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done with warnings
+   SUCCESS  Successfully imported instance cd5fbb72.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 3: cirno import /fixtures/dep-1 1`] = `
+stdout: |
+  ➤ YN0000: · Yarn 4.2.2
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done with warnings
+   SUCCESS  Successfully imported instance 5ab7bff9.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups: []
+        - id: 5ab7bff9
+          name: '@fixture/dep-1'
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 4: cirno import /fixtures/dep-2 1`] = `
+stdout: |
+  ➤ YN0000: · Yarn 4.3.1
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done with warnings
+   SUCCESS  Successfully imported instance b6394418.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: 5ab7bff9
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: b6394418
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups: []
+        - id: 5ab7bff9
+          name: '@fixture/dep-1'
+          created: '<timestamp>'
+          backups: []
+        - id: b6394418
+          name: '@fixture/dep-2'
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@types-emscripten-npm-1.39.13-baf7427522-10c0.zip'
+              - type: file
+                name: '@yarnpkg-fslib-npm-3.1.0-821f4faf89-10c0.zip'
+              - type: file
+                name: '@yarnpkg-libzip-npm-3.1.0-73edb40bfc-10c0.zip'
+              - type: file
+                name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-10c0.zip'
+              - type: file
+                name: argparse-npm-1.0.10-528934e59d-10c0.zip
+              - type: file
+                name: esprima-npm-4.0.1-1084e98778-10c0.zip
+              - type: file
+                name: js-yaml-npm-3.14.1-b968c6095e-10c0.zip
+              - type: file
+                name: sprintf-js-npm-1.0.3-73f0a322fa-10c0.zip
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.2.2.cjs
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 5: cirno remove <#2> 1`] = `
+stdout: |2
+   SUCCESS  Instance 5ab7bff9 is successfully removed.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: b6394418
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups: []
+        - id: b6394418
+          name: '@fixture/dep-2'
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries:
+              - type: file
+                name: '@yarnpkg-parsers-npm-3.0.2-c5e3ccc563-10c0.zip'
+              - type: file
+                name: argparse-npm-1.0.10-528934e59d-10c0.zip
+              - type: file
+                name: esprima-npm-4.0.1-1084e98778-10c0.zip
+              - type: file
+                name: js-yaml-npm-3.14.1-b968c6095e-10c0.zip
+              - type: file
+                name: sprintf-js-npm-1.0.3-73f0a322fa-10c0.zip
+              - type: file
+                name: tslib-npm-2.6.3-0fd136b3be-10c0.zip
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 6: cirno remove <#3> 1`] = `
+stdout: |2
+   SUCCESS  Instance b6394418 is successfully removed.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;

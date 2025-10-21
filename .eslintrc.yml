@@ -1,0 +1,13 @@
+root: true
+
+env:
+  node: true
+
+globals:
+  NodeJS: true
+
+extends:
+  - '@cordisjs/eslint-config'
+
+rules:
+  no-console: off

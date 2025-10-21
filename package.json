@@ -1,0 +1,59 @@
+{
+  "name": "cirno",
+  "description": "Zero-Install Package Manager for Node.js",
+  "version": "0.3.3",
+  "packageManager": "yarn@4.3.1",
+  "type": "module",
+  "bin": "lib/cli.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cirno-app/cirno.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cirno-app/cirno/issues"
+  },
+  "homepage": "https://github.com/cirno-app/cirno",
+  "author": "Shigma <shigma10826@gmail.com>",
+  "license": "MIT",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "lint": "eslint --cache",
+    "test": "node --import tsx tests/prepare.ts && vitest run",
+    "test:text": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=text",
+    "test:json": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=json",
+    "test:html": "shx rm -rf coverage && yarn test --coverage.enabled --coverage.reporter=html"
+  },
+  "devDependencies": {
+    "@cordisjs/eslint-config": "^1.1.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/micromatch": "^4.0.9",
+    "@types/node": "^22.7.4",
+    "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^2.0.5",
+    "@yarnpkg/fslib": "^3.1.0",
+    "dumble": "^0.2.1",
+    "esbuild": "^0.23.1",
+    "eslint": "^8.57.0",
+    "shx": "^0.3.4",
+    "tsx": "^4.16.3",
+    "typescript": "^5.6.2",
+    "uuid": "^10.0.0",
+    "vitest": "^2.0.5"
+  },
+  "dependencies": {
+    "@types/tar-fs": "^2.0.4",
+    "@types/tar-stream": "^3.1.3",
+    "@yarnpkg/libzip": "^3.1.0",
+    "@yarnpkg/parsers": "^3.0.2",
+    "cac": "^6.7.14",
+    "js-yaml": "^4.1.0",
+    "kleur": "^4.1.5",
+    "micromatch": "^4.0.7",
+    "semver": "^7.6.3",
+    "tar-fs": "^3.0.6",
+    "tar-stream": "^3.1.7"
+  }
+}

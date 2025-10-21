@@ -1,0 +1,517 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step 1: cirno init 1`] = `
+stdout: |2
+   SUCCESS  Cirno environment initialized at /data.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: releases
+            entries: []
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 2: cirno import /fixtures/base 1`] = `
+stdout: |
+  ➤ YN0000: · Yarn 4.3.1
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: │ ESM support for PnP uses the experimental loader API and is therefore experimental
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done with warnings
+   SUCCESS  Successfully imported instance cd5fbb72.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 3: cirno backup <#1> 1`] = `
+stdout: |2
+   SUCCESS  Successfully created a backup instance 5ab7bff9.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries:
+      - type: file
+        name: cd5fbb72.tar.br
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups:
+            - id: 5ab7bff9
+              type: manual
+              created: '<timestamp>'
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 4: cirno backup <#2> 1`] = `
+stdout: |2
+   ERROR  Cannot backup a base instance.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries:
+      - type: file
+        name: cd5fbb72.tar.br
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups:
+            - id: 5ab7bff9
+              type: manual
+              created: '<timestamp>'
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 5: cirno backup <#1> 1`] = `
+stdout: |2
+   SUCCESS  Successfully created a backup instance b6394418.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries:
+      - type: file
+        name: cd5fbb72.tar.br
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups:
+            - id: 5ab7bff9
+              type: manual
+              created: '<timestamp>'
+            - id: b6394418
+              type: manual
+              created: '<timestamp>'
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 6: cirno remove <#2> 1`] = `
+stdout: |2
+   SUCCESS  Instance 5ab7bff9 is successfully removed.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries:
+      - type: directory
+        name: cd5fbb72
+        entries:
+          - type: file
+            name: .pnp.cjs
+          - type: file
+            name: .pnp.loader.mjs
+          - type: directory
+            name: .yarn
+            entries:
+              - type: file
+                name: install-state.gz
+          - type: file
+            name: .yarnrc.yml
+            content: |
+              enableTelemetry: false
+
+              enableTips: false
+
+              nodeLinker: pnp
+          - type: file
+            name: package.json
+          - type: file
+            name: yarn.lock
+  - type: directory
+    name: baka
+    entries:
+      - type: file
+        name: cd5fbb72.tar.br
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps:
+        - id: cd5fbb72
+          name: '@fixture/base'
+          created: '<timestamp>'
+          backups:
+            - id: b6394418
+              type: manual
+              created: '<timestamp>'
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries:
+              - type: file
+                name: yarn-4.3.1.cjs
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 7: cirno remove <#1> --recursive 1`] = `
+stdout: |2
+   SUCCESS  Instance cd5fbb72 is successfully removed.
+stderr: ''
+code: 0
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries: []
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
+
+exports[`step 8: cirno remove <#3> 1`] = `
+stdout: |2
+   ERROR  Instance b6394418 not found.
+stderr: ''
+code: 1
+signal: null
+entries:
+  - type: directory
+    name: apps
+    entries: []
+  - type: directory
+    name: baka
+    entries: []
+  - type: file
+    name: cirno-baka.br
+  - type: file
+    name: cirno.yml
+    content: |
+      version: '1.0'
+      config: {}
+      apps: []
+  - type: directory
+    name: home
+    entries:
+      - type: directory
+        name: .yarn
+        entries:
+          - type: directory
+            name: cache
+            entries: []
+          - type: directory
+            name: index
+          - type: directory
+            name: releases
+            entries: []
+      - type: file
+        name: .yarnrc.yml
+  - type: directory
+    name: tmp
+
+`;
