@@ -94,11 +94,12 @@ impl WebViewManager {
 
                 let wid = window.id();
 
+                let id;
+
                 unsafe {
-                    if wv_manager
-                        .reg
-                        .get()
-                        .as_mut_unchecked()
+                    let reg = wv_manager.reg.get().as_mut_unchecked();
+
+                    if reg
                         .map
                         .insert(
                             wid,
@@ -112,13 +113,9 @@ impl WebViewManager {
                     {
                         panic!("Duplicated window id detected");
                     }
-                }
 
-                let id;
-
-                unsafe {
-                    id = wv_manager.reg.get().as_ref_unchecked().id.len();
-                    wv_manager.reg.get().as_mut_unchecked().id.push(Some(wid));
+                    id = reg.id.len();
+                    reg.id.push(Some(wid));
                 }
 
                 Ok(WebViewInstance { id, wid })
@@ -153,21 +150,25 @@ impl WebViewManager {
             let app_state = app_state.clone();
             let wv_manager = &app_state.dispatcher;
 
-            let wid;
+            let wid_option;
 
             unsafe {
-                wid = wv_manager.reg.get().as_ref_unchecked().id.get(id);
+                wid_option = wv_manager.reg.get().as_ref_unchecked().id.get(id);
             }
 
-            match wid {
-                Some(Some(_)) => (),
+            let wid = match wid_option {
+                Some(Some(wid)) => wid,
                 _ => {
                     return Err(WebViewManagerError::WindowNotFound(id).into());
                 }
-            }
+            };
 
             unsafe {
-                wv_manager.reg.get().as_mut_unchecked().id[id] = None;
+                let reg = wv_manager.reg.get().as_mut_unchecked();
+                reg.id[id] = None;
+                reg.map
+                    .remove(wid)
+                    .expect("reg.map should contain WebViewInstanceIntl");
             }
 
             Ok(())
