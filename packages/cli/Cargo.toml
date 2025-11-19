@@ -1,0 +1,14 @@
+[package]
+name = "cirno-cli"
+description = ""
+license.workspace = true
+keywords.workspace = true
+readme.workspace = true
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+documentation.workspace = true
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+zip = "6.0.0"
