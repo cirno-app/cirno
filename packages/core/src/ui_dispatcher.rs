@@ -6,6 +6,8 @@ use tao::event_loop::ControlFlow::Wait;
 use tao::event_loop::{EventLoop, EventLoopBuilder, EventLoopProxy, EventLoopWindowTarget};
 use thiserror::Error;
 
+pub mod webview;
+
 pub enum DispatcherEvent {
     Dispatch(Box<dyn FnOnce(&EventLoopWindowTarget<DispatcherEvent>) + Send>),
 }

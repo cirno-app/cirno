@@ -26,6 +26,7 @@ use crate::server::controller::notfound::handler_notfound;
 use crate::server::controller::window_close::controller_window_close;
 use crate::server::controller::window_open::controller_window_open;
 use crate::ui_dispatcher::Dispatcher;
+use crate::ui_dispatcher::webview::WebViewManager;
 use crate::webview::WryStateRegistry;
 
 mod app;
@@ -173,7 +174,7 @@ struct AppState {
     env: EnvironmentState,
 
     // shutdown_notify: Arc<Notify>,
-    dispatcher: Dispatcher,
+    dispatcher: WebViewManager,
 
     wry: WryStateRegistry,
 
@@ -191,7 +192,7 @@ impl AppState {
                 env,
 
                 // shutdown_notify: shutdown_notify.clone(),
-                dispatcher,
+                dispatcher: WebViewManager::new(dispatcher, app_state.clone()),
 
                 wry: WryStateRegistry::new(app_state.clone()),
 
