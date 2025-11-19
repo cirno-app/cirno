@@ -17,7 +17,6 @@ report.*.json
 .eslintcache
 .DS_Store
 .idea
-.vscode
 *.suo
 *.ntvs*
 *.njsproj
