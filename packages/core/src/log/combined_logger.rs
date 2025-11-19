@@ -1,6 +1,7 @@
+use std::sync::Arc;
+
 use ::log::{Log, Metadata, Record, set_boxed_logger, set_max_level};
 use arc_swap::ArcSwap;
-use std::sync::Arc;
 
 pub struct CombinedLogger {
     loggers: ArcSwap<Vec<Arc<dyn Log>>>,

@@ -1,35 +1,32 @@
-#![feature(exit_status_error)]
+use std::env::{args, current_exe};
+use std::process::ExitCode;
+use std::sync::Arc;
 
-use crate::{
-    config::{EnvironmentState, load_config},
-    daemon::ProcessDaemon,
-    log::CombinedLogger,
-    server::controller::{
-        app_backup::controller_app_backup, app_start::controller_app_start,
-        app_stop::controller_app_stop, gc::controller_gc, notfound::handler_notfound,
-        window_close::controller_window_close, window_open::controller_window_open,
-    },
-    ui_dispatcher::Dispatcher,
-    webview::WryStateRegistry,
-};
 use ::log::{debug, error, info};
 use anyhow::{Context, Error, Result};
-use axum::{
-    Router,
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    routing::post,
-};
+use axum::Router;
+use axum::http::StatusCode;
+use axum::response::{IntoResponse, Response};
+use axum::routing::post;
 use clap::{Args, Parser, Subcommand};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
-use std::{
-    env::{args, current_exe},
-    process::ExitCode,
-    sync::Arc,
-};
 use tap::Tap;
-use tokio::{select, spawn, sync::Notify};
+use tokio::sync::Notify;
+use tokio::{select, spawn};
 use tokio_util::sync::CancellationToken;
+
+use crate::config::{EnvironmentState, load_config};
+use crate::daemon::ProcessDaemon;
+use crate::log::CombinedLogger;
+use crate::server::controller::app_backup::controller_app_backup;
+use crate::server::controller::app_start::controller_app_start;
+use crate::server::controller::app_stop::controller_app_stop;
+use crate::server::controller::gc::controller_gc;
+use crate::server::controller::notfound::handler_notfound;
+use crate::server::controller::window_close::controller_window_close;
+use crate::server::controller::window_open::controller_window_open;
+use crate::ui_dispatcher::Dispatcher;
+use crate::webview::WryStateRegistry;
 
 mod app;
 mod config;
@@ -91,11 +88,7 @@ async fn main_async(logger: Arc<CombinedLogger>) -> ExitCode {
 async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
     let cli = Cli::parse();
 
-    logger.push(Arc::new(
-        env_logger::builder()
-            .filter_level(cli.verbosity.into())
-            .build(),
-    ));
+    logger.push(Arc::new(env_logger::builder().filter_level(cli.verbosity.into()).build()));
 
     info!("Cirno");
 
@@ -109,13 +102,10 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
 
     debug!("Arguments: {:?}", args().collect::<Vec<_>>());
 
-    let env = load_config(exe_dir)
-        .await
-        .context("Failed to load config")?;
+    let env = load_config(exe_dir).await.context("Failed to load config")?;
 
     match &cli.command {
         Commands::Run(_args) => {
-
             // let shutdown_notify = Arc::new(Notify::const_new());
 
             let (dispatcher_init, dispatcher) = Dispatcher::new();
@@ -125,11 +115,7 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
                 dispatcher,
             );
 
-            app_state
-                .process_daemon
-                .init()
-                .await
-                .context("Failed to init process daemon")?;
+            app_state.process_daemon.init().await.context("Failed to init process daemon")?;
 
             // Bind port
             let api_routes = Router::new()
@@ -175,11 +161,9 @@ async fn main_async_intl(logger: Arc<CombinedLogger>) -> Result<()> {
             // graceful_shutdown(shutdown_notify, shutdown_token).await;
         }
 
-        Commands::Start(_args) => {
-        }
+        Commands::Start(_args) => {}
 
-        Commands::Stop(_args) => {
-        }
+        Commands::Stop(_args) => {}
     }
 
     Ok(())
@@ -225,11 +209,7 @@ struct AppError(Error);
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Error: {}", self.0),
-        )
-            .into_response()
+        (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", self.0)).into_response()
     }
 }
 
