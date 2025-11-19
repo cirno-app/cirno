@@ -46,6 +46,7 @@ pub struct YarnLockMetadata {
 pub struct YarnLockEntry {
     version: String,
     resolution: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     dependencies: Option<HashMap<String, String>>,
     checksum: String,
     language_name: String,
