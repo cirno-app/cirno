@@ -1,16 +1,12 @@
-use crate::AppState;
+use std::sync::mpsc::{Receiver, SyncSender, sync_channel};
+use std::sync::{Arc, RwLock, Weak};
+
 use anyhow::{Context, Error, Ok, Result};
-use log::error;
-use std::{
-    sync::{
-        Arc, RwLock, Weak,
-        mpsc::{Receiver, SyncSender, sync_channel},
-    },
-    thread::spawn,
-};
 use tao::window::{Window, WindowBuilder};
 use thiserror::Error;
 use wry::{WebView, WebViewBuilder};
+
+use crate::AppState;
 
 #[derive(Debug, Error)]
 enum WryStateRegistryError {
@@ -56,11 +52,7 @@ impl WryStateRegistry {
         }
     }
 
-    pub fn create(
-        &self,
-        app: Option<Arc<crate::daemon::process::AppProc>>,
-        options: WryCreateOptions,
-    ) -> Result<Weak<WryState>> {
+    pub fn create(&self, app: Option<Arc<crate::daemon::process::AppProc>>, options: WryCreateOptions) -> Result<Weak<WryState>> {
         let mut intl = self.intl.write().unwrap();
         let free_bit = (0..64).find(|i| (intl.map & (1 << i)) == 0);
 
@@ -71,49 +63,48 @@ impl WryStateRegistry {
                 }
                 intl.map |= 1 << id;
 
-                let state = self.app_weak.upgrade().unwrap().dispatcher.dispatch(
-                    move |event_loop| -> core::result::Result<_, Error> {
-                        let window = WindowBuilder::new()
-                            .with_title(options.title.clone())
-                            .build(event_loop)
-                            .context("Failed to create window")?;
+                let state =
+                    self.app_weak
+                        .upgrade()
+                        .unwrap()
+                        .dispatcher
+                        .dispatch(move |event_loop| -> core::result::Result<_, Error> {
+                            let window = WindowBuilder::new()
+                                .with_title(options.title.clone())
+                                .build(event_loop)
+                                .context("Failed to create window")?;
 
-                        let (tx, rx) = sync_channel(0);
+                            let (tx, rx) = sync_channel(0);
 
-                        let state = Arc::new(WryState {
-                            id: id as u8,
-                            app,
-                            window,
-                            tx,
-                        });
+                            let state = Arc::new(WryState {
+                                id: id as u8,
+                                app,
+                                window,
+                                tx,
+                            });
 
-                        let builder = WebViewBuilder::new().with_url(options.url);
+                            let builder = WebViewBuilder::new().with_url(options.url);
 
-                        #[cfg(not(target_os = "linux"))]
-                        let webview = builder
-                            .build(&state.window)
-                            .context("Failed to create webview")?;
-                        #[cfg(target_os = "linux")]
-                        let webview = builder
-                            .build_gtk(state.window.gtk_window())
-                            .context("Failed to create webview")?;
+                            #[cfg(not(target_os = "linux"))]
+                            let webview = builder.build(&state.window).context("Failed to create webview")?;
+                            #[cfg(target_os = "linux")]
+                            let webview = builder.build_gtk(state.window.gtk_window()).context("Failed to create webview")?;
 
-                        Box::leak(Box::new(webview));
+                            Box::leak(Box::new(webview));
 
-                        // let wv_state = state.clone();
+                            // let wv_state = state.clone();
 
-                        // let wv_options = options.clone();
+                            // let wv_options = options.clone();
 
-                        // spawn(|| match wv_run(wv_state, wv_options, rx) {
-                        //     core::result::Result::Ok(_) => (),
-                        //     Err(err) => {
-                        //         error!("{err:?}");
-                        //     }
-                        // });
+                            // spawn(|| match wv_run(wv_state, wv_options, rx) {
+                            //     core::result::Result::Ok(_) => (),
+                            //     Err(err) => {
+                            //         error!("{err:?}");
+                            //     }
+                            // });
 
-                        Ok(state)
-                    },
-                )??;
+                            Ok(state)
+                        })??;
 
                 intl.reg[id] = Some(state.clone());
 
@@ -194,13 +185,9 @@ fn wv_run(state: Arc<WryState>, options: WryCreateOptions, rx: Receiver<WvEvent>
     let builder = WebViewBuilder::new().with_url(options.url);
 
     #[cfg(not(target_os = "linux"))]
-    let webview = builder
-        .build(&state.window)
-        .context("Failed to create webview")?;
+    let webview = builder.build(&state.window).context("Failed to create webview")?;
     #[cfg(target_os = "linux")]
-    let webview = builder
-        .build_gtk(state.window.gtk_window())
-        .context("Failed to create webview")?;
+    let webview = builder.build_gtk(state.window.gtk_window()).context("Failed to create webview")?;
 
     while let WvEvent::Dispatch(fn_once) = rx.recv()? {
         fn_once(&webview)

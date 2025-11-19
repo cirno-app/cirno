@@ -1,6 +1,7 @@
+use std::path::PathBuf;
+
 use anyhow::{Context, Result};
 use serde::Deserialize;
-use std::path::PathBuf;
 use tokio::fs::{create_dir_all, read_to_string};
 
 pub struct EnvironmentState {
@@ -51,12 +52,8 @@ pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
 
     let config_path = data_dir.join("cirno.yml");
 
-    let config = serde_yaml::from_str(
-        &read_to_string(config_path.clone())
-            .await
-            .context("Failed to read config file")?,
-    )
-    .context("Failed to parse config file")?;
+    let config = serde_yaml::from_str(&read_to_string(config_path.clone()).await.context("Failed to read config file")?)
+        .context("Failed to parse config file")?;
 
     let apps_dir = data_dir.join("apps");
     let baka_dir = data_dir.join("baka");
@@ -70,12 +67,8 @@ pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
     let logs_dir = data_dir.join("logs");
     let tmp_dir = data_dir.join("tmp");
 
-    create_dir_all(apps_dir.clone())
-        .await
-        .context("Failed to create apps dir")?;
-    create_dir_all(baka_dir.clone())
-        .await
-        .context("Failed to create baka dir")?;
+    create_dir_all(apps_dir.clone()).await.context("Failed to create apps dir")?;
+    create_dir_all(baka_dir.clone()).await.context("Failed to create baka dir")?;
     // create_dir_all(home_dir.clone())
     //     .await
     //     .context("Failed to create home dir")?;
@@ -100,12 +93,8 @@ pub async fn load_config(exe_dir: PathBuf) -> Result<EnvironmentState> {
             .await
             .context("Failed to create AppData Roaming dir")?;
     }
-    create_dir_all(logs_dir.clone())
-        .await
-        .context("Failed to create logs dir")?;
-    create_dir_all(tmp_dir.clone())
-        .await
-        .context("Failed to create tmp dir")?;
+    create_dir_all(logs_dir.clone()).await.context("Failed to create logs dir")?;
+    create_dir_all(tmp_dir.clone()).await.context("Failed to create tmp dir")?;
 
     Ok(EnvironmentState {
         exe_dir,

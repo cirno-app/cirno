@@ -1,18 +1,20 @@
-use crate::{AppState, daemon::process::AppProc};
-use axum::{
-    Json, RequestPartsExt,
-    extract::{FromRequest, FromRequestParts, rejection::JsonRejection},
-    http::request::Parts,
-    response::{IntoResponse, Response},
-};
-use axum_extra::{
-    TypedHeader,
-    headers::{Authorization, authorization::Bearer},
-};
+use std::fmt::Debug;
+use std::sync::Arc;
+
+use axum::extract::rejection::JsonRejection;
+use axum::extract::{FromRequest, FromRequestParts};
+use axum::http::request::Parts;
+use axum::response::{IntoResponse, Response};
+use axum::{Json, RequestPartsExt};
+use axum_extra::TypedHeader;
+use axum_extra::headers::Authorization;
+use axum_extra::headers::authorization::Bearer;
 use log::info;
 use serde::Serialize;
-use std::{fmt::Debug, sync::Arc};
 use wry::http::StatusCode;
+
+use crate::AppState;
+use crate::daemon::process::AppProc;
 
 pub mod controller;
 
@@ -61,10 +63,7 @@ pub enum AppClaim {
 impl FromRequestParts<Arc<AppState>> for AppClaim {
     type Rejection = ApiError;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<AppState>,
-    ) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
@@ -87,10 +86,7 @@ impl FromRequestParts<Arc<AppState>> for AppClaim {
 impl FromRequestParts<Arc<AppState>> for UserClaim {
     type Rejection = ApiError;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<AppState>,
-    ) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Self, Self::Rejection> {
         let app_claim = parts.extract_with_state::<AppClaim, _>(state).await?;
 
         if let AppClaim::User(user_claim) = app_claim {
@@ -109,10 +105,7 @@ impl FromRequestParts<Arc<AppState>> for UserClaim {
 impl FromRequestParts<Arc<AppState>> for ServiceClaim {
     type Rejection = ApiError;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<AppState>,
-    ) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Self, Self::Rejection> {
         let app_claim = parts.extract_with_state::<AppClaim, _>(state).await?;
 
         if let AppClaim::Service(service_claim) = app_claim {

@@ -1,18 +1,15 @@
-use crate::{AppState, app, proc::CirnoProc};
+use std::collections::HashMap;
+use std::ffi::OsStr;
+use std::sync::{Arc, LazyLock, Weak};
+
 use anyhow::{Context, Result, bail};
 use log::warn;
-use std::process::ExitStatusError;
-use std::sync::Weak;
-use std::{
-    collections::HashMap,
-    ffi::OsStr,
-    sync::{Arc, LazyLock},
-};
 use thiserror::Error;
-use tokio::{
-    spawn,
-    sync::{Mutex, MutexGuard},
-};
+use tokio::spawn;
+use tokio::sync::{Mutex, MutexGuard};
+
+use crate::proc::{CirnoProc, ExitStatusError};
+use crate::{AppState, app};
 
 static ARG_START: LazyLock<Vec<&OsStr>> = LazyLock::new(|| vec![OsStr::new("start")]);
 
@@ -30,8 +27,7 @@ pub struct ProcessDaemon {
 
 impl ProcessDaemon {
     pub async fn init(&self) -> Result<()> {
-
-        let daemon_intl = self.intl.lock().await;
+        let _daemon_intl = self.intl.lock().await;
 
         Ok(())
     }
@@ -47,9 +43,7 @@ impl ProcessDaemon {
     }
 
     pub async fn start(&self, name: &String) -> Result<()> {
-        let exists = app::exists(name)
-            .await
-            .context("Failed to check for existence")?;
+        let exists = app::exists(name).await.context("Failed to check for existence")?;
 
         if !exists {
             bail!("App {} does not exist", name);
@@ -60,11 +54,7 @@ impl ProcessDaemon {
         self.start_intl(daemon_intl, name).await
     }
 
-    async fn start_intl(
-        &self,
-        mut daemon_intl: MutexGuard<'_, ProcessDaemonIntl>,
-        name: &str,
-    ) -> Result<()> {
+    async fn start_intl(&self, mut daemon_intl: MutexGuard<'_, ProcessDaemonIntl>, name: &str) -> Result<()> {
         let index = daemon_intl.get_index(name)?;
         let index_usize = index as usize;
 
@@ -73,7 +63,7 @@ impl ProcessDaemon {
         }
 
         daemon_intl.reg[index_usize] = Some(Arc::new(AppProc {}));
-        let app_proc = &daemon_intl.reg[index_usize];
+        let _app_proc = &daemon_intl.reg[index_usize];
 
         let name = name.to_owned();
 
@@ -81,8 +71,7 @@ impl ProcessDaemon {
 
         spawn(async move {
             loop {
-                let mut cp =
-                    CirnoProc::new_yarn(&app.env, &ARG_START, app.env.apps_dir.join(name.clone()));
+                let mut cp = CirnoProc::new_yarn(&app.env, &ARG_START, app.env.apps_dir.join(name.clone()));
 
                 let result = cp.run().await;
 
@@ -113,8 +102,7 @@ impl ProcessDaemon {
                 }
             }
 
-            {
-            }
+            {}
 
             {
                 // This is the only place to drop AppProc; only when the process ends should AppProc be cleaned up.

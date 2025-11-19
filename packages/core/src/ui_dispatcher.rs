@@ -1,12 +1,13 @@
-use std::fmt::{Debug, Display, Formatter};
-use std::sync::{Arc, mpsc::sync_channel};
-use tao::event_loop::{
-    ControlFlow::Wait, EventLoop, EventLoopBuilder, EventLoopProxy, EventLoopWindowTarget,
-};
+use std::fmt::Debug;
+use std::sync::Arc;
+use std::sync::mpsc::sync_channel;
+
+use tao::event_loop::ControlFlow::Wait;
+use tao::event_loop::{EventLoop, EventLoopBuilder, EventLoopProxy, EventLoopWindowTarget};
 use thiserror::Error;
 
 pub enum DispatcherEvent {
-    Dispatch(Box<dyn FnOnce(&EventLoopWindowTarget<DispatcherEvent>) -> () + Send>),
+    Dispatch(Box<dyn FnOnce(&EventLoopWindowTarget<DispatcherEvent>) + Send>),
 }
 
 struct DispatcherIntl {
@@ -27,9 +28,7 @@ pub struct EventLoopClosed;
 
 impl Clone for Dispatcher {
     fn clone(&self) -> Self {
-        Self {
-            intl: self.intl.clone(),
-        }
+        Self { intl: self.intl.clone() }
     }
 }
 
@@ -47,21 +46,15 @@ impl Dispatcher {
         )
     }
 
-    pub fn dispatch<
-        R: 'static + Send,
-        F: 'static + FnOnce(&EventLoopWindowTarget<DispatcherEvent>) -> R + Send,
-    >(
+    pub fn dispatch<R: 'static + Send, F: 'static + FnOnce(&EventLoopWindowTarget<DispatcherEvent>) -> R + Send>(
         &self,
         f: F,
     ) -> Result<R, EventLoopClosed> {
         let (tx, rx) = sync_channel(0);
 
-        match self
-            .intl
-            .proxy
-            .send_event(DispatcherEvent::Dispatch(Box::new(move |event_loop| {
-                tx.send(f(event_loop)).unwrap();
-            }))) {
+        match self.intl.proxy.send_event(DispatcherEvent::Dispatch(Box::new(move |event_loop| {
+            tx.send(f(event_loop)).unwrap();
+        }))) {
             Ok(_) => Ok(()),
             Err(err) => Err(match err.0 {
                 DispatcherEvent::Dispatch(_) => EventLoopClosed {},

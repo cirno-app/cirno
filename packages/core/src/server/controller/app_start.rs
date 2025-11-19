@@ -1,11 +1,11 @@
+use std::sync::Arc;
+
+use axum::debug_handler;
+use axum::extract::{Path, State};
+use serde::Serialize;
+
 use crate::server::ApiJson;
 use crate::{AppError, AppState};
-use axum::{
-    debug_handler,
-    extract::{Path, State},
-};
-use serde::Serialize;
-use std::sync::Arc;
 
 #[derive(Serialize)]
 pub struct Response {}
