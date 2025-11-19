@@ -1,3 +1,5 @@
+#![feature(exit_status_error, ptr_as_ref_unchecked, unsafe_cell_access, sync_unsafe_cell)]
+
 use std::env::{args, current_exe};
 use std::process::ExitCode;
 use std::sync::Arc;
@@ -27,7 +29,6 @@ use crate::server::controller::window_close::controller_window_close;
 use crate::server::controller::window_open::controller_window_open;
 use crate::ui_dispatcher::Dispatcher;
 use crate::ui_dispatcher::webview::WebViewManager;
-use crate::webview::WryStateRegistry;
 
 mod app;
 mod config;
@@ -36,7 +37,6 @@ mod log;
 mod proc;
 mod server;
 mod ui_dispatcher;
-mod webview;
 mod window;
 
 #[derive(Debug, Parser)]
@@ -176,8 +176,6 @@ struct AppState {
     // shutdown_notify: Arc<Notify>,
     dispatcher: WebViewManager,
 
-    wry: WryStateRegistry,
-
     process_daemon: ProcessDaemon,
 }
 
@@ -193,8 +191,6 @@ impl AppState {
 
                 // shutdown_notify: shutdown_notify.clone(),
                 dispatcher: WebViewManager::new(dispatcher, app_state.clone()),
-
-                wry: WryStateRegistry::new(app_state.clone()),
 
                 process_daemon: ProcessDaemon::new(app_state.clone()),
             }

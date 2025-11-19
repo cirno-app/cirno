@@ -1,6 +1,7 @@
 use crate::{AppState, ui_dispatcher::Dispatcher};
 use anyhow::{Context, Error, Ok, Result};
 use std::{
+    cell::SyncUnsafeCell,
     collections::HashMap,
     sync::{
         Arc, Weak,
@@ -22,17 +23,28 @@ pub struct WebViewInstance {
     wid: WindowId,
 }
 
+struct SyncWebView {
+    webview: WebView,
+}
+
+unsafe impl Send for SyncWebView {}
+unsafe impl Sync for SyncWebView {}
+
 struct WebViewInstanceIntl {
     app: Option<Arc<crate::daemon::process::AppProc>>,
     window: Window,
-    webview: WebView,
+    webview: SyncWebView,
+}
+
+struct WebViewManagerReg {
+    map: HashMap<WindowId, WebViewInstanceIntl>,
+    id: Vec<Option<WindowId>>,
 }
 
 pub struct WebViewManager {
     pub dispatcher: Dispatcher,
     app_weak: Weak<AppState>,
-    reg: HashMap<WindowId, WebViewInstanceIntl>,
-    idreg: Vec<Option<WindowId>>,
+    reg: SyncUnsafeCell<WebViewManagerReg>,
 }
 
 #[derive(Clone)]
@@ -46,8 +58,10 @@ impl WebViewManager {
         Self {
             dispatcher,
             app_weak,
-            reg: HashMap::new(),
-            idreg: Vec::new(),
+            reg: SyncUnsafeCell::new(WebViewManagerReg {
+                map: HashMap::new(),
+                id: Vec::new(),
+            }),
         }
     }
 
@@ -56,13 +70,14 @@ impl WebViewManager {
         app: Option<Arc<crate::daemon::process::AppProc>>,
         options: WebViewCreateOptions,
     ) -> Result<WebViewInstance> {
+        let app_state = self.app_weak.upgrade().unwrap();
+
         Ok(self
-            .app_weak
-            .upgrade()
-            .unwrap()
-            .dispatcher
             .dispatcher
             .dispatch(move |event_loop| -> core::result::Result<_, Error> {
+                let app_state = app_state.clone();
+                let wv_manager = &app_state.dispatcher;
+
                 let window = WindowBuilder::new()
                     .with_title(options.title.clone())
                     .build(event_loop)
@@ -77,55 +92,83 @@ impl WebViewManager {
                     .build_gtk(state.window.gtk_window())
                     .context("Failed to create webview")?;
 
-                if self
-                    .reg
-                    .insert(
-                        window.id(),
-                        WebViewInstanceIntl {
-                            app,
-                            window,
-                            webview,
-                        },
-                    )
-                    .is_some()
-                {
-                    panic!("Duplicated window id detected");
+                let wid = window.id();
+
+                unsafe {
+                    if wv_manager
+                        .reg
+                        .get()
+                        .as_mut_unchecked()
+                        .map
+                        .insert(
+                            wid,
+                            WebViewInstanceIntl {
+                                app,
+                                window,
+                                webview: SyncWebView { webview },
+                            },
+                        )
+                        .is_some()
+                    {
+                        panic!("Duplicated window id detected");
+                    }
                 }
 
-                let id = self.idreg.len();
-                self.idreg[id] = Some(window.id());
+                let id;
 
-                Ok(WebViewInstance {
-                    id,
-                    wid: window.id(),
-                })
+                unsafe {
+                    id = wv_manager.reg.get().as_ref_unchecked().id.len();
+                    wv_manager.reg.get().as_mut_unchecked().id.push(Some(wid));
+                }
+
+                Ok(WebViewInstance { id, wid })
             })??)
     }
 
     pub fn get(&self, id: usize) -> Result<WebViewInstance> {
+        let app_state = self.app_weak.upgrade().unwrap();
+
         self.dispatcher
             .dispatch(move |_event_loop| -> Result<WebViewInstance> {
-                let wid = self.idreg.get(id);
+                let app_state = app_state.clone();
+                let wv_manager = &app_state.dispatcher;
+
+                let wid;
+
+                unsafe {
+                    wid = wv_manager.reg.get().as_ref_unchecked().id.get(id);
+                }
 
                 match wid {
-                    Some(wid) => match wid {
-                        Some(wid) => Ok(WebViewInstance { id, wid: *wid }),
-                        None => Err(WebViewManagerError::WindowNotFound(id).into()),
-                    },
-                    None => Err(WebViewManagerError::WindowNotFound(id).into()),
+                    Some(Some(wid)) => Ok(WebViewInstance { id, wid: *wid }),
+                    _ => Err(WebViewManagerError::WindowNotFound(id).into()),
                 }
             })?
     }
 
     pub fn destroy(&self, id: usize) -> Result<()> {
-        self.dispatcher.dispatch(move |_event_loop| -> Result<()> {
-            let wid = self.idreg.get(id);
+        let app_state = self.app_weak.upgrade().unwrap();
 
-            if wid.is_none() {
-                return Err(WebViewManagerError::WindowNotFound(id).into());
+        self.dispatcher.dispatch(move |_event_loop| -> Result<()> {
+            let app_state = app_state.clone();
+            let wv_manager = &app_state.dispatcher;
+
+            let wid;
+
+            unsafe {
+                wid = wv_manager.reg.get().as_ref_unchecked().id.get(id);
             }
 
-            self.idreg[id] = None;
+            match wid {
+                Some(Some(_)) => (),
+                _ => {
+                    return Err(WebViewManagerError::WindowNotFound(id).into());
+                }
+            }
+
+            unsafe {
+                wv_manager.reg.get().as_mut_unchecked().id[id] = None;
+            }
 
             Ok(())
         })?

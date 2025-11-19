@@ -5,8 +5,7 @@ use axum::extract::State;
 use serde::{Deserialize, Serialize};
 
 use crate::server::ApiJson;
-use crate::webview::WryCreateOptions;
-use crate::{AppError, AppState};
+use crate::{AppError, AppState, ui_dispatcher::webview::WebViewCreateOptions};
 
 #[derive(Deserialize)]
 pub struct Request {
@@ -16,7 +15,7 @@ pub struct Request {
 
 #[derive(Serialize)]
 pub struct Response {
-    id: u8,
+    id: usize,
 }
 
 #[debug_handler]
@@ -24,15 +23,13 @@ pub async fn controller_window_open(
     State(app_state): State<Arc<AppState>>,
     body: ApiJson<Request>,
 ) -> anyhow::Result<ApiJson<Response>, AppError> {
-    let state_weak = app_state.wry.create(
+    let inst = app_state.dispatcher.create(
         None,
-        WryCreateOptions {
+        WebViewCreateOptions {
             title: body.0.title,
             url: body.0.url,
         },
     )?;
 
-    let state = state_weak.upgrade().unwrap();
-
-    Ok(ApiJson(Response { id: state.id }))
+    Ok(ApiJson(Response { id: inst.id }))
 }
