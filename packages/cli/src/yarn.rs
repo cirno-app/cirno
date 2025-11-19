@@ -11,15 +11,19 @@ use sha2::{Digest, Sha512};
 #[serde(default)]
 pub struct YarnRc {
     #[serde(skip_serializing_if = "Option::is_none")]
-    cache_folder: Option<String>,
+    pub cache_folder: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    enable_global_cache: Option<bool>,
+    pub enable_global_cache: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    node_linker: Option<NodeLinker>,
+    pub enable_tips: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    npm_registry_server: Option<String>,
+    pub node_linker: Option<NodeLinker>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    yarn_path: Option<String>,
+    pub npm_registry_server: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pnp_enable_esm_loader: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub yarn_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -74,18 +78,18 @@ type IdentHash = String;
 /// structure `{scope: "types", name: "node"}`, `make_ident` to create a new one
 /// from known parameters, or `stringify_ident` to retrieve the string as you'd
 /// see it in the `dependencies` field.
-struct Ident {
+pub struct Ident {
     /// Unique hash of a package scope and name. Used as key in various places,
     /// so that two idents can be quickly compared.
-    ident_hash: IdentHash,
+    pub ident_hash: IdentHash,
     /// Scope of the package, without the `@` prefix (eg. `types`).
-    scope: Option<String>,
+    pub scope: Option<String>,
     /// Name of the package (eg. `node`).
-    name: String,
+    pub name: String,
 }
 
 impl Ident {
-    fn new(scope: Option<String>, name: String) -> Self {
+    pub fn new(scope: Option<String>, name: String) -> Self {
         let mut hasher = Sha512::new();
         if let Some(scope) = &scope {
             hasher.update(scope);
@@ -98,7 +102,7 @@ impl Ident {
         }
     }
 
-    fn slugify(&self) -> String {
+    pub fn slugify(&self) -> String {
         if let Some(scope) = &self.scope {
             format!("@{}-{}", scope, self.name)
         } else {
@@ -117,13 +121,13 @@ type DescriptorHash = String;
 /// Use `parseRange` to turn a descriptor string into this data structure,
 /// `makeDescriptor` to create a new one from an ident and a range, or
 /// `stringifyDescriptor` to generate a string representation of it.
-struct Descriptor {
-    ident: Ident,
+pub struct Descriptor {
+    pub ident: Ident,
     /// Unique hash of a package descriptor. Used as key in various places, so
     /// that two descriptors can be quickly compared.
-    descriptor_hash: DescriptorHash,
+    pub descriptor_hash: DescriptorHash,
     /// The range associated with this descriptor. (eg. `^1.0.0`)
-    range: String,
+    pub range: String,
 }
 
 static LOCATOR_REGEX_STRICT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:@([^/]+?)\/)?([^@/]+?)(?:@(.+))$").unwrap());
@@ -142,17 +146,17 @@ type LocatorHash = String;
 /// This interesting property means that each locator can be safely turned into
 /// a descriptor (using `convertLocatorToDescriptor`), but not the other way
 /// around (except in very specific cases).
-struct Locator {
-    ident: Ident,
+pub struct Locator {
+    pub ident: Ident,
     /// Unique hash of a package locator. Used as key in various places so that
     /// two locators can be quickly compared.
-    locator_hash: LocatorHash,
+    pub locator_hash: LocatorHash,
     /// A package reference uniquely identifies a package (eg. `1.2.3`).
-    reference: String,
+    pub reference: String,
 }
 
 impl Locator {
-    fn new(ident: Ident, reference: String) -> Self {
+    pub fn new(ident: Ident, reference: String) -> Self {
         let mut hasher = Sha512::new();
         hasher.update(&ident.ident_hash);
         hasher.update(&reference);
@@ -163,11 +167,11 @@ impl Locator {
         }
     }
 
-    fn slugify(&self) -> String {
+    pub fn slugify(&self) -> String {
         todo!()
     }
 
-    fn try_parse(string: &str, strict: bool) -> Option<Self> {
+    pub fn try_parse(string: &str, strict: bool) -> Option<Self> {
         let regex = if strict { &*LOCATOR_REGEX_STRICT } else { &*LOCATOR_REGEX_LOOSE };
         let captures = regex.captures(string)?;
         let scope = captures.get(1).map(|m| m.as_str().to_string());
