@@ -1,4 +1,5 @@
-use std::path::Path;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 use anyhow::{Error, Result};
 use serde::{Deserialize, Serialize};
@@ -10,7 +11,9 @@ use crate::yarn::{YarnLock, YarnRc};
 
 pub mod yarn;
 
-pub const VERSION: &str = "1.0";
+// const VERSION: &str = "1.0";
+// const ENTRY_FILE: &str = "cirno.yml";
+// const STATE_FILE: &str = "cirno-baka.br";
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -78,4 +81,9 @@ impl Meta {
             yarn_lock,
         })
     }
+}
+
+pub struct Cirno {
+    cwd: PathBuf,
+    apps: HashMap<Uuid, App>,
 }
