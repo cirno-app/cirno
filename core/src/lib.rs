@@ -2,16 +2,16 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use brotli::BrotliCompress;
 use futures::future::try_join_all;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use tokio::fs::{self, create_dir, create_dir_all, read_to_string, write};
 use uuid::Uuid;
 
 use crate::yarn::{NodeLinker, YarnLock, YarnRc};
 
+pub mod fs;
 pub mod yarn;
 
 // const VERSION: &str = "1.0";
@@ -63,9 +63,9 @@ pub struct Meta {
 
 impl Meta {
     pub async fn load(cwd: &Path) -> Result<Self> {
-        let package = serde_json::from_str(&read_to_string(&cwd.join("package.json")).await?)?;
-        let yarn_rc = serde_yaml_ng::from_str(&read_to_string(&cwd.join(".yarnrc.yml")).await?)?;
-        let yarn_lock = serde_json::from_str(&read_to_string(&cwd.join("yarn.lock")).await?)?;
+        let package = serde_json::from_str(&fs::read_to_string(&cwd.join("package.json")).await?)?;
+        let yarn_rc = serde_yaml_ng::from_str(&fs::read_to_string(&cwd.join(".yarnrc.yml")).await?)?;
+        let yarn_lock = serde_json::from_str(&fs::read_to_string(&cwd.join("yarn.lock")).await?)?;
         Ok(Meta {
             package,
             yarn_rc,
@@ -83,38 +83,19 @@ pub struct Cirno {
 
 impl Cirno {
     pub async fn init(&self) -> Result<()> {
-        create_dir_all(&self.cwd).await.context("Failed to create cirno dir")?;
-        create_dir(&self.cwd.join("apps"))
-            .await
-            .context("Failed to create apps dir")?;
-        create_dir(&self.cwd.join("baka"))
-            .await
-            .context("Failed to create baka dir")?;
-        create_dir(&self.cwd.join("home"))
-            .await
-            .context("Failed to create home dir")?;
-        create_dir(&self.cwd.join("home/.yarn"))
-            .await
-            .context("Failed to create yarn dir")?;
-        create_dir(&self.cwd.join("home/.yarn/cache"))
-            .await
-            .context("Failed to create yarn cache dir")?;
-        create_dir(&self.cwd.join("home/.yarn/releases"))
-            .await
-            .context("Failed to create yarn releases dir")?;
-        let tmp_dir = self.cwd.join("tmp");
-        create_dir(&tmp_dir).await.context("Failed to create tmp dir")?;
+        fs::create_dir_all(&self.cwd).await?;
+        fs::create_dir(&self.cwd.join("apps")).await?;
+        fs::create_dir(&self.cwd.join("baka")).await?;
+        fs::create_dir(&self.cwd.join("home")).await?;
+        fs::create_dir(&self.cwd.join("home/.yarn")).await?;
+        fs::create_dir(&self.cwd.join("home/.yarn/cache")).await?;
+        fs::create_dir(&self.cwd.join("home/.yarn/releases")).await?;
+        fs::create_dir(&self.cwd.join("tmp")).await?;
         #[cfg(target_os = "windows")]
         {
-            create_dir_all(&self.cwd.join("home/AppData"))
-                .await
-                .context("Failed to create AppData dir")?;
-            create_dir_all(&self.cwd.join("home/AppData/Local"))
-                .await
-                .context("Failed to create AppData Local dir")?;
-            create_dir_all(&self.cwd.join("home/AppData/Roaming"))
-                .await
-                .context("Failed to create AppData Roaming dir")?;
+            fs::create_dir(&self.cwd.join("home/AppData")).await?;
+            fs::create_dir(&self.cwd.join("home/AppData/Local")).await?;
+            fs::create_dir(&self.cwd.join("home/AppData/Roaming")).await?;
         }
         let yarn_rc = YarnRc {
             enable_tips: Some(false),
@@ -122,9 +103,7 @@ impl Cirno {
             pnp_enable_esm_loader: Some(true),
             ..YarnRc::default()
         };
-        write(&self.cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?)
-            .await
-            .context("Failed to write default .yarnrc.yml")?;
+        fs::write(&self.cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?).await?;
         Ok(())
     }
 
@@ -132,23 +111,17 @@ impl Cirno {
         // this.data.apps = Object.entries(this.apps)
         //     .filter(([id, app]) => id === app.id)
         //     .map(([_, app]) => app)
-        write(&self.cwd.join(ENTRY_FILE), &serde_yaml_ng::to_string(&self.data)?)
-            .await
-            .context("Failed to write cirno.yml")?;
+        fs::write(&self.cwd.join(ENTRY_FILE), &serde_yaml_ng::to_string(&self.data)?).await?;
         let str = serde_json::to_string(&self.apps)?;
         let mut output = Vec::new();
         BrotliCompress(&mut str.as_bytes(), &mut output, &Default::default())?;
-        write(&self.cwd.join(STATE_FILE), output)
-            .await
-            .context("Failed to write cirno-baka.br")?;
+        fs::write(&self.cwd.join(STATE_FILE), output).await?;
         Ok(())
     }
 
     pub async fn clone(&self, app: &App, id: &Uuid, dest: &Path) -> Result<()> {
         if &app.id == id {
-            fs::copy(self.cwd.join("apps").join(id.to_string()), dest)
-                .await
-                .context("Failed to copy app dir")?;
+            fs::copy(self.cwd.join("apps").join(id.to_string()), dest).await?;
         } else {
             // const tar = new Tar(join(this.cwd, 'baka', id + '.tar.br'))
             // tar.load()
@@ -160,10 +133,8 @@ impl Cirno {
 
     pub async fn load_cache(&self) -> Result<HashMap<String, HashMap<String, String>>> {
         let mut cache = HashMap::<String, HashMap<String, String>>::new();
-        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/cache"))
-            .await
-            .context("Failed to read yarn cache dir")?;
-        while let Some(entry) = entries.next_entry().await.context("Failed to read cache entry")? {
+        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/cache")).await?;
+        while let Some(entry) = entries.next_entry().await? {
             let name = entry.file_name();
             let name = name.to_string_lossy();
             let Some(captures) = YARN_CACHE_REGEX.captures(&name) else {
@@ -180,10 +151,8 @@ impl Cirno {
     pub async fn gc(&self) -> Result<()> {
         let mut cache = self.load_cache().await?;
         let mut releases = HashSet::new();
-        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/releases"))
-            .await
-            .context("Failed to read yarn releases dir")?;
-        while let Some(entry) = entries.next_entry().await.context("Failed to read release entry")? {
+        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/releases")).await?;
+        while let Some(entry) = entries.next_entry().await? {
             let name = entry.file_name().to_string_lossy().to_string();
             releases.insert(name);
         }
@@ -199,23 +168,19 @@ impl Cirno {
                 }
             }
         }
-        try_join_all(releases.into_iter().map(async |name| {
-            let path = self.cwd.join("home/.yarn/releases").join(&name);
-            fs::remove_file(&path)
-                .await
-                .with_context(|| format!("Failed to remove release file: {}", path.display()))
-        }))
+        let release_dir = self.cwd.join("home/.yarn/releases");
+        try_join_all(
+            releases
+                .into_iter()
+                .map(async |name| fs::remove_file(&release_dir.join(&name)).await),
+        )
         .await?;
+        let cache_dir = self.cwd.join("home/.yarn/cache");
         try_join_all(
             cache
                 .into_values()
                 .flat_map(|locators| locators.into_values())
-                .map(async |name| {
-                    let path = self.cwd.join("home/.yarn/cache").join(&name);
-                    fs::remove_file(&path)
-                        .await
-                        .with_context(|| format!("Failed to remove cache file: {}", path.display()))
-                }),
+                .map(async |name| fs::remove_file(&cache_dir.join(&name)).await),
         )
         .await?;
         Ok(())
