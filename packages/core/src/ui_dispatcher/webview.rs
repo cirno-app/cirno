@@ -1,6 +1,5 @@
-use std::cell::SyncUnsafeCell;
 use std::collections::HashMap;
-use std::sync::{Arc, Weak};
+use std::sync::{Arc, Mutex, Weak};
 
 use anyhow::{Context, Error, Ok, Result};
 use tao::window::{Window, WindowBuilder, WindowId};
@@ -42,7 +41,7 @@ struct WebViewManagerReg {
 pub struct WebViewManager {
     pub dispatcher: Dispatcher,
     app_weak: Weak<AppState>,
-    reg: SyncUnsafeCell<WebViewManagerReg>,
+    reg: Mutex<WebViewManagerReg>,
 }
 
 #[derive(Clone)]
@@ -56,7 +55,7 @@ impl WebViewManager {
         Self {
             dispatcher,
             app_weak,
-            reg: SyncUnsafeCell::new(WebViewManagerReg {
+            reg: Mutex::new(WebViewManagerReg {
                 map: HashMap::new(),
                 id: Vec::new(),
             }),
@@ -84,29 +83,25 @@ impl WebViewManager {
 
             let wid = window.id();
 
-            let id;
+            let mut reg = wv_manager.reg.lock().unwrap();
 
-            unsafe {
-                let reg = wv_manager.reg.get().as_mut_unchecked();
-
-                if reg
-                    .map
-                    .insert(
-                        wid,
-                        WebViewInstanceIntl {
-                            app,
-                            window,
-                            webview: SyncWebView { webview },
-                        },
-                    )
-                    .is_some()
-                {
-                    panic!("Duplicated window id detected");
-                }
-
-                id = reg.id.len();
-                reg.id.push(Some(wid));
+            if reg
+                .map
+                .insert(
+                    window.id(),
+                    WebViewInstanceIntl {
+                        app,
+                        window,
+                        webview: SyncWebView { webview },
+                    },
+                )
+                .is_some()
+            {
+                panic!("Duplicated window id detected");
             }
+
+            let id = reg.id.len();
+            reg.id.push(Some(wid));
 
             Ok(WebViewInstance { id, wid })
         })??)
@@ -119,11 +114,8 @@ impl WebViewManager {
             let app_state = app_state.clone();
             let wv_manager = &app_state.dispatcher;
 
-            let wid;
-
-            unsafe {
-                wid = wv_manager.reg.get().as_ref_unchecked().id.get(id);
-            }
+            let reg = wv_manager.reg.lock().unwrap();
+            let wid = reg.id.get(id);
 
             match wid {
                 Some(Some(wid)) => Ok(WebViewInstance { id, wid: *wid }),
@@ -139,24 +131,18 @@ impl WebViewManager {
             let app_state = app_state.clone();
             let wv_manager = &app_state.dispatcher;
 
-            let wid_option;
-
-            unsafe {
-                wid_option = wv_manager.reg.get().as_ref_unchecked().id.get(id);
-            }
+            let mut reg = wv_manager.reg.lock().unwrap();
+            let wid_option = reg.id.get(id);
 
             let wid = match wid_option {
-                Some(Some(wid)) => wid,
+                Some(Some(wid)) => *wid,
                 _ => {
                     return Err(WebViewManagerError::WindowNotFound(id).into());
                 }
             };
 
-            unsafe {
-                let reg = wv_manager.reg.get().as_mut_unchecked();
-                reg.id[id] = None;
-                reg.map.remove(wid).expect("reg.map should contain WebViewInstanceIntl");
-            }
+            reg.id[id] = None;
+            reg.map.remove(&wid).expect("reg.map should contain WebViewInstanceIntl");
 
             Ok(())
         })?
