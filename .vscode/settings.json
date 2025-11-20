@@ -15,11 +15,13 @@
     "hardlinks",
     "hogsfather",
     "libc",
+    "localappdata",
     "preapproved",
     "serde",
     "subprojects",
     "thiserror",
+    "userprofile",
     "yarnpkg",
-    "yarnrc"
+    "yarnrc",
   ],
 }

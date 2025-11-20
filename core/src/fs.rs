@@ -59,6 +59,12 @@ impl<P: AsRef<Path>> ReadDir<P> {
     }
 }
 
+pub async fn read(path: impl AsRef<Path>) -> Result<Vec<u8>> {
+    fs::read(&path)
+        .await
+        .with_context(|| format!("Failed to read file: {}", path.as_ref().display()))
+}
+
 pub async fn read_to_string(path: impl AsRef<Path>) -> Result<String> {
     fs::read_to_string(&path)
         .await

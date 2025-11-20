@@ -1,12 +1,16 @@
 use std::collections::{HashMap, HashSet};
+use std::ffi::OsStr;
+use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
+use std::process::ExitStatus;
 use std::sync::LazyLock;
 
-use anyhow::Result;
-use brotli::BrotliCompress;
+use anyhow::{Result, anyhow};
+use brotli::{BrotliCompress, BrotliDecompress};
 use futures::future::try_join_all;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use tokio::process::Command;
 use uuid::Uuid;
 
 use crate::yarn::{NodeLinker, YarnLock, YarnRc};
@@ -14,12 +18,12 @@ use crate::yarn::{NodeLinker, YarnLock, YarnRc};
 pub mod fs;
 pub mod yarn;
 
-// const VERSION: &str = "1.0";
+const VERSION: &str = "1.0";
 const ENTRY_FILE: &str = "cirno.yml";
 const STATE_FILE: &str = "cirno-baka.br";
 
 static YARN_CACHE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(.+)-([0-9a-f]+)\.zip$").unwrap());
-static PACKAGE_MANAGER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^yarn@(\d+\.\d+\.\d+)$").unwrap());
+static PACKAGE_MANAGER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^([\w-]+)@(\d+\.\d+\.\d+)$").unwrap());
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -74,6 +78,22 @@ impl Meta {
     }
 }
 
+pub enum InitError {
+    EnvEmpty,
+    EnvIoError(std::io::Error),
+    UnknownError(anyhow::Error),
+    UnsupportedVersion(String),
+}
+
+impl<T> From<T> for InitError
+where
+    T: Into<anyhow::Error>,
+{
+    fn from(value: T) -> Self {
+        InitError::UnknownError(value.into())
+    }
+}
+
 pub struct Cirno {
     cwd: PathBuf,
     data: Manifest,
@@ -82,7 +102,7 @@ pub struct Cirno {
 }
 
 impl Cirno {
-    pub async fn init(&self) -> Result<()> {
+    async fn _init(&self) -> Result<()> {
         fs::create_dir_all(&self.cwd).await?;
         fs::create_dir(&self.cwd.join("apps")).await?;
         fs::create_dir(&self.cwd.join("baka")).await?;
@@ -105,6 +125,38 @@ impl Cirno {
         };
         fs::write(&self.cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?).await?;
         Ok(())
+    }
+
+    pub async fn new(cwd: PathBuf) -> Result<Self, InitError> {
+        let file_count = async {
+            let mut len = 0;
+            let mut dir = tokio::fs::read_dir(&cwd).await?;
+            while dir.next_entry().await?.is_some() {
+                len += 1;
+            }
+            Ok::<usize, std::io::Error>(len)
+        };
+        match file_count.await {
+            Ok(0) => return Err(InitError::EnvEmpty),
+            Err(error) => match error.kind() {
+                ErrorKind::NotFound => return Err(InitError::EnvEmpty),
+                _ => return Err(InitError::EnvIoError(error)),
+            },
+            _ => {}
+        }
+        let manifest: Manifest = serde_yaml_ng::from_str(&fs::read_to_string(&cwd.join(ENTRY_FILE)).await?)?;
+        if manifest.version != VERSION {
+            return Err(InitError::UnsupportedVersion(manifest.version));
+        }
+        let mut output = vec![];
+        BrotliDecompress(&mut fs::read(&cwd.join(STATE_FILE)).await?.as_slice(), &mut output)?;
+        let state: HashMap<String, HashMap<String, Meta>> = serde_json::from_str(std::str::from_utf8(&output)?)?;
+        Ok(Self {
+            cwd,
+            data: manifest,
+            apps: Default::default(), // TODO
+            state,
+        })
     }
 
     pub async fn save(&self) -> Result<()> {
@@ -131,10 +183,55 @@ impl Cirno {
         Ok(())
     }
 
+    pub async fn yarn<I, S>(&self, cwd: &Path, args: I) -> Result<ExitStatus>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
+        let pkg_meta: Package = serde_json::from_str(&fs::read_to_string(&cwd.join("package.json")).await?)?;
+        let Some(captures) = PACKAGE_MANAGER_REGEX.captures(&pkg_meta.package_manager) else {
+            return Err(anyhow!("Invalid package manager: {}", pkg_meta.package_manager));
+        };
+        if captures[1] != *"yarn" {
+            return Err(anyhow!("Unsupported package manager: {}", &captures[1]));
+        }
+        let yarn_path = self.cwd.join(format!("home/.yarn/releases/yarn-{}.cjs", &captures[2]));
+        let mut command = Command::new("node");
+        command
+            .arg(&yarn_path)
+            .args(args)
+            .current_dir(cwd)
+            .envs(std::env::vars_os())
+            .env("HOME", self.cwd.join("home"))
+            .env("TEMP", self.cwd.join("tmp"))
+            .env("TMP", self.cwd.join("tmp"))
+            .env("TMPDIR", self.cwd.join("tmp"))
+            .env("YARN_YARN_PATH", &yarn_path)
+            .env("YARN_GLOBAL_FOLDER", self.cwd.join("home/.yarn"));
+        for key in ["HOME", "TEMP", "TMP", "TMPDIR"] {
+            if let Some(value) = std::env::var_os(key) {
+                command.env(format!("CIRNO_HOST_{}", key), value);
+            }
+        }
+        #[cfg(target_os = "windows")]
+        {
+            command
+                .env("APPDATA", self.cwd.join("home/AppData/Roaming"))
+                .env("LOCALAPPDATA", self.cwd.join("home/AppData/Local"))
+                .env("USERPROFILE", self.cwd.join("home"));
+            for key in ["APPDATA", "LOCALAPPDATA", "USERPROFILE"] {
+                if let Some(value) = std::env::var_os(key) {
+                    command.env(format!("CIRNO_HOST_{}", key), value);
+                }
+            }
+        }
+        Ok(command.status().await?)
+    }
+
     pub async fn load_cache(&self) -> Result<HashMap<String, HashMap<String, String>>> {
         let mut cache = HashMap::<String, HashMap<String, String>>::new();
-        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/cache")).await?;
-        while let Some(entry) = entries.next_entry().await? {
+        let mut dir = fs::read_dir(self.cwd.join("home/.yarn/cache")).await?;
+        while let Some(entry) = dir.next_entry().await? {
             let name = entry.file_name();
             let name = name.to_string_lossy();
             let Some(captures) = YARN_CACHE_REGEX.captures(&name) else {
@@ -151,15 +248,17 @@ impl Cirno {
     pub async fn gc(&self) -> Result<()> {
         let mut cache = self.load_cache().await?;
         let mut releases = HashSet::new();
-        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/releases")).await?;
-        while let Some(entry) = entries.next_entry().await? {
+        let mut dir = fs::read_dir(self.cwd.join("home/.yarn/releases")).await?;
+        while let Some(entry) = dir.next_entry().await? {
             let name = entry.file_name().to_string_lossy().to_string();
             releases.insert(name);
         }
         for meta_map in self.state.values() {
             for meta in meta_map.values() {
-                if let Some(captures) = PACKAGE_MANAGER_REGEX.captures(&meta.package.package_manager) {
-                    releases.remove(&format!("yarn-{}.cjs", &captures[1]));
+                if let Some(captures) = PACKAGE_MANAGER_REGEX.captures(&meta.package.package_manager)
+                    && captures[1] == *"yarn"
+                {
+                    releases.remove(&format!("yarn-{}.cjs", &captures[2]));
                 }
                 for locator in meta.yarn_lock.get_cache_files()? {
                     if let Some(locators) = cache.get_mut(&meta.yarn_lock.metadata.cache_key) {
