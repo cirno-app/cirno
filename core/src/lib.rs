@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Error, Result};
+use anyhow::{Context, Result};
+use brotli::BrotliCompress;
 use serde::{Deserialize, Serialize};
 use tokio::fs::{create_dir, create_dir_all, read_to_string, write};
-use tokio::try_join;
 use uuid::Uuid;
 
 use crate::yarn::{NodeLinker, YarnLock, YarnRc};
@@ -12,8 +12,8 @@ use crate::yarn::{NodeLinker, YarnLock, YarnRc};
 pub mod yarn;
 
 // const VERSION: &str = "1.0";
-// const ENTRY_FILE: &str = "cirno.yml";
-// const STATE_FILE: &str = "cirno-baka.br";
+const ENTRY_FILE: &str = "cirno.yml";
+const STATE_FILE: &str = "cirno-baka.br";
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -57,24 +57,9 @@ pub struct Meta {
 
 impl Meta {
     pub async fn load(cwd: &Path) -> Result<Self> {
-        let (package, yarn_rc, yarn_lock) = try_join!(
-            async {
-                let path = cwd.join("package.json");
-                let content = read_to_string(&path).await?;
-                Ok::<Package, Error>(serde_json::from_str(&content)?)
-            },
-            async {
-                let path = cwd.join(".yarnrc.yml");
-                let content = read_to_string(&path).await?;
-                Ok::<YarnRc, Error>(serde_yaml_ng::from_str(&content)?)
-            },
-            async {
-                let path = cwd.join("yarn.lock");
-                let content = read_to_string(&path).await?;
-                Ok::<YarnLock, Error>(serde_json::from_str(&content)?)
-            },
-        )?;
-
+        let package = serde_json::from_str(&read_to_string(&cwd.join("package.json")).await?)?;
+        let yarn_rc = serde_yaml_ng::from_str(&read_to_string(&cwd.join(".yarnrc.yml")).await?)?;
+        let yarn_lock = serde_json::from_str(&read_to_string(&cwd.join("yarn.lock")).await?)?;
         Ok(Meta {
             package,
             yarn_rc,
@@ -85,6 +70,7 @@ impl Meta {
 
 pub struct Cirno {
     cwd: PathBuf,
+    data: Manifest,
     apps: HashMap<Uuid, App>,
 }
 
@@ -132,6 +118,22 @@ impl Cirno {
         write(&self.cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?)
             .await
             .context("Failed to write default .yarnrc.yml")?;
+        Ok(())
+    }
+
+    pub async fn save(&self) -> Result<()> {
+        // this.data.apps = Object.entries(this.apps)
+        //     .filter(([id, app]) => id === app.id)
+        //     .map(([_, app]) => app)
+        write(&self.cwd.join(ENTRY_FILE), &serde_yaml_ng::to_string(&self.data)?)
+            .await
+            .context("Failed to write cirno.yml")?;
+        let str = serde_json::to_string(&self.apps)?;
+        let mut output = Vec::new();
+        BrotliCompress(&mut str.as_bytes(), &mut output, &Default::default())?;
+        write(&self.cwd.join(STATE_FILE), output)
+            .await
+            .context("Failed to write cirno-baka.br")?;
         Ok(())
     }
 }

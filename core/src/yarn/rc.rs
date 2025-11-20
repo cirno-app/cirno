@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 /// files - use them sparingly).
 ///
 /// See <https://yarnpkg.com/configuration/yarnrc>.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct YarnRc {
@@ -690,6 +690,289 @@ pub struct YarnRc {
     /// we now recommend to use [Corepack](https://nodejs.org/api/corepack.html) in most cases.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub yarn_path: Option<String>,
+}
+
+impl std::fmt::Debug for YarnRc {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut ds = f.debug_struct("YarnRc");
+        if let Some(value) = &self.cache_folder {
+            ds.field("cache_folder", value);
+        }
+        if let Some(value) = &self.cache_migration_mode {
+            ds.field("cache_migration_mode", value);
+        }
+        if let Some(value) = &self.changeset_base_refs {
+            ds.field("changeset_base_refs", value);
+        }
+        if let Some(value) = &self.changeset_ignore_patterns {
+            ds.field("changeset_ignore_patterns", value);
+        }
+        if let Some(value) = &self.checksum_behavior {
+            ds.field("checksum_behavior", value);
+        }
+        if let Some(value) = &self.clone_concurrency {
+            ds.field("clone_concurrency", value);
+        }
+        if let Some(value) = &self.compression_level {
+            ds.field("compression_level", value);
+        }
+        if let Some(value) = &self.constraints_path {
+            ds.field("constraints_path", value);
+        }
+        if let Some(value) = &self.default_language_name {
+            ds.field("default_language_name", value);
+        }
+        if let Some(value) = &self.default_protocol {
+            ds.field("default_protocol", value);
+        }
+        if let Some(value) = &self.default_semver_range_prefix {
+            ds.field("default_semver_range_prefix", value);
+        }
+        if let Some(value) = &self.deferred_version_folder {
+            ds.field("deferred_version_folder", value);
+        }
+        if let Some(value) = &self.enable_colors {
+            ds.field("enable_colors", value);
+        }
+        if let Some(value) = &self.enable_constraints_checks {
+            ds.field("enable_constraints_checks", value);
+        }
+        if let Some(value) = &self.enable_global_cache {
+            ds.field("enable_global_cache", value);
+        }
+        if let Some(value) = &self.enable_hardened_mode {
+            ds.field("enable_hardened_mode", value);
+        }
+        if let Some(value) = &self.enable_hyperlinks {
+            ds.field("enable_hyperlinks", value);
+        }
+        if let Some(value) = &self.enable_immutable_cache {
+            ds.field("enable_immutable_cache", value);
+        }
+        if let Some(value) = &self.enable_immutable_installs {
+            ds.field("enable_immutable_installs", value);
+        }
+        if let Some(value) = &self.enable_inline_builds {
+            ds.field("enable_inline_builds", value);
+        }
+        if let Some(value) = &self.enable_inline_hunks {
+            ds.field("enable_inline_hunks", value);
+        }
+        if let Some(value) = &self.enable_message_names {
+            ds.field("enable_message_names", value);
+        }
+        if let Some(value) = &self.enable_mirror {
+            ds.field("enable_mirror", value);
+        }
+        if let Some(value) = &self.enable_network {
+            ds.field("enable_network", value);
+        }
+        if let Some(value) = &self.enable_offline_mode {
+            ds.field("enable_offline_mode", value);
+        }
+        if let Some(value) = &self.enable_progress_bars {
+            ds.field("enable_progress_bars", value);
+        }
+        if let Some(value) = &self.enable_scripts {
+            ds.field("enable_scripts", value);
+        }
+        if let Some(value) = &self.enable_strict_ssl {
+            ds.field("enable_strict_ssl", value);
+        }
+        if let Some(value) = &self.enable_telemetry {
+            ds.field("enable_telemetry", value);
+        }
+        if let Some(value) = &self.enable_timers {
+            ds.field("enable_timers", value);
+        }
+        if let Some(value) = &self.enable_tips {
+            ds.field("enable_tips", value);
+        }
+        if let Some(value) = &self.enable_transparent_workspaces {
+            ds.field("enable_transparent_workspaces", value);
+        }
+        if let Some(value) = &self.global_folder {
+            ds.field("global_folder", value);
+        }
+        if let Some(value) = &self.http_proxy {
+            ds.field("http_proxy", value);
+        }
+        if let Some(value) = &self.http_retry {
+            ds.field("http_retry", value);
+        }
+        if let Some(value) = &self.http_timeout {
+            ds.field("http_timeout", value);
+        }
+        if let Some(value) = &self.https_ca_file_path {
+            ds.field("https_ca_file_path", value);
+        }
+        if let Some(value) = &self.https_cert_file_path {
+            ds.field("https_cert_file_path", value);
+        }
+        if let Some(value) = &self.https_key_file_path {
+            ds.field("https_key_file_path", value);
+        }
+        if let Some(value) = &self.https_proxy {
+            ds.field("https_proxy", value);
+        }
+        if let Some(value) = &self.ignore_path {
+            ds.field("ignore_path", value);
+        }
+        if let Some(value) = &self.immutable_patterns {
+            ds.field("immutable_patterns", value);
+        }
+        if let Some(value) = &self.init_scope {
+            ds.field("init_scope", value);
+        }
+        if let Some(value) = &self.init_fields {
+            ds.field("init_fields", value);
+        }
+        if let Some(value) = &self.inject_environment_files {
+            ds.field("inject_environment_files", value);
+        }
+        if let Some(value) = &self.install_state_path {
+            ds.field("install_state_path", value);
+        }
+        if let Some(value) = &self.log_filters {
+            ds.field("log_filters", value);
+        }
+        if let Some(value) = &self.network_concurrency {
+            ds.field("network_concurrency", value);
+        }
+        if let Some(value) = &self.network_settings {
+            ds.field("network_settings", value);
+        }
+        if let Some(value) = &self.nm_hoisting_limits {
+            ds.field("nm_hoisting_limits", value);
+        }
+        if let Some(value) = &self.nm_self_references {
+            ds.field("nm_self_references", value);
+        }
+        if let Some(value) = &self.nm_mode {
+            ds.field("nm_mode", value);
+        }
+        if let Some(value) = &self.node_linker {
+            ds.field("node_linker", value);
+        }
+        if let Some(value) = &self.npm_minimal_age_gate {
+            ds.field("npm_minimal_age_gate", value);
+        }
+        if let Some(value) = &self.npm_preapproved_packages {
+            ds.field("npm_preapproved_packages", value);
+        }
+        if let Some(value) = &self.pnpm_store_folder {
+            ds.field("pnpm_store_folder", value);
+        }
+        if let Some(value) = &self.win_link_type {
+            ds.field("win_link_type", value);
+        }
+        if let Some(value) = &self.npm_always_auth {
+            ds.field("npm_always_auth", value);
+        }
+        if let Some(value) = &self.npm_audit_registry {
+            ds.field("npm_audit_registry", value);
+        }
+        if let Some(value) = &self.npm_auth_ident {
+            ds.field("npm_auth_ident", value);
+        }
+        if let Some(value) = &self.npm_auth_token {
+            ds.field("npm_auth_token", value);
+        }
+        if let Some(value) = &self.npm_publish_access {
+            ds.field("npm_publish_access", value);
+        }
+        if let Some(value) = &self.npm_publish_provenance {
+            ds.field("npm_publish_provenance", value);
+        }
+        if let Some(value) = &self.npm_audit_exclude_packages {
+            ds.field("npm_audit_exclude_packages", value);
+        }
+        if let Some(value) = &self.npm_audit_ignore_advisories {
+            ds.field("npm_audit_ignore_advisories", value);
+        }
+        if let Some(value) = &self.npm_publish_registry {
+            ds.field("npm_publish_registry", value);
+        }
+        if let Some(value) = &self.npm_registries {
+            ds.field("npm_registries", value);
+        }
+        if let Some(value) = &self.npm_registry_server {
+            ds.field("npm_registry_server", value);
+        }
+        if let Some(value) = &self.npm_scopes {
+            ds.field("npm_scopes", value);
+        }
+        if let Some(value) = &self.package_extensions {
+            ds.field("package_extensions", value);
+        }
+        if let Some(value) = &self.patch_folder {
+            ds.field("patch_folder", value);
+        }
+        if let Some(value) = &self.pnp_enable_esm_loader {
+            ds.field("pnp_enable_esm_loader", value);
+        }
+        if let Some(value) = &self.pnp_enable_inlining {
+            ds.field("pnp_enable_inlining", value);
+        }
+        if let Some(value) = &self.pnp_fallback_mode {
+            ds.field("pnp_fallback_mode", value);
+        }
+        if let Some(value) = &self.pnp_ignore_patterns {
+            ds.field("pnp_ignore_patterns", value);
+        }
+        if let Some(value) = &self.pnp_mode {
+            ds.field("pnp_mode", value);
+        }
+        if let Some(value) = &self.pnp_shebang {
+            ds.field("pnp_shebang", value);
+        }
+        if let Some(value) = &self.pnp_unplugged_folder {
+            ds.field("pnp_unplugged_folder", value);
+        }
+        if let Some(value) = &self.prefer_deferred_versions {
+            ds.field("prefer_deferred_versions", value);
+        }
+        if let Some(value) = &self.prefer_interactive {
+            ds.field("prefer_interactive", value);
+        }
+        if let Some(value) = &self.prefer_reuse {
+            ds.field("prefer_reuse", value);
+        }
+        if let Some(value) = &self.prefer_truncated_lines {
+            ds.field("prefer_truncated_lines", value);
+        }
+        if let Some(value) = &self.progress_bar_style {
+            ds.field("progress_bar_style", value);
+        }
+        if let Some(value) = &self.supported_architectures {
+            ds.field("supported_architectures", value);
+        }
+        if let Some(value) = &self.task_pool_concurrency {
+            ds.field("task_pool_concurrency", value);
+        }
+        if let Some(value) = &self.task_pool_mode {
+            ds.field("task_pool_mode", value);
+        }
+        if let Some(value) = &self.telemetry_interval {
+            ds.field("telemetry_interval", value);
+        }
+        if let Some(value) = &self.telemetry_user_id {
+            ds.field("telemetry_user_id", value);
+        }
+        if let Some(value) = &self.ts_enable_auto_types {
+            ds.field("ts_enable_auto_types", value);
+        }
+        if let Some(value) = &self.unsafe_http_whitelist {
+            ds.field("unsafe_http_whitelist", value);
+        }
+        if let Some(value) = &self.virtual_folder {
+            ds.field("virtual_folder", value);
+        }
+        if let Some(value) = &self.yarn_path {
+            ds.field("yarn_path", value);
+        }
+        ds.finish()
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
