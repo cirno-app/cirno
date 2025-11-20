@@ -9,6 +9,7 @@
   "cSpell.words": [
     "cirno",
     "clippy",
+    "serde",
     "thiserror"
   ],
 }

@@ -115,7 +115,7 @@ impl Ident {
 /// two descriptors can be quickly compared.
 type DescriptorHash = String;
 
-/// Descriptors are just like idents (including their `identHash`), except that
+/// Descriptors are just like idents (including their [`IdentHash`]), except that
 /// they also contain a range and an additional comparator hash.
 ///
 /// Use `parseRange` to turn a descriptor string into this data structure,
@@ -137,7 +137,7 @@ static LOCATOR_REGEX_LOOSE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:
 /// two locators can be quickly compared.
 type LocatorHash = String;
 
-/// Locator are just like idents (including their `identHash`), except that
+/// Locator are just like idents (including their [`IdentHash`]), except that
 /// they also contain a reference and an additional comparator hash. They are
 /// in this regard very similar to descriptors except that each descriptor may
 /// reference multiple valid candidate packages whereas each locators can only
