@@ -13,6 +13,7 @@ documentation.workspace = true
 anyhow = "1.0.100"
 brotli = "8.0.2"
 either = { version = "1.15.0", features = ["serde"] }
+futures = "0.3.31"
 hex = "0.4.3"
 regex = "1.12.2"
 serde = { version = "1.0.228", features = ["derive"] }
@@ -21,5 +22,6 @@ serde_yaml_ng = { version = "0.10.0" }
 sha2 = "0.10.9"
 tar = "0.4.44"
 tokio = { version = "1.48.0", features = ["fs", "macros"] }
+tokio-stream = "0.1.17"
 uuid = { version = "1.18.1", features = ["v4", "fast-rng", "serde"] }
 zip = "6.0.0"

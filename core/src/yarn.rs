@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-use anyhow::{Result, anyhow};
+use anyhow::{Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha512};
@@ -21,20 +21,20 @@ pub struct YarnLock {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct YarnLockMetadata {
-    version: u32,
-    cache_key: String,
+    pub version: u32,
+    pub cache_key: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct YarnLockEntry {
-    version: String,
-    resolution: String,
+    pub version: String,
+    pub resolution: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    dependencies: Option<HashMap<String, String>>,
-    checksum: String,
-    language_name: String,
-    link_type: LinkType,
+    pub dependencies: Option<HashMap<String, String>>,
+    pub checksum: String,
+    pub language_name: String,
+    pub link_type: LinkType,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -171,7 +171,7 @@ impl YarnLock {
     pub fn get_cache_files(&self) -> Result<Vec<String>> {
         self.packages.values().try_fold(Vec::new(), |mut acc, value| {
             let locator = Locator::try_parse(&value.resolution, true)
-                .ok_or_else(|| anyhow!("Failed to parse resolution: {}", value.resolution))?;
+                .with_context(|| format!("Failed to parse resolution: {}", value.resolution))?;
             if !locator.reference.starts_with("workspace:") {
                 acc.push(locator.slugify());
             }

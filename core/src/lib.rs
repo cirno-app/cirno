@@ -1,10 +1,13 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
 
 use anyhow::{Context, Result};
 use brotli::BrotliCompress;
+use futures::future::try_join_all;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
-use tokio::fs::{create_dir, create_dir_all, read_to_string, write};
+use tokio::fs::{self, create_dir, create_dir_all, read_to_string, write};
 use uuid::Uuid;
 
 use crate::yarn::{NodeLinker, YarnLock, YarnRc};
@@ -14,6 +17,9 @@ pub mod yarn;
 // const VERSION: &str = "1.0";
 const ENTRY_FILE: &str = "cirno.yml";
 const STATE_FILE: &str = "cirno-baka.br";
+
+static YARN_CACHE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(.+)-([0-9a-f]+)\.zip$").unwrap());
+static PACKAGE_MANAGER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^yarn@(\d+\.\d+\.\d+)$").unwrap());
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -72,6 +78,7 @@ pub struct Cirno {
     cwd: PathBuf,
     data: Manifest,
     apps: HashMap<Uuid, App>,
+    state: HashMap<String, HashMap<String, Meta>>,
 }
 
 impl Cirno {
@@ -134,6 +141,83 @@ impl Cirno {
         write(&self.cwd.join(STATE_FILE), output)
             .await
             .context("Failed to write cirno-baka.br")?;
+        Ok(())
+    }
+
+    pub async fn clone(&self, app: &App, id: &Uuid, dest: &Path) -> Result<()> {
+        if &app.id == id {
+            fs::copy(self.cwd.join("apps").join(id.to_string()), dest)
+                .await
+                .context("Failed to copy app dir")?;
+        } else {
+            // const tar = new Tar(join(this.cwd, 'baka', id + '.tar.br'))
+            // tar.load()
+            // tar.extract(dest, 1)
+            // await tar.finalize()
+        }
+        Ok(())
+    }
+
+    pub async fn load_cache(&self) -> Result<HashMap<String, HashMap<String, String>>> {
+        let mut cache = HashMap::<String, HashMap<String, String>>::new();
+        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/cache"))
+            .await
+            .context("Failed to read yarn cache dir")?;
+        while let Some(entry) = entries.next_entry().await.context("Failed to read cache entry")? {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            let Some(captures) = YARN_CACHE_REGEX.captures(&name) else {
+                continue;
+            };
+            cache
+                .entry(captures[2].to_string())
+                .or_default()
+                .insert(captures[1].to_string(), name.to_string());
+        }
+        Ok(cache)
+    }
+
+    pub async fn gc(&self) -> Result<()> {
+        let mut cache = self.load_cache().await?;
+        let mut releases = HashSet::new();
+        let mut entries = fs::read_dir(self.cwd.join("home/.yarn/releases"))
+            .await
+            .context("Failed to read yarn releases dir")?;
+        while let Some(entry) = entries.next_entry().await.context("Failed to read release entry")? {
+            let name = entry.file_name().to_string_lossy().to_string();
+            releases.insert(name);
+        }
+        for meta_map in self.state.values() {
+            for meta in meta_map.values() {
+                if let Some(captures) = PACKAGE_MANAGER_REGEX.captures(&meta.package.package_manager) {
+                    releases.remove(&format!("yarn-{}.cjs", &captures[1]));
+                }
+                for locator in meta.yarn_lock.get_cache_files()? {
+                    if let Some(locators) = cache.get_mut(&meta.yarn_lock.metadata.cache_key) {
+                        locators.remove(&locator);
+                    }
+                }
+            }
+        }
+        try_join_all(releases.into_iter().map(async |name| {
+            let path = self.cwd.join("home/.yarn/releases").join(&name);
+            fs::remove_file(&path)
+                .await
+                .with_context(|| format!("Failed to remove release file: {}", path.display()))
+        }))
+        .await?;
+        try_join_all(
+            cache
+                .into_values()
+                .flat_map(|locators| locators.into_values())
+                .map(async |name| {
+                    let path = self.cwd.join("home/.yarn/cache").join(&name);
+                    fs::remove_file(&path)
+                        .await
+                        .with_context(|| format!("Failed to remove cache file: {}", path.display()))
+                }),
+        )
+        .await?;
         Ok(())
     }
 }
