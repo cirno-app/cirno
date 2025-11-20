@@ -1,16 +1,14 @@
-use crate::{AppState, ui_dispatcher::Dispatcher};
+use std::cell::SyncUnsafeCell;
+use std::collections::HashMap;
+use std::sync::{Arc, Weak};
+
 use anyhow::{Context, Error, Ok, Result};
-use std::{
-    cell::SyncUnsafeCell,
-    collections::HashMap,
-    sync::{
-        Arc, Weak,
-        mpsc::{Receiver, SyncSender, sync_channel},
-    },
-};
 use tao::window::{Window, WindowBuilder, WindowId};
 use thiserror::Error;
 use wry::{WebView, WebViewBuilder};
+
+use crate::AppState;
+use crate::ui_dispatcher::Dispatcher;
 
 #[derive(Debug, Error)]
 enum WebViewManagerError {
@@ -65,82 +63,73 @@ impl WebViewManager {
         }
     }
 
-    pub fn create(
-        &self,
-        app: Option<Arc<crate::daemon::process::AppProc>>,
-        options: WebViewCreateOptions,
-    ) -> Result<WebViewInstance> {
+    pub fn create(&self, app: Option<Arc<crate::daemon::process::AppProc>>, options: WebViewCreateOptions) -> Result<WebViewInstance> {
         let app_state = self.app_weak.upgrade().unwrap();
 
-        Ok(self
-            .dispatcher
-            .dispatch(move |event_loop| -> core::result::Result<_, Error> {
-                let app_state = app_state.clone();
-                let wv_manager = &app_state.dispatcher;
+        Ok(self.dispatcher.dispatch(move |event_loop| -> core::result::Result<_, Error> {
+            let app_state = app_state.clone();
+            let wv_manager = &app_state.dispatcher;
 
-                let window = WindowBuilder::new()
-                    .with_title(options.title.clone())
-                    .build(event_loop)
-                    .context("Failed to create window")?;
+            let window = WindowBuilder::new()
+                .with_title(options.title.clone())
+                .build(event_loop)
+                .context("Failed to create window")?;
 
-                let builder = WebViewBuilder::new().with_url(options.url);
+            let builder = WebViewBuilder::new().with_url(options.url);
 
-                #[cfg(not(target_os = "linux"))]
-                let webview = builder.build(&window).context("Failed to create webview")?;
-                #[cfg(target_os = "linux")]
-                let webview = builder
-                    .build_gtk(state.window.gtk_window())
-                    .context("Failed to create webview")?;
+            #[cfg(not(target_os = "linux"))]
+            let webview = builder.build(&window).context("Failed to create webview")?;
+            #[cfg(target_os = "linux")]
+            let webview = builder.build_gtk(state.window.gtk_window()).context("Failed to create webview")?;
 
-                let wid = window.id();
+            let wid = window.id();
 
-                let id;
+            let id;
 
-                unsafe {
-                    let reg = wv_manager.reg.get().as_mut_unchecked();
+            unsafe {
+                let reg = wv_manager.reg.get().as_mut_unchecked();
 
-                    if reg
-                        .map
-                        .insert(
-                            wid,
-                            WebViewInstanceIntl {
-                                app,
-                                window,
-                                webview: SyncWebView { webview },
-                            },
-                        )
-                        .is_some()
-                    {
-                        panic!("Duplicated window id detected");
-                    }
-
-                    id = reg.id.len();
-                    reg.id.push(Some(wid));
+                if reg
+                    .map
+                    .insert(
+                        wid,
+                        WebViewInstanceIntl {
+                            app,
+                            window,
+                            webview: SyncWebView { webview },
+                        },
+                    )
+                    .is_some()
+                {
+                    panic!("Duplicated window id detected");
                 }
 
-                Ok(WebViewInstance { id, wid })
-            })??)
+                id = reg.id.len();
+                reg.id.push(Some(wid));
+            }
+
+            Ok(WebViewInstance { id, wid })
+        })??)
     }
 
     pub fn get(&self, id: usize) -> Result<WebViewInstance> {
         let app_state = self.app_weak.upgrade().unwrap();
 
-        self.dispatcher
-            .dispatch(move |_event_loop| -> Result<WebViewInstance> {
-                let app_state = app_state.clone();
-                let wv_manager = &app_state.dispatcher;
+        self.dispatcher.dispatch(move |_event_loop| -> Result<WebViewInstance> {
+            let app_state = app_state.clone();
+            let wv_manager = &app_state.dispatcher;
 
-                let wid;
+            let wid;
 
-                unsafe {
-                    wid = wv_manager.reg.get().as_ref_unchecked().id.get(id);
-                }
+            unsafe {
+                wid = wv_manager.reg.get().as_ref_unchecked().id.get(id);
+            }
 
-                match wid {
-                    Some(Some(wid)) => Ok(WebViewInstance { id, wid: *wid }),
-                    _ => Err(WebViewManagerError::WindowNotFound(id).into()),
-                }
-            })?
+            match wid {
+                Some(Some(wid)) => Ok(WebViewInstance { id, wid: *wid }),
+                _ => Err(WebViewManagerError::WindowNotFound(id).into()),
+            }
+        })?
     }
 
     pub fn destroy(&self, id: usize) -> Result<()> {
@@ -166,9 +155,7 @@ impl WebViewManager {
             unsafe {
                 let reg = wv_manager.reg.get().as_mut_unchecked();
                 reg.id[id] = None;
-                reg.map
-                    .remove(wid)
-                    .expect("reg.map should contain WebViewInstanceIntl");
+                reg.map.remove(wid).expect("reg.map should contain WebViewInstanceIntl");
             }
 
             Ok(())

@@ -1,5 +1,3 @@
-#![feature(exit_status_error, ptr_as_ref_unchecked, unsafe_cell_access, sync_unsafe_cell)]
-
 use std::env::{args, current_exe};
 use std::process::ExitCode;
 use std::sync::Arc;

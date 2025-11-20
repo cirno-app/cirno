@@ -6,7 +6,8 @@ use axum::extract::State;
 use serde::{Deserialize, Serialize};
 
 use crate::server::ApiJson;
-use crate::{AppError, AppState, ui_dispatcher::webview::WebViewCreateOptions};
+use crate::ui_dispatcher::webview::WebViewCreateOptions;
+use crate::{AppError, AppState};
 
 #[derive(Deserialize)]
 pub struct Request {
