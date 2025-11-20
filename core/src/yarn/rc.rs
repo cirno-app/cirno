@@ -18,8 +18,8 @@ use serde::{Deserialize, Serialize};
 /// `YARN_CACHE_FOLDER` will set the cache folder (such values will overwrite any that might have been defined in the RC
 /// files - use them sparingly).
 ///
-/// See [https://yarnpkg.com/configuration/yarnrc].
-#[derive(Debug, Default, Serialize, Deserialize)]
+/// See <https://yarnpkg.com/configuration/yarnrc>.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct YarnRc {
@@ -768,8 +768,9 @@ impl<'de> Deserialize<'de> for CompressionLevel {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
+#[serde(rename_all_fields = "camelCase")]
 pub enum LogFilter {
     Code {
         /// Match all messages with the given code.
@@ -810,7 +811,8 @@ pub enum LogLevel {
     Discard,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NetworkSetting {
     /// See [`enable_network`](YarnRc::enable_network).
     pub enable_network: bool,
@@ -857,7 +859,7 @@ pub enum NpmPublishAccess {
     Restricted,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NpmRegistry {
     /// See [`npm_always_auth`](YarnRc::npm_always_auth).
@@ -868,7 +870,7 @@ pub struct NpmRegistry {
     pub npm_auth_token: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NpmScope {
     /// See [`npm_publish_registry`](YarnRc::npm_publish_registry).
@@ -883,7 +885,7 @@ pub struct NpmScope {
     pub npm_auth_token: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PackageExtension {
     dependencies: HashMap<String, String>,
@@ -891,7 +893,7 @@ pub struct PackageExtension {
     peer_dependencies_meta: HashMap<String, PeerDependencyMeta>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PeerDependencyMeta {
     optional: bool,
@@ -957,7 +959,7 @@ impl<'de> Deserialize<'de> for SemverRangePrefix {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SupportedArchitectures {
     /// List of operating systems to cover.
