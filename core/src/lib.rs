@@ -7,7 +7,7 @@ use tokio::fs::{create_dir, create_dir_all, read_to_string, write};
 use tokio::try_join;
 use uuid::Uuid;
 
-use crate::yarn::{YarnLock, YarnRc};
+use crate::yarn::{NodeLinker, YarnLock, YarnRc};
 
 pub mod yarn;
 
@@ -91,9 +91,15 @@ pub struct Cirno {
 impl Cirno {
     pub async fn init(&self) -> Result<()> {
         create_dir_all(&self.cwd).await.context("Failed to create cirno dir")?;
-        create_dir(&self.cwd.join("apps")).await.context("Failed to create apps dir")?;
-        create_dir(&self.cwd.join("baka")).await.context("Failed to create baka dir")?;
-        create_dir(&self.cwd.join("home")).await.context("Failed to create home dir")?;
+        create_dir(&self.cwd.join("apps"))
+            .await
+            .context("Failed to create apps dir")?;
+        create_dir(&self.cwd.join("baka"))
+            .await
+            .context("Failed to create baka dir")?;
+        create_dir(&self.cwd.join("home"))
+            .await
+            .context("Failed to create home dir")?;
         create_dir(&self.cwd.join("home/.yarn"))
             .await
             .context("Failed to create yarn dir")?;
@@ -119,7 +125,7 @@ impl Cirno {
         }
         let yarn_rc = YarnRc {
             enable_tips: Some(false),
-            node_linker: Some(yarn::NodeLinker::Pnp),
+            node_linker: Some(NodeLinker::Pnp),
             pnp_enable_esm_loader: Some(true),
             ..YarnRc::default()
         };

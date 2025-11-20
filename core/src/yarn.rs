@@ -6,33 +6,9 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha512};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-#[serde(default)]
-pub struct YarnRc {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cache_folder: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub enable_global_cache: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub enable_tips: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub node_linker: Option<NodeLinker>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub npm_registry_server: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pnp_enable_esm_loader: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub yarn_path: Option<String>,
-}
+mod rc;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum NodeLinker {
-    NodeModules,
-    Pnp,
-    Pnpm,
-}
+pub use rc::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct YarnLock {
@@ -130,8 +106,10 @@ pub struct Descriptor {
     pub range: String,
 }
 
-static LOCATOR_REGEX_STRICT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:@([^/]+?)\/)?([^@/]+?)(?:@(.+))$").unwrap());
-static LOCATOR_REGEX_LOOSE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:@([^/]+?)\/)?([^@/]+?)(?:@(.+))?$").unwrap());
+static LOCATOR_REGEX_STRICT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(?:@([^/]+?)\/)?([^@/]+?)(?:@(.+))$").unwrap());
+static LOCATOR_REGEX_LOOSE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(?:@([^/]+?)\/)?([^@/]+?)(?:@(.+))?$").unwrap());
 
 /// Unique hash of a package locator. Used as key in various places so that
 /// two locators can be quickly compared.
@@ -172,7 +150,11 @@ impl Locator {
     }
 
     pub fn try_parse(string: &str, strict: bool) -> Option<Self> {
-        let regex = if strict { &*LOCATOR_REGEX_STRICT } else { &*LOCATOR_REGEX_LOOSE };
+        let regex = if strict {
+            &*LOCATOR_REGEX_STRICT
+        } else {
+            &*LOCATOR_REGEX_LOOSE
+        };
         let captures = regex.captures(string)?;
         let scope = captures.get(1).map(|m| m.as_str().to_string());
         let name = captures[2].to_string();

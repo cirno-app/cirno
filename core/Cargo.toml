@@ -11,6 +11,7 @@ documentation.workspace = true
 
 [dependencies]
 anyhow = "1.0.100"
+either = { version = "1.15.0", features = ["serde"]}
 hex = "0.4.3"
 regex = "1.12.2"
 serde = { version = "1.0.228", features = ["derive"] }

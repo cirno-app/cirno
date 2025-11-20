@@ -7,9 +7,18 @@
     "editor.defaultFormatter": "rust-lang.rust-analyzer",
   },
   "cSpell.words": [
+    "checksumed",
     "cirno",
     "clippy",
+    "cpus",
+    "hardlinks",
+    "hogsfather",
+    "libc",
+    "preapproved",
     "serde",
-    "thiserror"
+    "subprojects",
+    "thiserror",
+    "yarnpkg",
+    "yarnrc"
   ],
 }
