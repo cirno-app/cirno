@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::io::ErrorKind;
@@ -79,74 +80,106 @@ impl Meta {
 }
 
 pub enum InitError {
-    EnvEmpty,
-    EnvIoError(std::io::Error),
-    UnknownError(anyhow::Error),
-    UnsupportedVersion(String),
+    NotEmpty,
+    Other(anyhow::Error),
 }
 
-impl<T> From<T> for InitError
-where
-    T: Into<anyhow::Error>,
-{
+impl<T: Into<anyhow::Error>> From<T> for InitError {
     fn from(value: T) -> Self {
-        InitError::UnknownError(value.into())
+        Self::Other(value.into())
     }
+}
+
+pub enum OpenError {
+    Empty,
+    IoError(std::io::Error),
+    ManifestVersion(String),
+    Other(anyhow::Error),
+}
+
+impl<T: Into<anyhow::Error>> From<T> for OpenError {
+    fn from(value: T) -> Self {
+        Self::Other(value.into())
+    }
+}
+
+fn normalize_path(path: &Path) -> Result<Cow<'_, Path>, std::io::Error> {
+    if path.is_absolute() {
+        Ok(Cow::Borrowed(path))
+    } else {
+        Ok(Cow::Owned(std::env::current_dir()?.join(path)))
+    }
+}
+
+async fn get_file_count(cwd: &Path) -> Result<usize, std::io::Error> {
+    let mut len = 0;
+    let mut dir = tokio::fs::read_dir(cwd).await?;
+    while dir.next_entry().await?.is_some() {
+        len += 1;
+    }
+    Ok(len)
 }
 
 pub struct Cirno {
     cwd: PathBuf,
     data: Manifest,
-    apps: HashMap<Uuid, App>,
+    apps: HashMap<String, App>,
     state: HashMap<String, HashMap<String, Meta>>,
 }
 
 impl Cirno {
-    async fn _init(&self) -> Result<()> {
-        fs::create_dir_all(&self.cwd).await?;
-        fs::create_dir(&self.cwd.join("apps")).await?;
-        fs::create_dir(&self.cwd.join("baka")).await?;
-        fs::create_dir(&self.cwd.join("home")).await?;
-        fs::create_dir(&self.cwd.join("home/.yarn")).await?;
-        fs::create_dir(&self.cwd.join("home/.yarn/cache")).await?;
-        fs::create_dir(&self.cwd.join("home/.yarn/releases")).await?;
-        fs::create_dir(&self.cwd.join("tmp")).await?;
+    pub async fn init(cwd: &Path, force: bool) -> Result<Cow<'_, Path>, InitError> {
+        let cwd = normalize_path(cwd)?;
+        match get_file_count(&cwd).await {
+            Ok(0) => {}
+            Ok(_) => {
+                if !force {
+                    return Err(InitError::NotEmpty);
+                }
+                fs::remove_dir_all(&cwd).await?;
+            }
+            Err(error) => match error.kind() {
+                ErrorKind::NotFound => {}
+                _ => return Err(error.into()),
+            },
+        }
+        fs::create_dir_all(&cwd).await?;
+        fs::create_dir(cwd.join("apps")).await?;
+        fs::create_dir(cwd.join("baka")).await?;
+        fs::create_dir(cwd.join("home")).await?;
+        fs::create_dir(cwd.join("home/.yarn")).await?;
+        fs::create_dir(cwd.join("home/.yarn/cache")).await?;
+        fs::create_dir(cwd.join("home/.yarn/releases")).await?;
+        fs::create_dir(cwd.join("tmp")).await?;
         #[cfg(target_os = "windows")]
         {
-            fs::create_dir(&self.cwd.join("home/AppData")).await?;
-            fs::create_dir(&self.cwd.join("home/AppData/Local")).await?;
-            fs::create_dir(&self.cwd.join("home/AppData/Roaming")).await?;
+            fs::create_dir(cwd.join("home/AppData")).await?;
+            fs::create_dir(cwd.join("home/AppData/Local")).await?;
+            fs::create_dir(cwd.join("home/AppData/Roaming")).await?;
         }
         let yarn_rc = YarnRc {
             enable_tips: Some(false),
+            enable_telemetry: Some(false),
             node_linker: Some(NodeLinker::Pnp),
             pnp_enable_esm_loader: Some(true),
             ..YarnRc::default()
         };
-        fs::write(&self.cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?).await?;
-        Ok(())
+        fs::write(cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?).await?;
+        Ok(cwd)
     }
 
-    pub async fn new(cwd: PathBuf) -> Result<Self, InitError> {
-        let file_count = async {
-            let mut len = 0;
-            let mut dir = tokio::fs::read_dir(&cwd).await?;
-            while dir.next_entry().await?.is_some() {
-                len += 1;
-            }
-            Ok::<usize, std::io::Error>(len)
-        };
-        match file_count.await {
-            Ok(0) => return Err(InitError::EnvEmpty),
+    pub async fn open(cwd: PathBuf) -> Result<Self, OpenError> {
+        match get_file_count(&cwd).await {
+            Ok(0) => return Err(OpenError::Empty),
             Err(error) => match error.kind() {
-                ErrorKind::NotFound => return Err(InitError::EnvEmpty),
-                _ => return Err(InitError::EnvIoError(error)),
+                ErrorKind::NotFound => return Err(OpenError::Empty),
+                _ => return Err(OpenError::IoError(error)),
             },
             _ => {}
         }
         let manifest: Manifest = serde_yaml_ng::from_str(&fs::read_to_string(&cwd.join(ENTRY_FILE)).await?)?;
         if manifest.version != VERSION {
-            return Err(InitError::UnsupportedVersion(manifest.version));
+            return Err(OpenError::ManifestVersion(manifest.version));
         }
         let mut output = vec![];
         BrotliDecompress(&mut fs::read(&cwd.join(STATE_FILE)).await?.as_slice(), &mut output)?;
