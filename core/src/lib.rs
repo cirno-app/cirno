@@ -92,8 +92,7 @@ impl<T: Into<anyhow::Error>> From<T> for InitError {
 
 pub enum OpenError {
     Empty,
-    IoError(std::io::Error),
-    ManifestVersion(String),
+    Version(String),
     Other(anyhow::Error),
 }
 
@@ -108,6 +107,14 @@ fn normalize_path(path: &Path) -> Result<Cow<'_, Path>, std::io::Error> {
         Ok(Cow::Borrowed(path))
     } else {
         Ok(Cow::Owned(std::env::current_dir()?.join(path)))
+    }
+}
+
+fn normalize_path_into(path: PathBuf) -> Result<PathBuf, std::io::Error> {
+    if path.is_absolute() {
+        Ok(path)
+    } else {
+        Ok(std::env::current_dir()?.join(path))
     }
 }
 
@@ -169,20 +176,21 @@ impl Cirno {
     }
 
     pub async fn open(cwd: PathBuf) -> Result<Self, OpenError> {
+        let cwd = normalize_path_into(cwd)?;
         match get_file_count(&cwd).await {
             Ok(0) => return Err(OpenError::Empty),
             Err(error) => match error.kind() {
                 ErrorKind::NotFound => return Err(OpenError::Empty),
-                _ => return Err(OpenError::IoError(error)),
+                _ => return Err(error.into()),
             },
             _ => {}
         }
-        let manifest: Manifest = serde_yaml_ng::from_str(&fs::read_to_string(&cwd.join(ENTRY_FILE)).await?)?;
+        let manifest: Manifest = serde_yaml_ng::from_str(&fs::read_to_string(cwd.join(ENTRY_FILE)).await?)?;
         if manifest.version != VERSION {
-            return Err(OpenError::ManifestVersion(manifest.version));
+            return Err(OpenError::Version(manifest.version));
         }
         let mut output = vec![];
-        BrotliDecompress(&mut fs::read(&cwd.join(STATE_FILE)).await?.as_slice(), &mut output)?;
+        BrotliDecompress(&mut fs::read(cwd.join(STATE_FILE)).await?.as_slice(), &mut output)?;
         let state: HashMap<String, HashMap<String, Meta>> = serde_json::from_str(std::str::from_utf8(&output)?)?;
         Ok(Self {
             cwd,

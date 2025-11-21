@@ -18,7 +18,9 @@ use serde::{Deserialize, Serialize};
 /// `YARN_CACHE_FOLDER` will set the cache folder (such values will overwrite any that might have been defined in the RC
 /// files - use them sparingly).
 ///
-/// See <https://yarnpkg.com/configuration/yarnrc>.
+/// See:
+/// - <https://yarnpkg.com/configuration/yarnrc>
+/// - <https://github.com/yarnpkg/berry/blob/master/packages/yarnpkg-core/sources/Configuration.ts>
 #[derive(Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
@@ -428,7 +430,7 @@ pub struct YarnRc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub npm_preapproved_packages: Option<Vec<String>>,
 
-    /// Path where the pnpm store will be stored
+    /// Path where the pnpm store will be stored.
     ///
     /// By default, the store is stored in the `node_modules/.store` of the project. Sometimes in CI scenario's it is
     /// convenient to store this in a different location so it can be cached and reused.

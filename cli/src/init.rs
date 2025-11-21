@@ -33,7 +33,7 @@ impl Init {
             }
             Err(InitError::Other(error)) => {
                 println!(
-                    "{:>12} Failed to initialize Cirno environment: {:?}",
+                    "{:>12} Failed to initialize Cirno environment: {}",
                     "Error".bold().bright_red(),
                     error
                 );
