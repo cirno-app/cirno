@@ -8,11 +8,15 @@ use owo_colors::OwoColorize;
 
 mod gc;
 mod init;
+mod list;
 
 #[derive(Debug, Subcommand)]
 enum Commands {
     Init(init::Init),
+    #[command(alias = "prune")]
     Gc(EnvCommand<gc::Gc>),
+    #[command(alias = "ls", alias = "tree")]
+    List(EnvCommand<list::List>),
 }
 
 #[derive(Debug, Args)]
@@ -96,6 +100,7 @@ impl Cli {
         match self.command {
             Commands::Init(args) => args.main().await,
             Commands::Gc(args) => args.main().await,
+            Commands::List(args) => args.main().await,
         }
     }
 }

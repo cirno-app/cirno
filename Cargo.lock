@@ -418,6 +418,7 @@ dependencies = [
  "cirno-core",
  "clap",
  "owo-colors",
+ "serde_json",
  "tokio",
 ]
 

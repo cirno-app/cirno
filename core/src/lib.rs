@@ -39,6 +39,7 @@ pub struct App {
     pub id: Uuid,
     pub name: String,
     pub created: String, // TODO: time
+    pub backups: Vec<Backup>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -119,9 +120,8 @@ async fn get_file_count(cwd: &Path) -> Result<usize, std::io::Error> {
 }
 
 pub struct Cirno {
-    cwd: PathBuf,
-    data: Manifest,
-    apps: HashMap<String, App>,
+    pub cwd: PathBuf,
+    pub manifest: Manifest,
     state: HashMap<String, HashMap<String, Meta>>,
 }
 
@@ -165,11 +165,10 @@ impl Cirno {
         fs::write(cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?).await?;
         let cirno = Self {
             cwd,
-            data: Manifest {
+            manifest: Manifest {
                 version: VERSION.to_string(),
                 apps: vec![],
             },
-            apps: Default::default(),
             state: Default::default(),
         };
         cirno.save().await?;
@@ -190,23 +189,16 @@ impl Cirno {
         if manifest.version != VERSION {
             return Err(OpenError::Version(manifest.version));
         }
+        let content = fs::read(cwd.join(STATE_FILE)).await?;
         let mut output = vec![];
-        BrotliDecompress(&mut fs::read(cwd.join(STATE_FILE)).await?.as_slice(), &mut output)?;
+        BrotliDecompress(&mut content.as_slice(), &mut output)?;
         let state: HashMap<String, HashMap<String, Meta>> = serde_json::from_str(std::str::from_utf8(&output)?)?;
-        Ok(Self {
-            cwd,
-            data: manifest,
-            apps: Default::default(), // TODO
-            state,
-        })
+        Ok(Self { cwd, manifest, state })
     }
 
     pub async fn save(&self) -> Result<()> {
-        // this.data.apps = Object.entries(this.apps)
-        //     .filter(([id, app]) => id === app.id)
-        //     .map(([_, app]) => app)
-        fs::write(&self.cwd.join(ENTRY_FILE), &serde_yaml_ng::to_string(&self.data)?).await?;
-        let str = serde_json::to_string(&self.apps)?;
+        fs::write(&self.cwd.join(ENTRY_FILE), &serde_yaml_ng::to_string(&self.manifest)?).await?;
+        let str = serde_json::to_string(&self.state)?;
         let mut output = Vec::new();
         BrotliCompress(&mut str.as_bytes(), &mut output, &Default::default())?;
         fs::write(&self.cwd.join(STATE_FILE), output).await?;
