@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::io::ErrorKind;
@@ -102,17 +101,9 @@ impl<T: Into<anyhow::Error>> From<T> for OpenError {
     }
 }
 
-fn normalize_path(path: &Path) -> Result<Cow<'_, Path>, std::io::Error> {
+fn normalize_path(path: &Path) -> Result<PathBuf, std::io::Error> {
     if path.is_absolute() {
-        Ok(Cow::Borrowed(path))
-    } else {
-        Ok(Cow::Owned(std::env::current_dir()?.join(path)))
-    }
-}
-
-fn normalize_path_into(path: PathBuf) -> Result<PathBuf, std::io::Error> {
-    if path.is_absolute() {
-        Ok(path)
+        Ok(path.to_path_buf())
     } else {
         Ok(std::env::current_dir()?.join(path))
     }
@@ -135,7 +126,7 @@ pub struct Cirno {
 }
 
 impl Cirno {
-    pub async fn init(cwd: &Path, force: bool) -> Result<Cow<'_, Path>, InitError> {
+    pub async fn init(cwd: &Path, force: bool) -> Result<PathBuf, InitError> {
         let cwd = normalize_path(cwd)?;
         match get_file_count(&cwd).await {
             Ok(0) => {}
@@ -172,11 +163,21 @@ impl Cirno {
             ..YarnRc::default()
         };
         fs::write(cwd.join("home/.yarnrc.yml"), &serde_yaml_ng::to_string(&yarn_rc)?).await?;
-        Ok(cwd)
+        let cirno = Self {
+            cwd,
+            data: Manifest {
+                version: VERSION.to_string(),
+                apps: vec![],
+            },
+            apps: Default::default(),
+            state: Default::default(),
+        };
+        cirno.save().await?;
+        Ok(cirno.cwd)
     }
 
-    pub async fn open(cwd: PathBuf) -> Result<Self, OpenError> {
-        let cwd = normalize_path_into(cwd)?;
+    pub async fn open(cwd: &Path) -> Result<Self, OpenError> {
+        let cwd = normalize_path(cwd)?;
         match get_file_count(&cwd).await {
             Ok(0) => return Err(OpenError::Empty),
             Err(error) => match error.kind() {
